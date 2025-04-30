@@ -2,6 +2,8 @@
 
 A new Flutter project.
 
+This project is a Flutter app that allows users to log in, view a list of anniversaries, and add new anniversaries.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
