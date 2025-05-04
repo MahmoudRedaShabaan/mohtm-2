@@ -75,6 +75,17 @@ class _LoginPageState extends State<LoginPage> {
                   style: const TextStyle(fontFamily: 'Roboto'),
                 ),
                 const SizedBox(height: 32),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/forget_password');
+                    },
+                    child: Text(
+                      'Forget Password?',
+                    ),
+                  ),
+                ),
                 TextButton(
                   onPressed: () {
                     if (_emailController.text == 'test@ex' &&
@@ -105,6 +116,19 @@ class _LoginPageState extends State<LoginPage> {
                       color: neutralColor,
                       fontSize: 18,
                       fontFamily: 'Roboto',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: () {
+                    // Navigate to the registration page
+                    Navigator.pushNamed(context, '/register'); // Assuming you have a '/register' route
+                  },
+                  child: Text(
+                    'Don\'t have an account?',
+                    style: TextStyle(
+                      color: accentColor, // Use accentColor for link-like appearance
                     ),
                   ),
                 ),

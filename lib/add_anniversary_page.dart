@@ -13,6 +13,8 @@ class AddAnniversaryPage extends StatelessWidget {
 }
 
 class AddAnniversaryForm extends StatefulWidget {
+  const AddAnniversaryForm({super.key});
+
   @override
   _AddAnniversaryFormState createState() => _AddAnniversaryFormState();
 }
@@ -59,12 +61,12 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 decoration: const InputDecoration(
                   labelText: 'Anniversary Date*',
                   border: OutlineInputBorder(),
-                  focusedBorder: const OutlineInputBorder(
+                  focusedBorder: OutlineInputBorder(
                     // Border when the TextField is focused
                     borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
                   ),
-                  enabledBorder: const OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                     // Border when the TextField is enabled but not focused
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -90,12 +92,12 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 labelText: 'Name',
                 hintText: 'Enter name of Anniversary',
                 border: OutlineInputBorder(),
-                focusedBorder: const OutlineInputBorder(
+                focusedBorder: OutlineInputBorder(
                   // Border when the TextField is focused
                   borderSide: BorderSide(color: Colors.orange, width: 2.0),
                   borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 ),
-                enabledBorder: const OutlineInputBorder(
+                enabledBorder: OutlineInputBorder(
                   // Border when the TextField is enabled but not focused
                   borderSide: BorderSide(color: Colors.grey, width: 1.0),
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -114,12 +116,12 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               decoration: const InputDecoration(
                 labelText: 'Description',
                 border: OutlineInputBorder(),
-                focusedBorder: const OutlineInputBorder(
+                focusedBorder: OutlineInputBorder(
                   // Border when the TextField is focused
                   borderSide: BorderSide(color: Colors.orange, width: 2.0),
                   borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 ),
-                enabledBorder: const OutlineInputBorder(
+                enabledBorder: OutlineInputBorder(
                   // Border when the TextField is enabled but not focused
                   borderSide: BorderSide(color: Colors.grey, width: 1.0),
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -133,12 +135,12 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               decoration: const InputDecoration(
                 labelText: 'Type*',
                 border: OutlineInputBorder(),
-                focusedBorder: const OutlineInputBorder(
+                focusedBorder: OutlineInputBorder(
                   // Border when the TextField is focused
                   borderSide: BorderSide(color: Colors.orange, width: 2.0),
                   borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 ),
-                enabledBorder: const OutlineInputBorder(
+                enabledBorder: OutlineInputBorder(
                   // Border when the TextField is enabled but not focused
                   borderSide: BorderSide(color: Colors.grey, width: 1.0),
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -173,12 +175,12 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 decoration: const InputDecoration(
                   labelText: 'Specify Type*',
                   border: OutlineInputBorder(),
-                  focusedBorder: const OutlineInputBorder(
+                  focusedBorder: OutlineInputBorder(
                     // Border when the TextField is focused
                     borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
                   ),
-                  enabledBorder: const OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                     // Border when the TextField is enabled but not focused
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
