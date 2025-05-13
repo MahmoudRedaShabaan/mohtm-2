@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
@@ -136,17 +139,44 @@ class _RegisterPageState extends State<RegisterPage> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     // TODO: Implement registration logic here
-                    // Example:
-                    // String firstName = _firstNameController.text;
-                    // String lastName = _lastNameController.text;
-                    // String email = _emailController.text;
-                    // String password = _passwordController.text;
+                    String email = _emailController.text;
+                    String password = _passwordController.text;
 
-                    Navigator.pop(context); // Navigate back to login page
+                   try {
+                     FirebaseAuth.instance
+                          .createUserWithEmailAndPassword(
+                        email: email,
+                        password: password,
+                      )
+                         .then((userCredential) async {
+                       // Registration successful, now store additional user data in Firestore
+                       User? user = userCredential.user;
+                       if (user != null) {
+                         await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(user.uid)
+                              .set({
+                             'firstName': _firstNameController.text,
+                             'lastName': _lastNameController.text,
+                             'email': _emailController.text,
+                           });
+                         // Navigate back to login or home after data is saved
+                         Navigator.pop(context);
+                         ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Registration successful!')),
+                           );
+                       }
+                     });
+                   } on FirebaseAuthException catch (e) {
+                      // Handle registration errors
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Registration failed: ${e.message}')),
+                      );
+                    }
                   }
                 },
                 child: const Text('Register'),
-              ),
+),
             ],
           ),
         ),
