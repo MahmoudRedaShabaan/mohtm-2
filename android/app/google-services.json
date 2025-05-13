@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "980266462699",
+    "project_id": "mohtm2",
+    "storage_bucket": "mohtm2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:980266462699:android:ac965f5b7dfe7225c57dae",
+        "android_client_info": {
+          "package_name": "com.example.firebase1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCyUjPok0s-lfQVBUIMeJnkRK1ebv7yPs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:980266462699:android:d0f4410286394a8fc57dae",
+        "android_client_info": {
+          "package_name": "com.reda.mohtm2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCyUjPok0s-lfQVBUIMeJnkRK1ebv7yPs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

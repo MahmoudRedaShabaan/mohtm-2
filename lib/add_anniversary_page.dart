@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AddAnniversaryPage extends StatelessWidget {
@@ -199,11 +200,12 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate() &&
                       _selectedDate != null) {
                     // Process the data (e.g., save to a database)
                     // Then navigate back to the home page
+                    await uploadTask();
                     Navigator.pop(context);
                   }
                 },
@@ -223,5 +225,18 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
         ),
       ),
     );
+  }
+}
+Future <void> uploadTask() async{
+  try {
+    final data =await FirebaseFirestore.instance.collection("tasks").add({
+      "title":"title add from code",
+      "description":"description add from code",
+      "date": DateTime.now(),
+      "color": 000000,
+    });
+    print(data.id);
+  } catch (e) {
+    print(e);
   }
 }
