@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AddAnniversaryPage extends StatelessWidget {
@@ -25,7 +26,9 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
   DateTime? _selectedDate;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _relationshipController = TextEditingController(); // NEW
   String? _selectedType;
+  String? _selectedPriority; // NEW
   final TextEditingController _otherTypeController = TextEditingController();
   final List<String> _anniversaryTypes = [
     'Wedding',
@@ -33,6 +36,20 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
     'Birthday',
     'Other',
   ];
+
+  // Priority options
+  final List<String> _priorityOptions = ['High', 'Medium', 'Low'];
+
+  // Remember Before options
+  final List<String> _rememberBeforeOptions = [
+    'Month',
+    'Week',
+    'Day',
+    'Hour',
+    'At time of event'
+  ];
+  List<String> _selectedRememberBefore = ['At time of event']; // Always selected
+
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -56,6 +73,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
         key: _formKey,
         child: ListView(
           children: <Widget>[
+            const SizedBox(height: 7.0),
             GestureDetector(
               onTap: () => _selectDate(context),
               child: InputDecorator(
@@ -86,7 +104,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               // InputDecorator does not have a validator property directly.
               // Validation for date is handled in the ElevatedButton onPressed.
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 7.0),
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -111,7 +129,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 return null;
               },
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 7.0),
             TextFormField(
               controller: _descriptionController,
               decoration: const InputDecoration(
@@ -131,7 +149,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               maxLines: 3,
               maxLength: 200,
             ),
-            const SizedBox(height: 16.0),
+          //  const SizedBox(height: 7.0),
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(
                 labelText: 'Type*',
@@ -170,7 +188,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                   }).toList(),
             ),
             if (_selectedType == 'Other') ...[
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 7.0),
               TextFormField(
                 controller: _otherTypeController,
                 decoration: const InputDecoration(
@@ -196,6 +214,85 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 },
               ),
             ],
+            // Relationship field
+            const SizedBox(height: 7.0),
+            TextFormField(
+              controller: _relationshipController,
+              decoration: const InputDecoration(
+                labelText: 'Relationship',
+                hintText: 'Enter relationship',
+                border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+              ),
+            ),
+            // Priority dropdown
+            const SizedBox(height: 7.0),
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                labelText: 'Priority*',
+                border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+              ),
+              value: _selectedPriority,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedPriority = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select the priority';
+                }
+                return null;
+              },
+              items: _priorityOptions
+                  .map((priority) => DropdownMenuItem<String>(
+                        value: priority,
+                        child: Text(priority),
+                      ))
+                  .toList(),
+            ),
+            // Remember Before multi-selection
+            const SizedBox(height: 7.0),
+            const Text(
+              'Remember Before*',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Column(
+              children: _rememberBeforeOptions.map((option) {
+                final isAtTime = option == 'At time of event';
+                return CheckboxListTile(
+                  title: Text(option),
+                  value: _selectedRememberBefore.contains(option),
+                  onChanged: isAtTime
+                      ? null // Always selected and disabled
+                      : (bool? checked) {
+                          setState(() {
+                            if (checked == true) {
+                              _selectedRememberBefore.add(option);
+                            } else {
+                              _selectedRememberBefore.remove(option);
+                            }
+                          });
+                        },
+                  controlAffinity: ListTileControlAffinity.leading,
+                );
+              }).toList(),
+            ),
             const SizedBox(height: 24.0),
             SizedBox(
               width: double.infinity,
@@ -205,8 +302,13 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                       _selectedDate != null) {
                     // Process the data (e.g., save to a database)
                     // Then navigate back to the home page
-                    await uploadTask();
-                    Navigator.pop(context);
+                    String res=await uploadTask();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(content: Text(res)),
+                    );
+                    if(res=="success"){
+                      Navigator.pop(context);
+                    }
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -226,17 +328,29 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
       ),
     );
   }
-}
-Future <void> uploadTask() async{
+  Future <String> uploadTask() async{
   try {
-    final data =await FirebaseFirestore.instance.collection("tasks").add({
-      "title":"title add from code",
-      "description":"description add from code",
-      "date": DateTime.now(),
-      "color": 000000,
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return "User not logged in";
+    }else {
+      await FirebaseFirestore.instance.collection("anniversaries").add({
+      "title": _nameController.text,
+      "description": _descriptionController.text,
+      "date": _selectedDate, // Firestore will store as Timestamp
+      "type": _selectedType == 'Other' ? _otherTypeController.text : _selectedType,
+      "relationship": _relationshipController.text,
+      "priority": _selectedPriority,
+      "rememberBefore": _selectedRememberBefore,
+      "color": 0xFF000000, // Example color code
+      "createdBy": user?.uid,
+      "createdAt": FieldValue.serverTimestamp(),
     });
-    print(data.id);
+    return "success";
+    }
   } catch (e) {
     print(e);
+    return "Adding failed: ${e}";
   }
+}
 }

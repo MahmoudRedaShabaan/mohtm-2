@@ -37,6 +37,11 @@ dependencies:
   firebase_core: ^3.13.0
   firebase_auth: ^5.5.3
   cloud_firestore: ^5.6.7
+  image_picker: ^1.1.2
+  firebase_storage: ^12.4.5
+  path_provider: ^2.1.5
+  flutter_localization: ^0.3.2
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -61,8 +66,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/placeholder.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -90,3 +95,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  generate: true
+  # ...
+  # Add this section if not present
+  # l10n:
+  #   arb-dir: lib/l10n
+  #   template-arb-file: app_en.arb
+  #   output-localization-file: app_localizations.dart

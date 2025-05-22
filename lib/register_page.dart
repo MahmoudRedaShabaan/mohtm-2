@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
@@ -136,52 +137,61 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     // TODO: Implement registration logic here
-                    String email = _emailController.text;
-                    String password = _passwordController.text;
-
-                   try {
-                     FirebaseAuth.instance
-                          .createUserWithEmailAndPassword(
-                        email: email,
-                        password: password,
-                      )
-                         .then((userCredential) async {
-                       // Registration successful, now store additional user data in Firestore
-                       User? user = userCredential.user;
-                       if (user != null) {
-                         await FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(user.uid)
-                              .set({
-                             'firstName': _firstNameController.text,
-                             'lastName': _lastNameController.text,
-                             'email': _emailController.text,
-                           });
-                         // Navigate back to login or home after data is saved
-                         Navigator.pop(context);
-                         ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Registration successful!')),
-                           );
-                       }
-                     });
-                   } on FirebaseAuthException catch (e) {
-                      // Handle registration errors
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Registration failed: ${e.message}')),
-                      );
-                    }
+                    String res=await createAccountByEmailAndPassword();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(content: Text(res)),
+                    );
                   }
                 },
                 child: const Text('Register'),
-),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+  Future<String> createAccountByEmailAndPassword() async {
+  String email = _emailController.text;
+  String password = _passwordController.text;
+
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
+
+    User? user = userCredential.user;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
+        'firstName': _firstNameController.text,
+        'lastName': _lastNameController.text,
+        'email': _emailController.text,
+      });
+      // Navigate back to login or home after data is saved (consider moving this to the calling widget)
+      // Navigator.pop(context);
+      return "Registration successful!";
+    } else {
+      return "Registration failed: Could not retrieve user after registration.";
+    }
+  } on FirebaseAuthException catch (e) {
+    // Handle registration errors
+    print(e);
+    print(e.code);
+    print("mmmreda");
+    print(e.message);
+    return "Registration failed: ${e.message}";
+  } catch (e) {
+    // Handle other potential errors (e.g., Firestore errors)
+    print("Error saving user data: $e");
+    return "Registration failed: Error saving user data.";
+  }
 }
+
+}
+
 // print(default_api.read_file(path = "lib/login_page.dart"))

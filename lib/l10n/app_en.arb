@@ -1,0 +1,14 @@
+{
+  "appTitle": "Mohtm",
+  "login": "Login",
+  "logout": "Logout",
+  "welcome": "Welcome",
+  "noAnniversariesToday":"No anniversaries today",
+  "title":"mohtm -مهتم",
+  "mohtmMenu":"Mohtm Menu",
+  "rateUs":"Rate us",
+  "settings":"Settings",
+  "shareApp":"Share app",
+  "changePassword":"Change password",
+   "typeLabel": "Type: {type}"
+}

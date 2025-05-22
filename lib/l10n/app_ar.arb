@@ -1,0 +1,14 @@
+{
+  "appTitle": "مهتم",
+  "login": "تسجيل الدخول",
+  "logout": "تسجيل الخروج",
+  "welcome": "مرحبا",
+  "noAnniversariesToday":"لا يوجد أعياد مناسيات اليوم",
+  "title":"mohtm -مهتم",
+  "mohtmMenu":"قائمة مهتم",
+  "rateUs":"قيمنا",
+  "settings":"الإعدادات",
+  "shareApp":"شارك التطبيق",
+  "changePassword":"تغيير كلمة المرور",
+  "typeLabel": "النوع: {type}"
+}

@@ -1,4 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class User {
   String firstName;
@@ -18,20 +25,27 @@ class User {
     this.birthDay,
     this.profilePictureUrl,
   });
+
+  // Factory method to create a User object from Firestore data
+  factory User.fromFirestore(Map<String, dynamic> data) {
+    return User(
+      firstName: data['firstName'] ?? '',
+      lastName: data['lastName'] ?? '',
+      email: data['email'] ?? '',
+      phoneNumber: data['phoneNumber'] ?? '',
+      gender: data['gender'] ?? '',
+      birthDay:
+          data['birthDay'] != null
+              ? (data['birthDay'] as Timestamp).toDate()
+              : null,
+      profilePictureUrl: data['profilePictureUrl'],
+    );
+  }
 }
 
-User loggedInUser = User(
-  firstName: 'reda',
-  lastName: 'mohamed',
-  email: 'reda@gmail.com',
-  phoneNumber: '+21366666666',
-  gender: 'Male',
-  birthDay: DateTime(1990, 1, 1),
-  profilePictureUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png',
-);
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key, required this.user});
-  final User user;
+  const ProfilePage({super.key});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -45,18 +59,58 @@ class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController _birthDayController;
   String? _selectedGender;
   DateTime? _selectedBirthDate;
+  User? _user;
+  File? _pickedImage;
+  bool _isUploadingImage = false;
 
   @override
   void initState() {
     super.initState();
-    _firstNameController = TextEditingController(text: widget.user.firstName);
-    _lastNameController = TextEditingController(text: widget.user.lastName);
-    _emailController = TextEditingController(text: widget.user.email);
-    _phoneNumberController = TextEditingController(text: widget.user.phoneNumber);
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception("No user is currently logged in.");
+      }
+
+      final docSnapshot =
+          await FirebaseFirestore.instance
+              .collection(
+                'users',
+              ) // Replace with your Firestore collection name
+              .doc(currentUser.uid) // Use the logged-in user's UID
+              .get();
+
+      if (docSnapshot.exists) {
+        final userData = User.fromFirestore(docSnapshot.data()!);
+        setState(() {
+          _user = userData;
+          _initializeControllers(userData);
+        });
+      } else {
+        throw Exception("User data not found.");
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error fetching user data: $e')));
+    }
+  }
+
+  void _initializeControllers(User user) {
+    _firstNameController = TextEditingController(text: user.firstName);
+    _lastNameController = TextEditingController(text: user.lastName);
+    _emailController = TextEditingController(text: user.email);
+    _phoneNumberController = TextEditingController(text: user.phoneNumber);
     _birthDayController = TextEditingController(
-        text: widget.user.birthDay?.toLocal().toString().split(' ')[0] ?? '');
-    _selectedGender = widget.user.gender;
-    _selectedBirthDate = widget.user.birthDay;
+      text: user.birthDay?.toLocal().toString().split(' ')[0] ?? '',
+    );
+    _selectedGender = user.gender;
+    _selectedBirthDate = user.birthDay;
   }
 
   @override
@@ -78,19 +132,63 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     }
   }
-  void _saveChanges() {
-    // Update the global loggedInUser variable
- loggedInUser.firstName = _firstNameController.text;
-    loggedInUser.lastName = _lastNameController.text;
-    loggedInUser.phoneNumber = _phoneNumberController.text;
-    loggedInUser.gender = _selectedGender!;
-    loggedInUser.birthDay = _selectedBirthDate;
 
-    // Update the UI and navigate back
-    setState(() {
-      _isEditing = false; // Exit edit mode
- // You might want to show a success message here
-    });
+  Future<void> _saveChanges() async {
+    if (_user == null) return;
+
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception("No user is currently logged in.");
+      }
+
+      // String? imageUrl = _user!.profilePictureUrl;
+      // if (_pickedImage != null) {
+      //   final uploadedUrl = await _uploadProfileImage(_pickedImage!);
+      //   if (uploadedUrl != null) {
+      //     imageUrl = uploadedUrl;
+      //   }
+      // }
+      String? imageUrl = _user!.profilePictureUrl;
+      if (_pickedImage != null) {
+        final localPath = await _saveProfileImageLocally(_pickedImage!);
+        if (localPath != null) {
+          imageUrl = localPath;
+        }
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .update({
+            'firstName': _firstNameController.text,
+            'lastName': _lastNameController.text,
+            'phoneNumber': _phoneNumberController.text,
+            'gender': _selectedGender,
+            'birthDay': _selectedBirthDate,
+            'profilePictureUrl': imageUrl,
+          });
+
+      setState(() {
+        _user!.firstName = _firstNameController.text;
+        _user!.lastName = _lastNameController.text;
+        _user!.phoneNumber = _phoneNumberController.text;
+        _user!.gender = _selectedGender!;
+        _user!.birthDay = _selectedBirthDate;
+        _user!.profilePictureUrl = imageUrl;
+        _pickedImage = null;
+        _isEditing = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully!')),
+      );
+    } catch (e) {
+      print("Error saving changes: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error saving changes: $e')));
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -110,12 +208,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        actions: [          IconButton(
+        actions: [
+          IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: _isEditing ? _saveChanges : _toggleEditMode,
+            onPressed: _toggleEditMode,
           ),
         ],
       ),
@@ -124,12 +227,88 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 60,
-              backgroundImage: widget.user.profilePictureUrl != null
-                  ? NetworkImage(widget.user.profilePictureUrl!)
-                  : const AssetImage('assets/placeholder.png')
-                      as ImageProvider,
+            // CircleAvatar(
+            //   radius: 60,
+            //   backgroundImage: _user!.profilePictureUrl != null
+            //       ? NetworkImage(_user!.profilePictureUrl!)
+            //       : const AssetImage('assets/images/placeholder.png')
+            //           as ImageProvider,
+            // ),
+            // ...existing code...
+            // ...existing code...
+            SizedBox(
+              width: 120,
+              height: 120,
+              child: Stack(
+                children: [
+                  ClipOval(
+                    child:
+                        _pickedImage != null
+                            ? Image.file(
+                              _pickedImage!,
+                              fit: BoxFit.cover,
+                              width: 120,
+                              height: 120,
+                            )
+                            : (_user!.profilePictureUrl != null
+                                ? (_user!.profilePictureUrl!.startsWith('/')
+                                    ? Image.file(
+                                      File(_user!.profilePictureUrl!),
+                                      fit: BoxFit.cover,
+                                      width: 120,
+                                      height: 120,
+                                    )
+                                    : Image.network(
+                                      _user!.profilePictureUrl!,
+                                      fit: BoxFit.cover,
+                                      width: 120,
+                                      height: 120,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Image.asset(
+                                          'assets/images/placeholder.png',
+                                          fit: BoxFit.cover,
+                                          width: 120,
+                                          height: 120,
+                                        );
+                                      },
+                                    ))
+                                : Image.asset(
+                                  'assets/images/placeholder.png',
+                                  fit: BoxFit.cover,
+                                  width: 120,
+                                  height: 120,
+                                )),
+                  ),
+                  if (_isEditing)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: InkWell(
+                        onTap: _pickImage,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_isUploadingImage)
+                    const Positioned.fill(
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -167,19 +346,73 @@ class _ProfilePageState extends State<ProfilePage> {
               items: const [
                 DropdownMenuItem(value: 'Male', child: Text('Male')),
                 DropdownMenuItem(value: 'Female', child: Text('Female')),
+                DropdownMenuItem(value: 'none', child: Text('none')),
               ],
-              onChanged: _isEditing
-                  ? (newValue) {
-                      setState(() {
-                        _selectedGender = newValue;
-                      });
-                    }
-                  : null,
+              onChanged:
+                  _isEditing
+                      ? (newValue) {
+                        setState(() {
+                          _selectedGender = newValue;
+                        });
+                      }
+                      : null,
               decoration: const InputDecoration(labelText: 'Gender'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 75,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _pickedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  // Future<String?> _uploadProfileImage(File imageFile) async {
+  //   try {
+  //     setState(() {
+  //       _isUploadingImage = true;
+  //     });
+  //     final user = FirebaseAuth.instance.currentUser;
+  //     if (user == null) return null;
+  //     final ref = FirebaseStorage.instance
+  //         .ref()
+  //         .child('profile_pictures')
+  //         .child('${user.uid}.jpg');
+  //     await ref.putFile(imageFile);
+  //     final url = await ref.getDownloadURL();
+  //     setState(() {
+  //       _isUploadingImage = false;
+  //     });
+  //     return url;
+  //   } catch (e) {
+  //     setState(() {
+  //       _isUploadingImage = false;
+  //     });
+  //     print('Image upload error: $e');
+  //     return null;
+  //   }
+  // }
+  Future<String?> _saveProfileImageLocally(File imageFile) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName =
+          'profile_${FirebaseAuth.instance.currentUser?.uid ?? 'user'}.jpg';
+      final localPath = path.join(directory.path, fileName);
+      final savedImage = await imageFile.copy(localPath);
+      return savedImage.path;
+    } catch (e) {
+      print('Local image save error: $e');
+      return null;
+    }
   }
 }

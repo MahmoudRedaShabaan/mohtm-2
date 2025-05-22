@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'home_page.dart';
@@ -10,6 +11,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  Locale _locale = const Locale('en');
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
@@ -81,24 +83,23 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {
                       Navigator.pushNamed(context, '/forget_password');
                     },
-                    child: Text(
-                      'Forget Password?',
-                    ),
+                    child: Text('Forget Password?'),
                   ),
                 ),
                 TextButton(
                   onPressed: () {
-                    if (_emailController.text == 'test@ex' &&
-                        _passwordController.text == '12345') {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
-                    } else {
-                      setState(() {
-                        _errorMessage = 'Invalid email or password';
-                      });
-                    }
+                    // if (_emailController.text == 'test@ex' &&
+                    //     _passwordController.text == '12345') {
+                    //   Navigator.pushReplacement(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => HomePage()),
+                    //   );
+                    // } else {
+                    //   setState(() {
+                    //     _errorMessage = 'Invalid email or password';
+                    //   });
+                    // }
+                    loginUserWithEmailAndPassword2();
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: primaryColor,
@@ -123,12 +124,16 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   onPressed: () {
                     // Navigate to the registration page
-                    Navigator.pushNamed(context, '/register'); // Assuming you have a '/register' route
+                    Navigator.pushNamed(
+                      context,
+                      '/register',
+                    ); // Assuming you have a '/register' route
                   },
                   child: Text(
                     'Don\'t have an account?',
                     style: TextStyle(
-                      color: accentColor, // Use accentColor for link-like appearance
+                      color:
+                          accentColor, // Use accentColor for link-like appearance
                     ),
                   ),
                 ),
@@ -153,5 +158,89 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> loginUserWithEmailAndPassword() async {
+    try {
+      final UserCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage(
+              onLanguageChanged: (lang) {
+                setLocale(Locale(lang));
+              },
+              currentLanguage: _locale.languageCode,
+            )),
+      );
+      print(UserCredential);
+      // return "true";
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
+      _errorMessage = e.message.toString();
+      // return "e.message";
+    }
+  }
+void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+  Future<void> loginUserWithEmailAndPassword2() async {
+    try {
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+      // User logged in successfully!
+      print('Logged in user: ${userCredential.user?.uid}');
+      // Navigate to your home screen or next page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(
+              onLanguageChanged: (lang) {
+                setLocale(Locale(lang));
+              },
+              currentLanguage: _locale.languageCode,
+            ),
+        ), // Replace HomeScreen
+      );
+      setState(() {
+        _errorMessage = ''; // Clear any previous error messages
+      });
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        print(e);
+        print(e.code);
+        print("reda");
+        _errorMessage = _handleFirebaseError(e.code);
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred.';
+      });
+    }
+  }
+
+  String _handleFirebaseError(String errorCode) {
+    switch (errorCode) {
+      case 'user-not-found':
+        return 'No user found with this email.';
+      case 'wrong-password':
+        return 'Wrong password provided for that user.';
+      case 'invalid-email':
+        return 'The email address is not valid.';
+      case 'user-disabled':
+        return 'The user account has been disabled.';
+      case 'invalid-credential':
+        return 'Invaild email or Password.';
+      default:
+        return 'An erroroccurred during login.';
+    }
   }
 }
