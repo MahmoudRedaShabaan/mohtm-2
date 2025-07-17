@@ -1,151 +1,355 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:myapp/appfeedback.dart';
 import 'constants.dart';
 import 'home_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final void Function(String lang)? onLanguageChanged;
+  final String? currentLanguage;
+  const LoginPage({super.key, this.onLanguageChanged, this.currentLanguage});
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  Locale _locale = const Locale('en');
+  bool _rememberMe = false;
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  void _loadSavedCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      _emailController.text = prefs.getString('saved_email') ?? '';
+      _passwordController.text = prefs.getString('saved_password') ?? '';
+      _rememberMe = prefs.getBool('remember_me') ?? false;
+    }
+  }
+  // GOOGLE SIGN-IN
+  Future<void> signInWithGoogle() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut(); // Show account picker every time
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return; // User cancelled
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+      // Validate user registration in Firestore before login
+      final userEmail = googleUser.email;
+      final query = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: userEmail)
+          .limit(1)
+          .get();
+      if (query.docs.isNotEmpty) {
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(
+              onLanguageChanged: widget.onLanguageChanged ?? (_) {},
+              currentLanguage: widget.currentLanguage ?? 'en',
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.soticalUseNotFound)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Google sign-in failed: $e')),
+      );
+    }
+  }
+
+  // FACEBOOK SIGN-IN
+  Future<void> signInWithFacebook() async {
+    try {
+      // Import the required package in your pubspec.yaml: flutter_facebook_auth
+      // and add: import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+      final LoginResult result = await FacebookAuth.instance.login();
+      if (result.status == LoginStatus.success) {
+        final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
+        // Check if user email exists in Firestore 'users' collection
+        final userCredential = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+        final userEmail = userCredential.user?.email;
+        if (userEmail != null) {
+          final query = await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: userEmail)
+              .limit(1)
+              .get();
+          if (query.docs.isNotEmpty) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(
+                  onLanguageChanged: widget.onLanguageChanged ?? (_) {},
+                  currentLanguage: widget.currentLanguage ?? 'en',
+                ),
+              ),
+            );
+          } else {
+            // Sign out if not registered
+            await FirebaseAuth.instance.signOut();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(AppLocalizations.of(context)!.soticalUseNotFound)),
+            );
+          }
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Facebook sign-in failed: ${result.message}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Facebook sign-in failed: $e')),
+      );
+    }
+  }
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: neutralColor,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFF3E6F9),
+            Color(0xFFE9D7F7),
+            Color(0xFFD6B4F7),
+            Color(0xFFC7A1E6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          automaticallyImplyLeading: false,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.language, color: Colors.black),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  useSafeArea: true,
+                  builder: (context) {
+                    return SafeArea(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: Icon(
+                                Icons.check,
+                                color: (widget.currentLanguage ?? 'en') == 'en'
+                                    ? Colors.green
+                                    : Colors.transparent,
+                              ),
+                              title: const Text('English'),
+                              onTap: () {
+                                widget.onLanguageChanged?.call('en');
+                                Navigator.pop(context);
+                              },
+                            ),
+                            ListTile(
+                              leading: Icon(
+                                Icons.check,
+                                color: (widget.currentLanguage ?? 'en') == 'ar'
+                                    ? Colors.green
+                                    : Colors.transparent,
+                              ),
+                              title: const Text('العربية'),
+                              onTap: () {
+                                widget.onLanguageChanged?.call('ar');
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.contact_mail, color: Color.fromARGB(255, 4, 4, 242)),
+              tooltip: AppLocalizations.of(context)!.contactUs,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AppFeedbackPage()),
+                );
+              },
+            ),
+          ],
+        ),
+        body: Center(
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Login to Mohtm',
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(32),
+              ),
+              color: const Color(0xFFF3E6F9),
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset(
+                      'assets/images/iconremovebg.png',
+                      height: 100,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      AppLocalizations.of(context)!.loginToMohtm,
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF502878),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.email,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        prefixIcon: const Icon(Icons.email, color: Color(0xFF502878)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(fontFamily: 'Roboto'),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.password,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        prefixIcon: const Icon(Icons.lock, color: Color(0xFF502878)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0xFF502878),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: _obscurePassword,
+                      style: const TextStyle(fontFamily: 'Roboto'),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _rememberMe,
+                          activeColor: const Color(0xFFB365C1),
+                          onChanged: (value) {
+                            setState(() {
+                              _rememberMe = value ?? false;
+                            });
+                          },
+                        ),
+                        Text(AppLocalizations.of(context)!.rememberme, style: const TextStyle(color: Color(0xFF502878))),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/forget_password');
+                        },
+                        child: Text(AppLocalizations.of(context)!.forgetPasswordquestion, style: const TextStyle(color: Color(0xFFB365C1))),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/register',
+                        );
+                      },
+                      child: Text(
+                        AppLocalizations.of(context)!.donthaveAnAccount,
+                        style: const TextStyle(color: Color(0xFFB365C1)),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.login, color: Color(0xFF502878)),
+                      label: Text(AppLocalizations.of(context)!.signinwithGoogle),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD6B4F7),
+                        foregroundColor: const Color(0xFF502878),
+                        minimumSize: const Size(double.infinity, 48),
+                        side: const BorderSide(color: Color(0xFFB365C1)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: signInWithGoogle,
+                    ),
+                    // ElevatedButton.icon for Facebook can be added here with similar style
+                    if (_errorMessage.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Text(
+                          _errorMessage,
+                          style: const TextStyle(color: Colors.red, fontFamily: 'Roboto'),
+                        ),
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 48),
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    filled: true,
-                    prefixIcon: const Icon(Icons.email, color: Colors.black54),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: accentColor),
-                    ),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(fontFamily: 'Roboto'),
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    filled: true,
-                    prefixIcon: const Icon(Icons.lock, color: Colors.black54),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: accentColor),
-                    ),
-                  ),
-                  obscureText: true,
-                  style: const TextStyle(fontFamily: 'Roboto'),
-                ),
-                const SizedBox(height: 32),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forget_password');
-                    },
-                    child: Text('Forget Password?'),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // if (_emailController.text == 'test@ex' &&
-                    //     _passwordController.text == '12345') {
-                    //   Navigator.pushReplacement(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => HomePage()),
-                    //   );
-                    // } else {
-                    //   setState(() {
-                    //     _errorMessage = 'Invalid email or password';
-                    //   });
-                    // }
-                    loginUserWithEmailAndPassword2();
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 50,
-                      vertical: 15,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    'Login',
-                    style: TextStyle(
-                      color: neutralColor,
-                      fontSize: 18,
-                      fontFamily: 'Roboto',
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                TextButton(
-                  onPressed: () {
-                    // Navigate to the registration page
-                    Navigator.pushNamed(
-                      context,
-                      '/register',
-                    ); // Assuming you have a '/register' route
-                  },
-                  child: Text(
-                    'Don\'t have an account?',
-                    style: TextStyle(
-                      color:
-                          accentColor, // Use accentColor for link-like appearance
-                    ),
-                  ),
-                ),
-                if (_errorMessage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Text(
-                      _errorMessage,
-                      style: TextStyle(color: Colors.red, fontFamily: 'Roboto'),
-                    ),
-                  ),
-              ],
+              ),
             ),
           ),
         ),
@@ -170,10 +374,8 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage(
-              onLanguageChanged: (lang) {
-                setLocale(Locale(lang));
-              },
-              currentLanguage: _locale.languageCode,
+              onLanguageChanged: widget.onLanguageChanged ?? (_) {},
+              currentLanguage: widget.currentLanguage ?? 'en',
             )),
       );
       print(UserCredential);
@@ -184,11 +386,7 @@ class _LoginPageState extends State<LoginPage> {
       // return "e.message";
     }
   }
-void setLocale(Locale locale) {
-    setState(() {
-      _locale = locale;
-    });
-  }
+
   Future<void> loginUserWithEmailAndPassword2() async {
     try {
       final UserCredential userCredential = await FirebaseAuth.instance
@@ -196,51 +394,74 @@ void setLocale(Locale locale) {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
-      // User logged in successfully!
-      print('Logged in user: ${userCredential.user?.uid}');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (_rememberMe) {
+        await prefs.setString('saved_email', _emailController.text.trim());
+        await prefs.setString('saved_password', _passwordController.text.trim());
+      } else {
+        await prefs.remove('saved_email');
+        await prefs.remove('saved_password');
+      }
+      await prefs.setBool('remember_me', _rememberMe);
+      // Check if email is verified
+      if (userCredential.user != null && !userCredential.user!.emailVerified) {
+        await FirebaseAuth.instance.signOut();
+        if (mounted) {
+          setState(() {
+            _errorMessage = AppLocalizations.of(context)!.emailNotVerifiedMessage;
+          });
+        }
+        return;
+      }
+      // User logged in successfully and email is verified!
+      print('Logged in user: \\${userCredential.user?.uid}');
       // Navigate to your home screen or next page
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => HomePage(
-              onLanguageChanged: (lang) {
-                setLocale(Locale(lang));
-              },
-              currentLanguage: _locale.languageCode,
+              onLanguageChanged: widget.onLanguageChanged ?? (_) {},
+              currentLanguage: widget.currentLanguage ?? 'en',
             ),
         ), // Replace HomeScreen
       );
-      setState(() {
-        _errorMessage = ''; // Clear any previous error messages
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = ''; // Clear any previous error messages
+        });
+      }
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        print(e);
-        print(e.code);
-        print("reda");
-        _errorMessage = _handleFirebaseError(e.code);
-      });
+      if (mounted) {
+        setState(() {
+          print(e);
+          print(e.code);
+          print("reda");
+          _errorMessage = _handleFirebaseError(e.code);
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'An unexpected error occurred.';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'An unexpected error occurred.';
+        });
+      }
     }
   }
 
   String _handleFirebaseError(String errorCode) {
     switch (errorCode) {
       case 'user-not-found':
-        return 'No user found with this email.';
+        return AppLocalizations.of(context)!.userNotFound;
       case 'wrong-password':
-        return 'Wrong password provided for that user.';
+        return AppLocalizations.of(context)!.userNotFound;
       case 'invalid-email':
-        return 'The email address is not valid.';
+        return AppLocalizations.of(context)!.userNotFound;
       case 'user-disabled':
-        return 'The user account has been disabled.';
+        return AppLocalizations.of(context)!.userNotFound;
       case 'invalid-credential':
-        return 'Invaild email or Password.';
+        return AppLocalizations.of(context)!.userNotFound;
       default:
-        return 'An erroroccurred during login.';
+        return AppLocalizations.of(context)!.errorOccurred;
     }
   }
 }

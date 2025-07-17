@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/anniversary_info_page.dart';
+import 'package:myapp/appfeedback.dart';
 import 'package:myapp/constants.dart';
 import 'package:myapp/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:myapp/lookup.dart';
 
 class Anniversary {
   final DateTime date;
@@ -95,47 +97,73 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            title: Text(AppLocalizations.of(context)!.title),
-            backgroundColor: primaryColor,
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.title,
+                  style: const TextStyle(
+                    fontFamily: 'Pacifico',
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 80, 40, 120),
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.favorite, color: Color.fromARGB(255, 80, 40, 120), size: 28),
+              ],
+            ),
+            // title: Image.asset(
+            //   'assets/images/title.png',
+            //   height: 44,
+            //   fit: BoxFit.contain,
+            // ),
+            backgroundColor: const Color.fromARGB(255, 182, 142, 190),
             actions: <Widget>[
               IconButton(
                 icon: const Icon(Icons.language),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
+                    useSafeArea: true,
                     builder: (context) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ListTile(
-                            leading: Icon(
-                              Icons.check,
-                              color:
-                                  widget.currentLanguage == 'en'
-                                      ? Colors.green
-                                      : Colors.transparent,
-                            ),
-                            title: const Text('English'),
-                            onTap: () {
-                              widget.onLanguageChanged('en');
-                              Navigator.pop(context);
-                            },
+                      return SafeArea(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                leading: Icon(
+                                  Icons.check,
+                                  color:
+                                      widget.currentLanguage == 'en'
+                                          ? Colors.green
+                                          : Colors.transparent,
+                                ),
+                                title: const Text('English'),
+                                onTap: () {
+                                  widget.onLanguageChanged('en');
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.check,
+                                  color:
+                                      widget.currentLanguage == 'ar'
+                                          ? Colors.green
+                                          : Colors.transparent,
+                                ),
+                                title: const Text('العربية'),
+                                onTap: () {
+                                  widget.onLanguageChanged('ar');
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
                           ),
-                          ListTile(
-                            leading: Icon(
-                              Icons.check,
-                              color:
-                                  widget.currentLanguage == 'ar'
-                                      ? Colors.green
-                                      : Colors.transparent,
-                            ),
-                            title: const Text('العربية'),
-                            onTap: () {
-                              widget.onLanguageChanged('ar');
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
+                        ),
                       );
                     },
                   );
@@ -164,33 +192,45 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.zero,
               children: <Widget>[
                 DrawerHeader(
-                  decoration: const BoxDecoration(color: primaryColor),
-                  child: Text(
-                    AppLocalizations.of(context)!.mohtmMenu, // You can change this to your app name or a relevant title
-                    style: const TextStyle(color: Colors.white, fontSize: 24),
+                  decoration: const BoxDecoration(color: Color.fromARGB(255, 211, 154, 223)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 36,
+                        backgroundImage:
+                            AssetImage('assets/images/icon.png'),
+                       // backgroundColor: Colors.white,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        AppLocalizations.of(context)!.mohtmMenu, // You can change this to your app name or a relevant title
+                        style: const TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                    ],
                   ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.star),
-                  title:  Text(AppLocalizations.of(context)!.rateUs),
+                  title: Text(AppLocalizations.of(context)!.rateUs),
                   onTap: () {
                     // TODO: Implement rate us functionality
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.share),
-                  title:  Text(AppLocalizations.of(context)!.shareApp),
+                  title: Text(AppLocalizations.of(context)!.shareApp),
                   onTap: () {
                     // TODO: Implement share app functionality
                   },
                 ),
                 ExpansionTile(
                   leading: const Icon(Icons.settings),
-                  title:  Text(AppLocalizations.of(context)!.settings),
+                  title: Text(AppLocalizations.of(context)!.settings),
                   children: <Widget>[
                     ListTile(
                       leading: const Icon(Icons.lock_reset),
-                      title:  Text(AppLocalizations.of(context)!.changePassword),
+                      title: Text(AppLocalizations.of(context)!.changePassword),
                       onTap: () {
                         Navigator.pop(context); // Close the drawer first
                         Navigator.pushNamed(context, '/change_password');
@@ -199,8 +239,19 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 ListTile(
+                  leading: const Icon(Icons.contact_mail),
+                  title: Text(AppLocalizations.of(context)!.contactUs),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AppFeedbackPage()),
+                    );
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.logout),
-                  title:  Text(AppLocalizations.of(context)!.logout),
+                  title: Text(AppLocalizations.of(context)!.logout),
                   onTap: () {
                     // TODO: Implement share app functionality
                     signOut(context);
@@ -209,331 +260,442 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          body: TabBarView(
-            children: [
-              // Content for Today's Anniversaries tab
-              StreamBuilder<List<QueryDocumentSnapshot>>(
-                stream: getTodaysAnniversariesStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return  Center(child: Text(AppLocalizations.of(context)!.noAnniversariesToday));
-                  }
 
-                  final todayAnniversaries = snapshot.data!;
-
-                  return ListView.builder(
-                    itemCount: todayAnniversaries.length,
-                    itemBuilder: (context, index) {
-                      final doc = todayAnniversaries[index];
-                      final date = (doc['date'] as Timestamp).toDate();
-                      final title = doc['title'] ?? '';
-                      final type = doc['type'] ?? '';
-                      final priority = doc['priority'] ?? '';
-                      Color priorityColor;
-                      switch (priority) {
-                        case 'High':
-                          priorityColor = const Color.fromARGB(255, 4, 91, 1);
-                          break;
-                        case 'Medium':
-                          priorityColor = const Color.fromARGB(255, 8, 193, 20);
-                          break;
-                        case 'Low':
-                          priorityColor = const Color.fromARGB(255, 188, 246, 140)!;
-                          break;
-                        default:
-                          priorityColor = Colors.grey;
-                      }
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                        child: ListTile(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => AnniversaryInfoPage(
-                                      anniversaryId: doc.id,
-                                    ),
-                              ),
-                            );
-                          },
-                          leading: CircleAvatar(
-                            child: Text(
-                              '${date.day}/${date.month}\n${date.year}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                          ),
-                          title: Text(title),
-                          subtitle: Text(AppLocalizations.of(context)!.typeLabel(type)),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: priorityColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              priority,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+          body: SafeArea(
+            child: TabBarView(
+              children: [
+                // Content for Today's Anniversaries tab
+                StreamBuilder<List<QueryDocumentSnapshot>>(
+                  stream: getTodaysAnniversariesStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.noAnniversariesToday,
                         ),
                       );
-                    },
-                  );
-                },
-              ),
-              // Content for Filter Anniversaries tab
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Card(
-                      margin: const EdgeInsets.only(bottom: 16.0),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.4,
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.date_range),
-                                    label: Text(
-                                      filterStartDate == null
-                                          ? 'Start Date'
-                                          : 'Start: ${filterStartDate!.day}/${filterStartDate!.month}',
-                                    ),
-                                    onPressed: () async {
-                                      final pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate:
-                                            filterStartDate ??
-                                            DateTime(2000, 1, 1),
-                                        firstDate: DateTime(2000, 1, 1),
-                                        lastDate: DateTime(2000, 12, 31),
-                                        helpText: 'Start Date',
-                                      );
-                                      if (pickedDate != null) {
-                                        setState(() {
-                                          filterStartDate = DateTime(
-                                            2000,
-                                            pickedDate.month,
-                                            pickedDate.day,
-                                          );
-                                        });
-                                      }
-                                    },
+                    }
+
+                    final todayAnniversaries = snapshot.data!;
+
+                    return ListView.builder(
+                      itemCount: todayAnniversaries.length,
+                      itemBuilder: (context, index) {
+                        final doc = todayAnniversaries[index];
+                        final date = (doc['date'] as Timestamp).toDate();
+                        final title = doc['title'] ?? '';
+                        final typeId = doc['type']?.toString() ?? '';
+                        final locale = Localizations.localeOf(context).languageCode;
+                        final eventTypes = LookupService().eventTypes;
+                        String typeName = typeId;
+                        if (typeId.isNotEmpty) {
+                          final typeObj = eventTypes.firstWhere(
+                            (type) => type['id'].toString() == typeId,
+                            orElse: () => <String, dynamic>{},
+                          );
+                          typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
+                        }
+                        final priorityId = doc['priority']?.toString() ?? '';
+                        final annPriorities = LookupService().annPriorities;
+                        String priorityName = priorityId;
+                        if (priorityId.isNotEmpty) {
+                          final priorityObj = annPriorities.firstWhere(
+                            (p) => p['id'].toString() == priorityId,
+                            orElse: () => <String, dynamic>{},
+                          );
+                          priorityName = locale == 'ar' ? (priorityObj['priorityAr'] ?? priorityId) : (priorityObj['priorityEn'] ?? priorityId);
+                        }
+                        Color priorityColor;
+                        switch (priorityId) {
+                          case '1':
+                            priorityColor = Colors.red;
+                            break;
+                          case '2':
+                            priorityColor = Colors.orange;
+                            break;
+                          case '3':
+                            priorityColor = Colors.yellow[700]!;
+                            break;
+                          default:
+                            priorityColor = Colors.grey;
+                        }
+                        return Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AnniversaryInfoPage(
+                                    anniversaryId: doc.id,
                                   ),
                                 ),
-                                // SizedBox(
-                                //   width: MediaQuery.of(context).size.width * 0.4,
-                                //   child: OutlinedButton.icon(
-                                //     icon: const Icon(Icons.date_range),
-                                //     label: Text(
-                                //       filterStartDate == null
-                                //           ? 'Start Date'
-                                //           : 'Start: ${filterStartDate!.day}/${filterStartDate!.month}',
-                                //     ),
-                                //     onPressed:
-                                //         () => _pickDayMonth(
-                                //           context: context,
-                                //           isStart: true,
-                                //         ),
-                                //   ),
-                                // ),
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.4,
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.date_range),
-                                    label: Text(
-                                      filterEndDate == null
-                                          ? 'End Date'
-                                          : 'End: ${filterEndDate!.day}/${filterEndDate!.month}',
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 28,
+                                    backgroundColor: priorityColor.withOpacity(0.15),
+                                    child: Text(
+                                      '${date.day}/${date.month}\n${date.year}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                     ),
-                                    onPressed: () async {
-                                      final pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate:
-                                            filterEndDate ??
-                                            DateTime(2000, 12, 31),
-                                        firstDate: DateTime(2000, 1, 1),
-                                        lastDate: DateTime(2000, 12, 31),
-                                        helpText: 'End Date',
-                                      );
-                                      if (pickedDate != null) {
-                                        setState(() {
-                                          filterEndDate = DateTime(
-                                            2000,
-                                            pickedDate.month,
-                                            pickedDate.day,
-                                          );
-                                        });
-                                      }
-                                    },
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              typeName == 'Birthday' || typeName == 'عيد ميلاد' ? Icons.cake :
+                                              typeName == 'Wedding' || typeName == 'زواج' ? Icons.favorite :
+                                              typeName == 'Death' || typeName == 'وفاة' ? Icons.sentiment_very_dissatisfied :
+                                              Icons.event,
+                                              color: Colors.deepPurple,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                title,
+                                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          AppLocalizations.of(context)!.typeLabel(typeName),
+                                          style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                        ),
+                                        if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 2.0),
+                                            child: Text(
+                                              doc['relationship'],
+                                              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Chip(
+                                    label: Text(priorityName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    backgroundColor: priorityColor,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.6,
-                                  child: ElevatedButton.icon(
-                                    onPressed: filterAnniversariesByMonthDay,
-                                    icon: const Icon(Icons.filter_alt),
-                                    label: const Text('Filter'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(
-                                        255,
-                                        156,
-                                        217,
-                                        115,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+                // Content for Filter Anniversaries tab
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 16.0),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.4,
+                                    child: OutlinedButton.icon(
+                                      icon: const Icon(Icons.date_range),
+                                      label: Text(
+                                        filterStartDate == null
+                                            ? AppLocalizations.of(context)!.startDate
+                                            : 'Start: ${filterStartDate!.day}/${filterStartDate!.month}',
                                       ),
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                                      onPressed: () async {
+                                        final pickedDate = await showDatePicker(
+                                          context: context,
+                                          initialDate:
+                                              filterStartDate ??
+                                              DateTime(2000, 1, 1),
+                                          firstDate: DateTime(2000, 1, 1),
+                                          lastDate: DateTime(2000, 12, 31),
+                                          helpText: AppLocalizations.of(context)!.startDate,
+                                        );
+                                        if (pickedDate != null) {
+                                          setState(() {
+                                            filterStartDate = DateTime(
+                                              2000,
+                                              pickedDate.month,
+                                              pickedDate.day,
+                                            );
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.4,
+                                    child: OutlinedButton.icon(
+                                      icon: const Icon(Icons.date_range),
+                                      label: Text(
+                                        filterEndDate == null
+                                            ? AppLocalizations.of(context)!.endDate
+                                            : 'End: ${filterEndDate!.day}/${filterEndDate!.month}',
+                                      ),
+                                      onPressed: () async {
+                                        final pickedDate = await showDatePicker(
+                                          context: context,
+                                          initialDate:
+                                              filterEndDate ??
+                                              DateTime(2000, 12, 31),
+                                          firstDate: DateTime(2000, 1, 1),
+                                          lastDate: DateTime(2000, 12, 31),
+                                          helpText: AppLocalizations.of(context)!.endDate,
+                                        );
+                                        if (pickedDate != null) {
+                                          setState(() {
+                                            filterEndDate = DateTime(
+                                              2000,
+                                              pickedDate.month,
+                                              pickedDate.day,
+                                            );
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.6,
+                                    child: ElevatedButton.icon(
+                                      onPressed: filterAnniversariesByMonthDay,
+                                      icon: const Icon(Icons.filter_alt),
+                                      label:  Text(AppLocalizations.of(context)!.filter),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                          255,
+                                          156,
+                                          217,
+                                          115,
+                                        ),
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.2,
-                                  child: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        filterStartDate = null;
-                                        filterEndDate = null;
-                                        filteredDocs = [];
-                                      });
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Color.fromARGB(255, 172, 171, 170),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.2,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          filterStartDate = null;
+                                          filterEndDate = null;
+                                          filteredDocs = [];
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Color.fromARGB(
+                                          255,
+                                          172,
+                                          171,
+                                          170,
+                                        ),
+                                      ),
+                                      tooltip: AppLocalizations.of(context)!.clearFilter,
+                                      iconSize: 28,
                                     ),
-                                    tooltip: 'Clear Filter',
-                                    iconSize: 28,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
 
-                    Expanded(
-                      child:
-                          isFiltering
-                              ? const Center(child: CircularProgressIndicator())
-                              : filteredDocs.isEmpty
-                              ? const Center(
-                                child: Text('No anniversaries found.'),
-                              )
-                              : ListView.builder(
-                                itemCount: filteredDocs.length,
-                                itemBuilder: (context, index) {
-                                  final doc = filteredDocs[index];
-                                  final date =
-                                      (doc['date'] as Timestamp).toDate();
-                                  final title = doc['title'] ?? '';
-                                  final type = doc['type'] ?? '';
-                                  final priority = doc['priority'] ?? '';
-                                  Color priorityColor;
-                                  switch (priority) {
-                                    case 'High':
-                                      priorityColor = Colors.red;
-                                      break;
-                                    case 'Medium':
-                                      priorityColor = Colors.orange;
-                                      break;
-                                    case 'Low':
-                                      priorityColor = Colors.yellow[700]!;
-                                      break;
-                                    default:
-                                      priorityColor = Colors.grey;
-                                  }
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 6,
-                                    ),
-                                    child: ListTile(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) =>
-                                                    AnniversaryInfoPage(
-                                                      anniversaryId: doc.id,
+                      Expanded(
+                        child:
+                            isFiltering
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : filteredDocs.isEmpty
+                                ?  Center(
+                                  child: Text(AppLocalizations.of(context)!.noAnniversariesFound),
+                                )
+                                : ListView.builder(
+                                  itemCount: filteredDocs.length,
+                                  itemBuilder: (context, index) {
+                                    final doc = filteredDocs[index];
+                                    final date =
+                                        (doc['date'] as Timestamp).toDate();
+                                    final title = doc['title'] ?? '';
+                                    final typeId = doc['type']?.toString() ?? '';
+                                    final locale = Localizations.localeOf(context).languageCode;
+                                    final eventTypes = LookupService().eventTypes;
+                                    String typeName = typeId;
+                                    if (typeId.isNotEmpty) {
+                                      final typeObj = eventTypes.firstWhere(
+                                        (type) => type['id'].toString() == typeId,
+                                        orElse: () => <String, dynamic>{},
+                                      );
+                                      typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
+                                    }
+                                    final priorityId = doc['priority']?.toString() ?? '';
+                                    final annPriorities = LookupService().annPriorities;
+                                    String priorityName = priorityId;
+                                    if (priorityId.isNotEmpty) {
+                                      final priorityObj = annPriorities.firstWhere(
+                                        (p) => p['id'].toString() == priorityId,
+                                        orElse: () => <String, dynamic>{},
+                                      );
+                                      priorityName = locale == 'ar' ? (priorityObj['priorityAr'] ?? priorityId) : (priorityObj['priorityEn'] ?? priorityId);
+                                    }
+                                    Color priorityColor;
+                                    switch (priorityId) {
+                                      case '1':
+                                        priorityColor = Colors.red;
+                                        break;
+                                      case '2':
+                                        priorityColor = Colors.orange;
+                                        break;
+                                      case '3':
+                                        priorityColor = Colors.yellow[700]!;
+                                        break;
+                                      default:
+                                        priorityColor = Colors.grey;
+                                    }
+                                    return Card(
+                                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(16),
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => AnniversaryInfoPage(
+                                                anniversaryId: doc.id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                          child: Row(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 28,
+                                                backgroundColor: priorityColor.withOpacity(0.15),
+                                                child: Text(
+                                                  '${date.day}/${date.month}\n${date.year}',
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          typeName == 'Birthday' || typeName == 'عيد ميلاد' ? Icons.cake :
+                                                          typeName == 'Wedding' || typeName == 'زواج' ? Icons.favorite :
+                                                          typeName == 'Death' || typeName == 'وفاة' ? Icons.sentiment_very_dissatisfied :
+                                                          Icons.event,
+                                                          color: Colors.deepPurple,
+                                                          size: 20,
+                                                        ),
+                                                        const SizedBox(width: 6),
+                                                        Expanded(
+                                                          child: Text(
+                                                            title,
+                                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                            overflow: TextOverflow.ellipsis,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                          ),
-                                        );
-                                      },
-                                      leading: CircleAvatar(
-                                        child: Text(
-                                          '${date.day}/${date.month}\n${date.year}',
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(fontSize: 11),
-                                        ),
-                                      ),
-                                      title: Text(title),
-                                      subtitle: Text('Type: $type'),
-                                      trailing: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: priorityColor,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          priority,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      AppLocalizations.of(context)!.typeLabel(typeName),
+                                                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                                    ),
+                                                    if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(top: 2.0),
+                                                        child: Text(
+                                                          doc['relationship'],
+                                                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Chip(
+                                                label: Text(priorityName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                backgroundColor: priorityColor,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
-                    ),
-                  ],
-                ),
-              ), // Content for second tab
-            ],
+                                    );
+                                  },
+                                ),
+                      ),
+                    ],
+                  ),
+                ), // Content for second tab
+              ],
+            ),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
@@ -599,9 +761,24 @@ class _HomePageState extends State<HomePage> {
   //   }
   // }
   Future<void> signOut(BuildContext context) async {
+
     try {
+      print('Signing out...');
       await FirebaseAuth.instance.signOut();
-      // No need to navigate! StreamBuilder in main.dart will handle it.
+      print('Signing out end...');
+      // Force navigation to login page after sign out
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginPage(
+              onLanguageChanged: widget.onLanguageChanged,
+              currentLanguage: widget.currentLanguage,
+            ),
+          ),
+          (route) => false,
+        );
+      }
     } catch (e) {
       print("Error signing out: $e");
       if (context.mounted) {

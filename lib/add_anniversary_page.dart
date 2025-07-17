@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:myapp/lookup.dart';
+
 
 class AddAnniversaryPage extends StatelessWidget {
   const AddAnniversaryPage({super.key});
@@ -8,7 +11,7 @@ class AddAnniversaryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Anniversary')),
+      appBar: AppBar(title:  Text(AppLocalizations.of(context)!.addAnniversaryTitle)),
       body: AddAnniversaryForm(),
     );
   }
@@ -30,25 +33,25 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
   String? _selectedType;
   String? _selectedPriority; // NEW
   final TextEditingController _otherTypeController = TextEditingController();
-  final List<String> _anniversaryTypes = [
-    'Wedding',
-    'Death',
-    'Birthday',
-    'Other',
-  ];
+  // Use eventTypes from LookupService instead of static list
 
-  // Priority options
-  final List<String> _priorityOptions = ['High', 'Medium', 'Low'];
+  // Priority options from LookupService
+  List<String> get _priorityOptions {
+    final locale = Localizations.localeOf(context).languageCode;
+    return LookupService().annPriorities.map<String>((priority) {
+      return locale == 'ar' ? (priority['priorityAr'] ?? '') : (priority['priorityEn'] ?? '');
+    }).toList();
+  }
 
   // Remember Before options
   final List<String> _rememberBeforeOptions = [
     'Month',
     'Week',
     'Day',
-    'Hour',
     'At time of event'
   ];
-  List<String> _selectedRememberBefore = ['At time of event']; // Always selected
+  
+  String _selectedRememberBefore = 'At time of event'; // Default selection
 
 
   Future<void> _selectDate(BuildContext context) async {
@@ -77,15 +80,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             GestureDetector(
               onTap: () => _selectDate(context),
               child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Anniversary Date*',
-                  border: OutlineInputBorder(),
-                  focusedBorder: OutlineInputBorder(
+                decoration: InputDecoration(
+                  //labelText: AppLocalizations.of(context)!.selectDateLabel,
+                  border: const OutlineInputBorder(),
+                  focusedBorder: const OutlineInputBorder(
                     // Border when the TextField is focused
                     borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
                   ),
-                  enabledBorder: OutlineInputBorder(
+                  enabledBorder: const OutlineInputBorder(
                     // Border when the TextField is enabled but not focused
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -93,7 +96,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 ),
                 child: Text(
                   _selectedDate == null
-                      ? 'Select Date'
+                      ? AppLocalizations.of(context)!.selectDateLabel
                       : '${_selectedDate!.toLocal()}'.split(' ')[0],
                   style: TextStyle(
                     color: _selectedDate == null ? Colors.grey[700] : null,
@@ -107,9 +110,9 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             const SizedBox(height: 7.0),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                hintText: 'Enter name of Anniversary',
+              decoration:  InputDecoration(
+                labelText: AppLocalizations.of(context)!.anniversaryNameLabel,
+                hintText: AppLocalizations.of(context)!.anniversaryNameHint,
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   // Border when the TextField is focused
@@ -124,7 +127,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the anniversary name';
+                  return AppLocalizations.of(context)!.anniversaryNameValidation;
                 }
                 return null;
               },
@@ -132,8 +135,8 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             const SizedBox(height: 7.0),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
+              decoration:  InputDecoration(
+                labelText: AppLocalizations.of(context)!.anniversaryDescriptionLabel,
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   // Border when the TextField is focused
@@ -151,16 +154,14 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             ),
           //  const SizedBox(height: 7.0),
             DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Type*',
+              decoration:  InputDecoration(
+                labelText: AppLocalizations.of(context)!.type,
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                  // Border when the TextField is focused
                   borderSide: BorderSide(color: Colors.orange, width: 2.0),
                   borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  // Border when the TextField is enabled but not focused
                   borderSide: BorderSide(color: Colors.grey, width: 1.0),
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
                 ),
@@ -173,42 +174,41 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please select the anniversary type';
+                  return AppLocalizations.of(context)!.anniversarytypeValidation;
                 }
                 return null;
               },
-              items:
-                  _anniversaryTypes.map<DropdownMenuItem<String>>((
-                    String value,
-                  ) {
+              items: LookupService().eventTypes
+                  .map<DropdownMenuItem<String>>((type) {
+                    final locale = Localizations.localeOf(context).languageCode;
+                    final value = locale == 'ar' ? (type['arabicName'] ?? '') : (type['englishName'] ?? '');
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
                     );
                   }).toList(),
             ),
-            if (_selectedType == 'Other') ...[
+            // Show specific name field if selected type is 'Other' or 'اخرى'
+            if (_selectedType == 'Other' || _selectedType == 'اخرى') ...[
               const SizedBox(height: 7.0),
               TextFormField(
                 controller: _otherTypeController,
-                decoration: const InputDecoration(
-                  labelText: 'Specify Type*',
+                decoration:  InputDecoration(
+                  labelText: AppLocalizations.of(context)!.specifyType,
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
-                    // Border when the TextField is focused
                     borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    // Border when the TextField is enabled but not focused
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
                   ),
                 ),
                 validator: (value) {
-                  if (_selectedType == 'Other' &&
+                  if ((_selectedType == 'Other' || _selectedType == 'اخرى') &&
                       (value == null || value.isEmpty)) {
-                    return 'Please specify the anniversary type';
+                    return AppLocalizations.of(context)!.anniversaryOtherTypeValidation;
                   }
                   return null;
                 },
@@ -218,9 +218,9 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             const SizedBox(height: 7.0),
             TextFormField(
               controller: _relationshipController,
-              decoration: const InputDecoration(
-                labelText: 'Relationship',
-                hintText: 'Enter relationship',
+              decoration:  InputDecoration(
+                labelText: AppLocalizations.of(context)!.relationship,
+                hintText: AppLocalizations.of(context)!.relationshipHint,
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.orange, width: 2.0),
@@ -235,8 +235,8 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             // Priority dropdown
             const SizedBox(height: 7.0),
             DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Priority*',
+              decoration:  InputDecoration(
+                labelText: AppLocalizations.of(context)!.priority,
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.orange, width: 2.0),
@@ -255,7 +255,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please select the priority';
+                  return AppLocalizations.of(context)!.priorityValidation;
                 }
                 return null;
               },
@@ -266,30 +266,23 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                       ))
                   .toList(),
             ),
-            // Remember Before multi-selection
+            // Remember Before radio selection
             const SizedBox(height: 7.0),
-            const Text(
-              'Remember Before*',
+            Text(
+              AppLocalizations.of(context)!.rememberBefore,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Column(
               children: _rememberBeforeOptions.map((option) {
-                final isAtTime = option == 'At time of event';
-                return CheckboxListTile(
+                return RadioListTile<String>(
                   title: Text(option),
-                  value: _selectedRememberBefore.contains(option),
-                  onChanged: isAtTime
-                      ? null // Always selected and disabled
-                      : (bool? checked) {
-                          setState(() {
-                            if (checked == true) {
-                              _selectedRememberBefore.add(option);
-                            } else {
-                              _selectedRememberBefore.remove(option);
-                            }
-                          });
-                        },
-                  controlAffinity: ListTileControlAffinity.leading,
+                  value: option,
+                  groupValue: _selectedRememberBefore,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedRememberBefore = value!;
+                    });
+                  },
                 );
               }).toList(),
             ),
@@ -316,9 +309,9 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                 ),
-                child: const Padding(
+                child:  Padding(
                   padding: EdgeInsets.symmetric(vertical: 12.0),
-                  child: Text('Save', style: TextStyle(fontSize: 18)),
+                  child: Text(AppLocalizations.of(context)!.save, style: TextStyle(fontSize: 18)),
                 ),
               ),
               //   ],
@@ -333,20 +326,63 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return "User not logged in";
-    }else {
+    } else {
+      // Calculate rememberBeforeDate
+      DateTime? rememberBeforeDate;
+      if (_selectedDate != null) {
+        switch (_selectedRememberBefore) {
+          case 'Month':
+            rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 30));
+            break;
+          case 'Week':
+            rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 7));
+            break;
+          case 'Day':
+            rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 1));
+            break;
+          case 'At time of event':
+          default:
+            rememberBeforeDate = _selectedDate;
+        }
+      }
       await FirebaseFirestore.instance.collection("anniversaries").add({
-      "title": _nameController.text,
-      "description": _descriptionController.text,
-      "date": _selectedDate, // Firestore will store as Timestamp
-      "type": _selectedType == 'Other' ? _otherTypeController.text : _selectedType,
-      "relationship": _relationshipController.text,
-      "priority": _selectedPriority,
-      "rememberBefore": _selectedRememberBefore,
-      "color": 0xFF000000, // Example color code
-      "createdBy": user?.uid,
-      "createdAt": FieldValue.serverTimestamp(),
-    });
-    return "success";
+        "title": _nameController.text,
+        "description": _descriptionController.text,
+        "date": _selectedDate, // Firestore will store as Timestamp
+        "type": (() {
+          final locale = Localizations.localeOf(context).languageCode;
+          if (locale == 'ar') {
+            final typeObj = LookupService().eventTypes.firstWhere(
+              (type) => type['arabicName']?.toString().trim() == _selectedType?.toString().trim(),
+              orElse: () => <String, dynamic>{},
+            );
+            return typeObj.containsKey('id') ? typeObj['id'] : null;
+          } else {
+            final typeObj = LookupService().eventTypes.firstWhere(
+              (type) => type['englishName']?.toString().trim() == _selectedType?.toString().trim(),
+              orElse: () => <String, dynamic>{},
+            );
+            return typeObj.containsKey('id') ? typeObj['id'] : null;
+          }
+        })(),
+        if (_selectedType == 'Other' || _selectedType == 'اخرى')
+          "addType": _otherTypeController.text,
+        "relationship": _relationshipController.text,
+        "priority": (() {
+          final locale = Localizations.localeOf(context).languageCode;
+          final priorityObj = LookupService().annPriorities.firstWhere(
+            (priority) => (locale == 'ar' ? priority['priorityAr'] : priority['priorityEn']) == _selectedPriority,
+            orElse: () => <String, dynamic>{},
+          );
+          return priorityObj.containsKey('id') ? priorityObj['id'] : _selectedPriority;
+        })(),
+        "rememberBefore": _selectedRememberBefore,
+        "rememberBeforeDate": rememberBeforeDate,
+        "color": 0xFF000000, // Example color code
+        "createdBy": user.uid,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+      return "success";
     }
   } catch (e) {
     print(e);

@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:myapp/lookup.dart';
+
 
 class AnniversaryInfoPage extends StatefulWidget {
   final String anniversaryId;
@@ -17,9 +20,9 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
 
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
-  late TextEditingController _typeController;
   late TextEditingController _relationshipController;
   late TextEditingController _priorityController;
+  late TextEditingController _addTypeController;
   DateTime? _selectedDate;
   String? _selectedPriority;
 
@@ -28,10 +31,9 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     'Month',
     'Week',
     'Day',
-    'Hour',
     'At time of event',
   ];
-  List<String> _selectedRememberBefore = [];
+  String? _selectedRememberBefore;
 
   @override
   void initState() {
@@ -50,14 +52,13 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
       isLoading = false;
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
-        final rememberBefore = (data['rememberBefore'] as List?) ?? [];
-        _selectedRememberBefore = List<String>.from(rememberBefore);
+        final rememberBefore = data['rememberBefore'];
+        _selectedRememberBefore = rememberBefore is String ? rememberBefore : (rememberBefore is List && rememberBefore.isNotEmpty ? rememberBefore.first : null);
 
         _titleController = TextEditingController(text: data['title'] ?? '');
         _descriptionController = TextEditingController(
           text: data['description'] ?? '',
         );
-        _typeController = TextEditingController(text: data['type'] ?? '');
         _relationshipController = TextEditingController(
           text: data['relationship'] ?? '',
         );
@@ -66,9 +67,12 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
         );
         _selectedPriority = data['priority'] ?? '';
         _selectedDate = (data['date'] as Timestamp).toDate();
+        _selectedTypeId = data['type']?.toString();
+        _addTypeController = TextEditingController(text: data['addType'] ?? '');
       }
     });
   }
+  String? _selectedTypeId;
 
   void _editAnniversary() {
     // TODO: Implement navigation to edit page or inline editing
@@ -91,10 +95,29 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     final date = (data['date'] as Timestamp).toDate();
     final title = data['title'] ?? '';
     final description = data['description'] ?? '';
-    final type = data['type'] ?? '';
+    final typeId = data['type'];
+    final locale = Localizations.localeOf(context).languageCode;
+    final eventTypes = LookupService().eventTypes;
+    String typeName = '';
+    if (_selectedTypeId != null) {
+      final typeObj = eventTypes.firstWhere(
+        (type) => type['id'].toString() == _selectedTypeId,
+        orElse: () => <String, dynamic>{},
+      );
+      typeName = locale == 'ar' ? (typeObj['arabicName'] ?? '') : (typeObj['englishName'] ?? '');
+    }
     final relationship = data['relationship'] ?? '';
-    final priority = data['priority'] ?? '';
-    final rememberBefore = (data['rememberBefore'] as List?) ?? [];
+    final priorityId = data['priority']?.toString() ?? '';
+    final annPriorities = LookupService().annPriorities;
+    String priorityName = priorityId;
+    if (priorityId.isNotEmpty) {
+      final priorityObj = annPriorities.firstWhere(
+        (p) => p['id'].toString() == priorityId,
+        orElse: () => <String, dynamic>{},
+      );
+      priorityName = locale == 'ar' ? (priorityObj['priorityAr'] ?? priorityId) : (priorityObj['priorityEn'] ?? priorityId);
+    }
+    final rememberBefore = data['rememberBefore']  ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -122,13 +145,13 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
           children: [
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.anntitle),
               enabled: _isEditing,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.description),
               enabled: _isEditing,
               maxLines: 3,
             ),
@@ -152,7 +175,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                       : null,
               child: AbsorbPointer(
                 child: TextFormField(
-                  decoration: const InputDecoration(labelText: 'Date'),
+                  decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.date),
                   enabled: _isEditing,
                   controller: TextEditingController(
                     text:
@@ -164,59 +187,99 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
               ),
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _typeController,
-              decoration: const InputDecoration(labelText: 'Type'),
-              enabled: _isEditing,
+            // Type Dropdown
+            DropdownButtonFormField<String>(
+              value: _selectedTypeId,
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.type),
+              items: eventTypes.map<DropdownMenuItem<String>>((type) {
+                final id = type['id'].toString();
+                final name = locale == 'ar' ? (type['arabicName'] ?? '') : (type['englishName'] ?? '');
+                return DropdownMenuItem<String>(
+                  value: id,
+                  child: Text(name),
+                );
+              }).toList(),
+              onChanged: _isEditing
+                  ? (String? newId) {
+                      setState(() {
+                        _selectedTypeId = newId;
+                        // Optionally clear addType field if not Other
+                        final selectedType = eventTypes.firstWhere(
+                          (type) => type['id'].toString() == newId,
+                          orElse: () => <String, dynamic>{},
+                        );
+                        final isOther = selectedType['englishName'] == 'Other' || selectedType['arabicName'] == 'اخرى' || newId == '4';
+                        if (!isOther) {
+                          _addTypeController.text = '';
+                        }
+                      });
+                    }
+                  : null,
+              disabledHint: Text(typeName),
             ),
+            
+            // Show special name field if selected type is Other (id=4)
+            if (_selectedTypeId == '4' && _isEditing) ...[
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _addTypeController,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.specifyType),
+                enabled: _isEditing,
+              ),
+            ]
+            else if (!_isEditing && typeId != null && typeId.toString() == '4') ...[
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _addTypeController,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.specifyType),
+                enabled: false,
+              ),
+            ],
             const SizedBox(height: 16),
             TextFormField(
               controller: _relationshipController,
-              decoration: const InputDecoration(labelText: 'Relationship'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.relationship),
               enabled: _isEditing,
             ),
             const SizedBox(height: 16),
             // Priority Dropdown
             DropdownButtonFormField<String>(
               value: _selectedPriority,
-              decoration: const InputDecoration(labelText: 'Priority'),
-              items:
-                  ['High', 'Medium', 'Low']
-                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                      .toList(),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.priority),
+              items: annPriorities.map<DropdownMenuItem<String>>((priority) {
+                final value = priority['id'].toString();
+                final name = locale == 'ar' ? (priority['priorityAr'] ?? '') : (priority['priorityEn'] ?? '');
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(name),
+                );
+              }).toList(),
               onChanged:
                   _isEditing
                       ? (val) => setState(() => _selectedPriority = val)
                       : null,
-              disabledHint: Text(_selectedPriority ?? ''),
+              disabledHint: Text(priorityName),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Remember Before',
+             Text(
+              AppLocalizations.of(context)!.rememberBefore,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Column(
-              children:
-                  _rememberBeforeOptions.map((option) {
-                    final isAtTime = option == 'At time of event';
-                    return CheckboxListTile(
-                      title: Text(option),
-                      value: _selectedRememberBefore.contains(option),
-                      onChanged:
-                          _isEditing && !isAtTime
-                              ? (checked) {
-                                setState(() {
-                                  if (checked == true) {
-                                    _selectedRememberBefore.add(option);
-                                  } else {
-                                    _selectedRememberBefore.remove(option);
-                                  }
-                                });
-                              }
-                              : null,
-                      controlAffinity: ListTileControlAffinity.leading,
-                    );
-                  }).toList(),
+              children: _rememberBeforeOptions.map((option) {
+                return RadioListTile<String>(
+                  title: Text(option),
+                  value: option,
+                  groupValue: _selectedRememberBefore,
+                  onChanged: _isEditing
+                      ? (String? value) {
+                          setState(() {
+                            _selectedRememberBefore = value;
+                          });
+                        }
+                      : null,
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -233,18 +296,43 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
   Future<void> _saveChanges() async {
     if (anniversaryDoc == null) return;
     setState(() => isLoading = true);
+    // Calculate rememberBeforeDate
+    DateTime? rememberBeforeDate;
+    if (_selectedDate != null && _selectedRememberBefore != null) {
+      switch (_selectedRememberBefore) {
+        case 'Month':
+          rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 30));
+          break;
+        case 'Week':
+          rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 7));
+          break;
+        case 'Day':
+          rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 1));
+          break;
+        case 'At time of event':
+        default:
+          rememberBeforeDate = _selectedDate;
+      }
+    }
+    final updateData = {
+      'title': _titleController.text,
+      'description': _descriptionController.text,
+      'type': _selectedTypeId,
+      'relationship': _relationshipController.text,
+      'priority': _selectedPriority,
+      'date': _selectedDate,
+      'rememberBefore': _selectedRememberBefore,
+      'rememberBeforeDate': rememberBeforeDate,
+    };
+    if (_selectedTypeId == '4') {
+      updateData['addType'] = _addTypeController.text;
+    } else {
+      updateData['addType'] = null;
+    }
     await FirebaseFirestore.instance
         .collection('anniversaries')
         .doc(widget.anniversaryId)
-        .update({
-          'title': _titleController.text,
-          'description': _descriptionController.text,
-          'type': _typeController.text,
-          'relationship': _relationshipController.text,
-          'priority': _selectedPriority,
-          'date': _selectedDate,
-          'rememberBefore': _selectedRememberBefore,
-        });
+        .update(updateData);
     setState(() {
       _isEditing = false;
       isLoading = false;
@@ -253,94 +341,16 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
       context,
     ).showSnackBar(const SnackBar(content: Text('Anniversary updated!')));
   }
-
-  // void _showDeleteConfirmation() {
-  //   showDialog(
-  //     context: context,
-  //     builder:
-  //         (context) => AlertDialog(
-  //           title: const Text('Delete Anniversary'),
-  //           content: const Text(
-  //             'Are you sure you want to delete this anniversary?',
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.of(context).pop(),
-  //               child: const Text('Cancel'),
-  //             ),
-  //             TextButton(
-  //               onPressed: () async {
-  //                 Navigator.of(context).pop();
-  //                 await _deleteAnniversary();
-                  
-  //               },
-  //               // if (mounted) {
-  //               //     WidgetsBinding.instance.addPostFrameCallback((_) {
-  //               //       Navigator.of(context).pop();
-  //               //       ScaffoldMessenger.of(context).showSnackBar(
-  //               //         const SnackBar(content: Text('Anniversary deleted!')),
-  //               //       );
-  //               //     });
-  //               //   }
-  //               child: const Text(
-  //                 'Delete',
-  //                 style: TextStyle(color: Colors.red),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //   );
-  // }
-
-  // Future<void> _deleteAnniversary() async {
-  //   // if (anniversaryDoc == null) return;
-  //   // await FirebaseFirestore.instance
-  //   //     .collection('anniversaries')
-  //   //     .doc(widget.anniversaryId)
-  //   //     .delete();
-  //   // if (mounted) {
-  //   //   Navigator.of(context).pop(); // Go back after deletion
-  //   //   ScaffoldMessenger.of(
-  //   //     context,
-  //   //   ).showSnackBar(const SnackBar(content: Text('Anniversary deleted!')));
-  //   // }
-  // //   if (anniversaryDoc == null) return;
-  // // await FirebaseFirestore.instance
-  // //     .collection('anniversaries')
-  // //     .doc(widget.anniversaryId)
-  // //     .delete();
-  // // if (!mounted) return;
-  // // // Use a post-frame callback to ensure context is valid
-  // // WidgetsBinding.instance.addPostFrameCallback((_) {
-  // //   Navigator.of(context).pop(); // Go back after deletion
-  // //   ScaffoldMessenger.of(context).showSnackBar(
-  // //     const SnackBar(content: Text('Anniversary deleted!')),
-  // //   );
-  // // });
-  //  if (anniversaryDoc == null) return;
-  // await FirebaseFirestore.instance
-  //     .collection('anniversaries')
-  //     .doc(widget.anniversaryId)
-  //     .delete();
-  // if (!mounted) return;
-  // WidgetsBinding.instance.addPostFrameCallback((_) {
-  //   if (!mounted) return; // <--- Extra safety check
-  //   Navigator.of(context).pop(); // Go back after deletion
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(content: Text('Anniversary deleted!')),
-  //   );
-  // });
-  // }
   void _showDeleteConfirmation() {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Delete Anniversary'),
-      content: const Text('Are you sure you want to delete this anniversary?'),
+      title:  Text(AppLocalizations.of(context)!.deleteAnniversary),
+      content:  Text(AppLocalizations.of(context)!.deleteAnniversaryConfirmation),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child:  Text(AppLocalizations.of(context)!.cancel),
         ),
         TextButton(
           onPressed: () async {
@@ -348,7 +358,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
             // Now delete and immediately pop the page if still mounted
             await _deleteAnniversaryAndPop();
           },
-          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          child:  Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: Colors.red)),
         ),
       ],
     ),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
   const ForgetPasswordPage({Key? key}) : super(key: key);
@@ -23,62 +24,107 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Forget Password')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFF3E6F9),
+            Color(0xFFE9D7F7),
+            Color(0xFFD6B4F7),
+            Color(0xFFC7A1E6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          title: Text(AppLocalizations.of(context)!.forgetPassword),
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(32),
               ),
-              const SizedBox(height: 32),
-              // ElevatedButton(
-              //     onPressed: _isLoading ? null : () => _resetPassword(context),
-              //     child: _isLoading
-              //         ? const CircularProgressIndicator()
-              //         : const Text('Send Reset Email'),
-              //   ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    // TODO: Implement forget password logic here (e.g., send email)
-                    if (!_isLoading) {
-                      String res = await _resetPassword(context);
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(res)));
-                     // Navigator.pop(context);
-                      // Go back to login page
-                    }
-                  }
-                },
-                child: const Text('Reset Password'),
-              ),
-             if (_resetMessage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Text(
-                      _resetMessage,
-                      style: TextStyle(color: const Color.fromARGB(255, 236, 6, 6), fontFamily: 'Roboto'),
-                      textAlign: TextAlign.center,
-                      
-                    ),
+              color: const Color(0xFFF3E6F9),
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.email,
+                          filled: true,
+                          fillColor: const Color(0xFFE9D7F7),
+                          prefixIcon: const Icon(Icons.email, color: Color(0xFF502878)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide(color: Color(0xFF502878)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide(color: Color(0xFFB365C1)),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppLocalizations.of(context)!.pleaseEntervalidEmail;
+                          }
+                          if (!value.contains('@')) {
+                            return AppLocalizations.of(context)!.pleaseEntervalidEmail;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            if (!_isLoading) {
+                              String res = await _resetPassword(context);
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(res)));
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD6B4F7),
+                          foregroundColor: const Color(0xFF502878),
+                          minimumSize: const Size(double.infinity, 48),
+                          side: const BorderSide(color: Color(0xFFB365C1)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(AppLocalizations.of(context)!.restPassword),
+                      ),
+                      if (_resetMessage.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: Text(
+                            _resetMessage,
+                            style: TextStyle(color: const Color(0xFFEC06EC), fontFamily: 'Roboto'),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                    ],
                   ),
-            ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

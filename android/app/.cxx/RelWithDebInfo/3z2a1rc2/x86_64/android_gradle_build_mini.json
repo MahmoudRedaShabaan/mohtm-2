@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "C:\\fullter\\Tools\\flutter\\packages\\flutter_tools\\gradle\\src\\main\\groovy\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\HP\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+      "-C",
+      "C:\\fullter\\Projects\\mohtm-2\\android\\app\\.cxx\\RelWithDebInfo\\3z2a1rc2\\x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\HP\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+    "-C",
+    "C:\\fullter\\Projects\\mohtm-2\\android\\app\\.cxx\\RelWithDebInfo\\3z2a1rc2\\x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

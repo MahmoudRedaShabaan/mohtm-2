@@ -3,9 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:myapp/lookup.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class User {
   String firstName;
@@ -57,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController _emailController;
   late TextEditingController _phoneNumberController;
   late TextEditingController _birthDayController;
-  String? _selectedGender;
+  String? _selectedGenderId;
   DateTime? _selectedBirthDate;
   User? _user;
   File? _pickedImage;
@@ -109,7 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _birthDayController = TextEditingController(
       text: user.birthDay?.toLocal().toString().split(' ')[0] ?? '',
     );
-    _selectedGender = user.gender;
+    _selectedGenderId = user.gender;
     _selectedBirthDate = user.birthDay;
   }
 
@@ -164,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
             'firstName': _firstNameController.text,
             'lastName': _lastNameController.text,
             'phoneNumber': _phoneNumberController.text,
-            'gender': _selectedGender,
+            'gender': _selectedGenderId,
             'birthDay': _selectedBirthDate,
             'profilePictureUrl': imageUrl,
           });
@@ -173,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _user!.firstName = _firstNameController.text;
         _user!.lastName = _lastNameController.text;
         _user!.phoneNumber = _phoneNumberController.text;
-        _user!.gender = _selectedGender!;
+        _user!.gender = _selectedGenderId!;
         _user!.birthDay = _selectedBirthDate;
         _user!.profilePictureUrl = imageUrl;
         _pickedImage = null;
@@ -181,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
+         SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdatedsuccessfully)),
       );
     } catch (e) {
       print("Error saving changes: $e");
@@ -214,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title:  Text(AppLocalizations.of(context)!.profile),
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),
@@ -227,15 +230,6 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // CircleAvatar(
-            //   radius: 60,
-            //   backgroundImage: _user!.profilePictureUrl != null
-            //       ? NetworkImage(_user!.profilePictureUrl!)
-            //       : const AssetImage('assets/images/placeholder.png')
-            //           as ImageProvider,
-            // ),
-            // ...existing code...
-            // ...existing code...
             SizedBox(
               width: 120,
               height: 120,
@@ -245,43 +239,50 @@ class _ProfilePageState extends State<ProfilePage> {
                     child:
                         _pickedImage != null
                             ? Image.file(
-                              _pickedImage!,
-                              fit: BoxFit.cover,
-                              width: 120,
-                              height: 120,
-                            )
+                                _pickedImage!,
+                                fit: BoxFit.cover,
+                                width: 120,
+                                height: 120,
+                              )
                             : (_user!.profilePictureUrl != null
                                 ? (_user!.profilePictureUrl!.startsWith('/')
-                                    ? Image.file(
-                                      File(_user!.profilePictureUrl!),
-                                      fit: BoxFit.cover,
-                                      width: 120,
-                                      height: 120,
-                                    )
+                                    ? (File(_user!.profilePictureUrl!).existsSync()
+                                        ? Image.file(
+                                            File(_user!.profilePictureUrl!),
+                                            fit: BoxFit.cover,
+                                            width: 120,
+                                            height: 120,
+                                          )
+                                        : Image.asset(
+                                            'assets/images/placeholder.png',
+                                            fit: BoxFit.cover,
+                                            width: 120,
+                                            height: 120,
+                                          ))
                                     : Image.network(
-                                      _user!.profilePictureUrl!,
-                                      fit: BoxFit.cover,
-                                      width: 120,
-                                      height: 120,
-                                      errorBuilder: (
-                                        context,
-                                        error,
-                                        stackTrace,
-                                      ) {
-                                        return Image.asset(
-                                          'assets/images/placeholder.png',
-                                          fit: BoxFit.cover,
-                                          width: 120,
-                                          height: 120,
-                                        );
-                                      },
-                                    ))
+                                        _user!.profilePictureUrl!,
+                                        fit: BoxFit.cover,
+                                        width: 120,
+                                        height: 120,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Image.asset(
+                                            'assets/images/placeholder.png',
+                                            fit: BoxFit.cover,
+                                            width: 120,
+                                            height: 120,
+                                          );
+                                        },
+                                      ))
                                 : Image.asset(
-                                  'assets/images/placeholder.png',
-                                  fit: BoxFit.cover,
-                                  width: 120,
-                                  height: 120,
-                                )),
+                                    'assets/images/placeholder.png',
+                                    fit: BoxFit.cover,
+                                    width: 120,
+                                    height: 120,
+                                  )),
                   ),
                   if (_isEditing)
                     Positioned(
@@ -314,22 +315,22 @@ class _ProfilePageState extends State<ProfilePage> {
             TextFormField(
               controller: _firstNameController,
               enabled: _isEditing,
-              decoration: const InputDecoration(labelText: 'First Name'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.firstName),
             ),
             TextFormField(
               controller: _lastNameController,
               enabled: _isEditing,
-              decoration: const InputDecoration(labelText: 'Last Name'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.lastName),
             ),
             TextFormField(
               controller: _emailController,
               enabled: false,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.email),
             ),
             TextFormField(
               controller: _phoneNumberController,
               enabled: _isEditing,
-              decoration: const InputDecoration(labelText: 'Phone Number'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.phone),
             ),
             GestureDetector(
               onTap: _isEditing ? () => _selectDate(context) : null,
@@ -337,26 +338,32 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: TextFormField(
                   controller: _birthDayController,
                   enabled: _isEditing,
-                  decoration: const InputDecoration(labelText: 'Birth Day'),
+                  decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.birthdate),
                 ),
               ),
             ),
             DropdownButtonFormField<String>(
-              value: _selectedGender,
-              items: const [
-                DropdownMenuItem(value: 'Male', child: Text('Male')),
-                DropdownMenuItem(value: 'Female', child: Text('Female')),
-                DropdownMenuItem(value: 'none', child: Text('none')),
-              ],
+              value: _selectedGenderId,
+              items: (() {
+                final locale = Localizations.localeOf(context).languageCode;
+                return LookupService().gender.map<DropdownMenuItem<String>>((gender) {
+                  final value = gender['id'].toString();
+                  final name = locale == 'ar' ? (gender['genderAr'] ?? '') : (gender['genderEn'] ?? '');
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(name),
+                  );
+                }).toList();
+              })(),
               onChanged:
                   _isEditing
                       ? (newValue) {
                         setState(() {
-                          _selectedGender = newValue;
+                          _selectedGenderId = newValue;
                         });
                       }
                       : null,
-              decoration: const InputDecoration(labelText: 'Gender'),
+              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.gender),
             ),
           ],
         ),
