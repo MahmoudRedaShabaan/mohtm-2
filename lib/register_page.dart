@@ -7,6 +7,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 
 class RegisterPage extends StatefulWidget {
@@ -18,6 +19,44 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   // GOOGLE SIGN-IN
+  String? _fcmToken;
+  void _initFCM() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    // Request permissions on iOS
+    NotificationSettings settings= await messaging.requestPermission();
+    print('User granted permission: ${settings.authorizationStatus}');
+    final token = await messaging.getToken();
+    setState(() {
+      _fcmToken = token;
+    });
+    print("FCM Token: $_fcmToken");
+
+    // Update the logged-in user's fcmToken in Firestore (initial set)
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && token != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'fcmToken': token});
+    }
+
+    // Listen for token refreshes
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      print("New FCM Token: $newToken");
+      setState(() {
+        _fcmToken = newToken;
+      });
+      // Update the logged-in user's fcmToken in Firestore
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'fcmToken': newToken});
+      }
+    });
+  }
   Future<void> signInWithGoogle() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -47,7 +86,9 @@ class _RegisterPageState extends State<RegisterPage> {
             'email': userEmail,
             'gender': '1',
           });
+           _initFCM();
         }
+       
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -337,12 +378,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
       User? user = userCredential.user;
       if (user != null) {
+        final lang = Localizations.localeOf(context).languageCode;
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .set({
           'email': _emailController.text,
-          'gender':'1'
+          'gender': '1',
+          'lang': lang,
         });
         // Send email verification
         await user.sendEmailVerification();
@@ -357,7 +400,7 @@ class _RegisterPageState extends State<RegisterPage> {
       print(e.code);
       print("mmmreda");
       print(e.message);
-      return "Registration failed: ${e.message}";
+      return AppLocalizations.of(context)!.registerErrorMessage;
     } catch (e) {
       // Handle other potential errors (e.g., Firestore errors)
       print("Error saving user data: $e");

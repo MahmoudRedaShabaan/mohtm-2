@@ -3,7 +3,7 @@
   "login": "تسجيل الدخول",
   "logout": "تسجيل الخروج",
   "welcome": "مرحبا",
-  "noAnniversariesToday":"لا يوجد مناسيات اليوم",
+  "noAnniversariesToday":"لا توجد مناسبات محفوظة لهذا اليوم، يمكنك إضافة مناسبة جديدة",
   "title":"مهتم",
   "mohtmMenu":"قائمة مهتم",
   "rateUs":"قيمنا",
@@ -100,5 +100,18 @@
   "subject": "الموضوع",
   "body": "المحتوى",
   "send": "إرسال",
-  "contactUs": "تواصل معنا"
+  "contactUs": "تواصل معنا",
+  "passwordResetSent": "تم إرسال رسالة إعادة تعيين كلمة المرور إلى {email}. يرجى التحقق من بريدك الوارد (والمزعج).",
+  "emailNotFound": "البريد الإلكتروني غير موجودً",
+  "errorSendRestmail": "خطأ في إرسال رسالة إعادة تعيين كلمة المرور: {errorMessage}",
+  "unexpectedErrorOccurred": "حدث خطأ غير متوقع.",
+  "pleaseInterValidInputs": "الرجاء إدخال بيانات صحيحة",
+  "userNotLogin": "المستخدم غير مسجل الدخول",
+  "annAddSuccessfully": "تمت إضافة المناسبة بنجاح",
+  "failtoAddAnniversary": "فشل في إضافة المناسبة، يرجى المحاولة مرة أخرى لاحقًا",
+  "dateValidation": "يرجى اختيار التاريخ.",
+  "annUpdateSuccessfully": "تم تحديث المناسبة بنجاح",
+  "failtoUpdateAnniversary": "فشل في تحديث المناسبة، يرجى المحاولة مرة أخرى لاحقًا",
+  "oldPasswordIncorrect": "كلمة المرور القديمة غير صحيحة. يرجى المحاولة مرة أخرى.",
+  "occasionDetails": "تفاصيل المناسبة"
 }

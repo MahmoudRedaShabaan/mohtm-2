@@ -215,157 +215,265 @@ class _ProfilePageState extends State<ProfilePage> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.profile),
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: _toggleEditMode,
-          ),
-        ],
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFF3E6F9),
+            Color(0xFFE9D7F7),
+            Color(0xFFD6B4F7),
+            Color(0xFFC7A1E6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 120,
-              height: 120,
-              child: Stack(
-                children: [
-                  ClipOval(
-                    child:
-                        _pickedImage != null
-                            ? Image.file(
-                                _pickedImage!,
-                                fit: BoxFit.cover,
-                                width: 120,
-                                height: 120,
-                              )
-                            : (_user!.profilePictureUrl != null
-                                ? (_user!.profilePictureUrl!.startsWith('/')
-                                    ? (File(_user!.profilePictureUrl!).existsSync()
-                                        ? Image.file(
-                                            File(_user!.profilePictureUrl!),
-                                            fit: BoxFit.cover,
-                                            width: 120,
-                                            height: 120,
-                                          )
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          title: Text(AppLocalizations.of(context)!.profile),
+          actions: [
+            IconButton(
+              icon: Icon(_isEditing ? Icons.save : Icons.edit),
+              onPressed: _toggleEditMode,
+            ),
+          ],
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(32),
+              ),
+              color: const Color(0xFFF3E6F9),
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 120,
+                      height: 120,
+                      child: Stack(
+                        children: [
+                          ClipOval(
+                            child:
+                                _pickedImage != null
+                                    ? Image.file(
+                                        _pickedImage!,
+                                        fit: BoxFit.cover,
+                                        width: 120,
+                                        height: 120,
+                                      )
+                                    : (_user!.profilePictureUrl != null
+                                        ? (_user!.profilePictureUrl!.startsWith('/')
+                                            ? (File(_user!.profilePictureUrl!).existsSync()
+                                                ? Image.file(
+                                                    File(_user!.profilePictureUrl!),
+                                                    fit: BoxFit.cover,
+                                                    width: 120,
+                                                    height: 120,
+                                                  )
+                                                : Image.asset(
+                                                    'assets/images/placeholder.png',
+                                                    fit: BoxFit.cover,
+                                                    width: 120,
+                                                    height: 120,
+                                                  ))
+                                            : Image.network(
+                                                _user!.profilePictureUrl!,
+                                                fit: BoxFit.cover,
+                                                width: 120,
+                                                height: 120,
+                                                errorBuilder: (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) {
+                                                  return Image.asset(
+                                                    'assets/images/placeholder.png',
+                                                    fit: BoxFit.cover,
+                                                    width: 120,
+                                                    height: 120,
+                                                  );
+                                                },
+                                              ))
                                         : Image.asset(
                                             'assets/images/placeholder.png',
                                             fit: BoxFit.cover,
                                             width: 120,
                                             height: 120,
-                                          ))
-                                    : Image.network(
-                                        _user!.profilePictureUrl!,
-                                        fit: BoxFit.cover,
-                                        width: 120,
-                                        height: 120,
-                                        errorBuilder: (
-                                          context,
-                                          error,
-                                          stackTrace,
-                                        ) {
-                                          return Image.asset(
-                                            'assets/images/placeholder.png',
-                                            fit: BoxFit.cover,
-                                            width: 120,
-                                            height: 120,
-                                          );
-                                        },
-                                      ))
-                                : Image.asset(
-                                    'assets/images/placeholder.png',
-                                    fit: BoxFit.cover,
-                                    width: 120,
-                                    height: 120,
-                                  )),
-                  ),
-                  if (_isEditing)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: InkWell(
-                        onTap: _pickImage,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
+                                          )),
                           ),
-                          padding: const EdgeInsets.all(8),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 24,
+                          if (_isEditing)
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: InkWell(
+                                onTap: _pickImage,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: const EdgeInsets.all(8),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (_isUploadingImage)
+                            const Positioned.fill(
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _firstNameController,
+                      enabled: _isEditing,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.firstName,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _lastNameController,
+                      enabled: _isEditing,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.lastName,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _emailController,
+                      enabled: false,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.email,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _phoneNumberController,
+                      enabled: _isEditing,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.phone,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: _isEditing ? () => _selectDate(context) : null,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: _birthDayController,
+                          enabled: _isEditing,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.birthdate,
+                            filled: true,
+                            fillColor: const Color(0xFFE9D7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide(color: Color(0xFF502878)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide(color: Color(0xFFB365C1)),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  if (_isUploadingImage)
-                    const Positioned.fill(
-                      child: Center(child: CircularProgressIndicator()),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedGenderId,
+                      items: (() {
+                        final locale = Localizations.localeOf(context).languageCode;
+                        return LookupService().gender.map<DropdownMenuItem<String>>((gender) {
+                          final value = gender['id'].toString();
+                          final name = locale == 'ar' ? (gender['genderAr'] ?? '') : (gender['genderEn'] ?? '');
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(name),
+                          );
+                        }).toList();
+                      })(),
+                      onChanged:
+                          _isEditing
+                              ? (newValue) {
+                                setState(() {
+                                  _selectedGenderId = newValue;
+                                });
+                              }
+                              : null,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.gender,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
                     ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _firstNameController,
-              enabled: _isEditing,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.firstName),
-            ),
-            TextFormField(
-              controller: _lastNameController,
-              enabled: _isEditing,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.lastName),
-            ),
-            TextFormField(
-              controller: _emailController,
-              enabled: false,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.email),
-            ),
-            TextFormField(
-              controller: _phoneNumberController,
-              enabled: _isEditing,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.phone),
-            ),
-            GestureDetector(
-              onTap: _isEditing ? () => _selectDate(context) : null,
-              child: AbsorbPointer(
-                child: TextFormField(
-                  controller: _birthDayController,
-                  enabled: _isEditing,
-                  decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.birthdate),
+                  ],
                 ),
               ),
             ),
-            DropdownButtonFormField<String>(
-              value: _selectedGenderId,
-              items: (() {
-                final locale = Localizations.localeOf(context).languageCode;
-                return LookupService().gender.map<DropdownMenuItem<String>>((gender) {
-                  final value = gender['id'].toString();
-                  final name = locale == 'ar' ? (gender['genderAr'] ?? '') : (gender['genderEn'] ?? '');
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(name),
-                  );
-                }).toList();
-              })(),
-              onChanged:
-                  _isEditing
-                      ? (newValue) {
-                        setState(() {
-                          _selectedGenderId = newValue;
-                        });
-                      }
-                      : null,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.gender),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -157,7 +157,9 @@ class _MyAppState extends State<MyApp> {
           }
           if (snapshot.hasData) {
             // User is logged in
+            // _initFCM();
             return HomePage(
+              key: ValueKey('home_${_locale.languageCode}'),
               onLanguageChanged: (lang) {
                 setLocale(Locale(lang));
               },
@@ -166,6 +168,7 @@ class _MyAppState extends State<MyApp> {
           }
           // User is not logged in
           return LoginPage(
+            key: ValueKey('login_${_locale.languageCode}'),
             onLanguageChanged: (lang) {
               setLocale(Locale(lang));
             },

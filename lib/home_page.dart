@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/anniversary_info_page.dart';
 import 'package:myapp/appfeedback.dart';
-import 'package:myapp/constants.dart';
 import 'package:myapp/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:myapp/lookup.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class Anniversary {
   final DateTime date;
@@ -40,6 +40,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    filteredAnniversaries = widget.todayAnniversaries;
+    _loadAppVersion();
+  }
+
+  void _loadAppVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() {
+      _appVersion = info.version;
+    });
+  }
+  Future<void> _updateUserLang(String lang) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'lang': lang});
+    }
+  }
   DateTime? startDate;
   DateTime? endDate;
   // String _currentLanguage = "en"; // 'en' for English, 'ar' for Arabic
@@ -50,12 +72,7 @@ class _HomePageState extends State<HomePage> {
   List<QueryDocumentSnapshot> filteredDocs = [];
   bool isFiltering = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Initially show all anniversaries in the filter tab
-    filteredAnniversaries = widget.todayAnniversaries;
-  }
+
 
   void filterAnniversaries() {
     if (startDate == null || endDate == null) {
@@ -142,8 +159,9 @@ class _HomePageState extends State<HomePage> {
                                           : Colors.transparent,
                                 ),
                                 title: const Text('English'),
-                                onTap: () {
+                                onTap: () async {
                                   widget.onLanguageChanged('en');
+                                  await _updateUserLang('en');
                                   Navigator.pop(context);
                                 },
                               ),
@@ -156,8 +174,9 @@ class _HomePageState extends State<HomePage> {
                                           : Colors.transparent,
                                 ),
                                 title: const Text('العربية'),
-                                onTap: () {
+                                onTap: () async {
                                   widget.onLanguageChanged('ar');
+                                  await _updateUserLang('ar');
                                   Navigator.pop(context);
                                 },
                               ),
@@ -188,74 +207,100 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                DrawerHeader(
-                  decoration: const BoxDecoration(color: Color.fromARGB(255, 211, 154, 223)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 36,
-                        backgroundImage:
-                            AssetImage('assets/images/icon.png'),
-                       // backgroundColor: Colors.white,
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      DrawerHeader(
+                        decoration: const BoxDecoration(color: Color.fromARGB(255, 211, 154, 223)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircleAvatar(
+                              radius: 36,
+                              backgroundImage:
+                                  AssetImage('assets/images/icon.png'),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              AppLocalizations.of(context)!.mohtmMenu,
+                              style: const TextStyle(color: Colors.white, fontSize: 24),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalizations.of(context)!.mohtmMenu, // You can change this to your app name or a relevant title
-                        style: const TextStyle(color: Colors.white, fontSize: 24),
+                      ListTile(
+                        leading: const Icon(Icons.star),
+                        title: Text(AppLocalizations.of(context)!.rateUs),
+                        onTap: () {
+                          // TODO: Implement rate us functionality
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.share),
+                        title: Text(AppLocalizations.of(context)!.shareApp),
+                        onTap: () {
+                          // TODO: Implement share app functionality
+                        },
+                      ),
+                      ExpansionTile(
+                        leading: const Icon(Icons.settings),
+                        title: Text(AppLocalizations.of(context)!.settings),
+                        children: <Widget>[
+                          ListTile(
+                            leading: const Icon(Icons.lock_reset),
+                            title: Text(AppLocalizations.of(context)!.changePassword),
+                            onTap: () {
+                              Navigator.pop(context); // Close the drawer first
+                              Navigator.pushNamed(context, '/change_password');
+                            },
+                          ),
+                        ],
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.contact_mail),
+                        title: Text(AppLocalizations.of(context)!.contactUs),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const AppFeedbackPage()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.logout),
+                        title: Text(AppLocalizations.of(context)!.logout),
+                        onTap: () {
+                          signOut(context);
+                        },
                       ),
                     ],
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.star),
-                  title: Text(AppLocalizations.of(context)!.rateUs),
-                  onTap: () {
-                    // TODO: Implement rate us functionality
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.share),
-                  title: Text(AppLocalizations.of(context)!.shareApp),
-                  onTap: () {
-                    // TODO: Implement share app functionality
-                  },
-                ),
-                ExpansionTile(
-                  leading: const Icon(Icons.settings),
-                  title: Text(AppLocalizations.of(context)!.settings),
-                  children: <Widget>[
-                    ListTile(
-                      leading: const Icon(Icons.lock_reset),
-                      title: Text(AppLocalizations.of(context)!.changePassword),
-                      onTap: () {
-                        Navigator.pop(context); // Close the drawer first
-                        Navigator.pushNamed(context, '/change_password');
-                      },
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Text(
+                        _appVersion.isNotEmpty ? 'Version: $_appVersion' : '',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF888888),
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-                ListTile(
-                  leading: const Icon(Icons.contact_mail),
-                  title: Text(AppLocalizations.of(context)!.contactUs),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AppFeedbackPage()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: Text(AppLocalizations.of(context)!.logout),
-                  onTap: () {
-                    // TODO: Implement share app functionality
-                    signOut(context);
-                  },
+                  ),
                 ),
               ],
             ),
@@ -292,11 +337,15 @@ class _HomePageState extends State<HomePage> {
                         final eventTypes = LookupService().eventTypes;
                         String typeName = typeId;
                         if (typeId.isNotEmpty) {
+                          if(typeId=="4") {
+                            typeName=doc['addType']?.toString() ?? '';
+                          } else {
                           final typeObj = eventTypes.firstWhere(
                             (type) => type['id'].toString() == typeId,
                             orElse: () => <String, dynamic>{},
                           );
                           typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
+                          }
                         }
                         final priorityId = doc['priority']?.toString() ?? '';
                         final annPriorities = LookupService().annPriorities;
@@ -571,16 +620,20 @@ class _HomePageState extends State<HomePage> {
                                     final date =
                                         (doc['date'] as Timestamp).toDate();
                                     final title = doc['title'] ?? '';
-                                    final typeId = doc['type']?.toString() ?? '';
+                                    final String typeId = doc['type']?.toString() ?? '';
                                     final locale = Localizations.localeOf(context).languageCode;
                                     final eventTypes = LookupService().eventTypes;
                                     String typeName = typeId;
                                     if (typeId.isNotEmpty) {
+                                      if (typeId=="4") {
+                                        typeName=doc['addType']?.toString() ?? '';
+                                      } else {
                                       final typeObj = eventTypes.firstWhere(
                                         (type) => type['id'].toString() == typeId,
                                         orElse: () => <String, dynamic>{},
                                       );
                                       typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
+                                      }
                                     }
                                     final priorityId = doc['priority']?.toString() ?? '';
                                     final annPriorities = LookupService().annPriorities;
@@ -709,34 +762,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAnniversaryCard(Anniversary anniversary) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              anniversary.date.toLocal().toString().split(
-                ' ',
-              )[0], // Format date
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4.0),
-            Text(anniversary.name, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 4.0),
-            Text(anniversary.description),
-            const SizedBox(height: 4.0),
-            Text(
-              'Type: ${anniversary.type}',
-              style: const TextStyle(fontStyle: FontStyle.italic),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // Future<void> signOut(BuildContext context) async {
   //   try {
@@ -854,80 +879,4 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> _pickDayMonth({
-    required BuildContext context,
-    required bool isStart,
-  }) async {
-    int selectedMonth = (isStart ? filterStartDate : filterEndDate)?.month ?? 1;
-    int selectedDay = (isStart ? filterStartDate : filterEndDate)?.day ?? 1;
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            isStart ? 'Select Start Day/Month' : 'Select End Day/Month',
-          ),
-          content: Row(
-            children: [
-              // Month picker
-              DropdownButton<int>(
-                value: selectedMonth,
-                items:
-                    List.generate(12, (i) => i + 1)
-                        .map(
-                          (m) => DropdownMenuItem(value: m, child: Text('$m')),
-                        )
-                        .toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    selectedMonth = val;
-                    // Update UI
-                    (context as Element).markNeedsBuild();
-                  }
-                },
-              ),
-              const SizedBox(width: 16),
-              // Day picker
-              DropdownButton<int>(
-                value: selectedDay,
-                items:
-                    List.generate(31, (i) => i + 1)
-                        .map(
-                          (d) => DropdownMenuItem(value: d, child: Text('$d')),
-                        )
-                        .toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    selectedDay = val;
-                    (context as Element).markNeedsBuild();
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  final date = DateTime(2000, selectedMonth, selectedDay);
-                  if (isStart) {
-                    filterStartDate = date;
-                  } else {
-                    filterEndDate = date;
-                  }
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

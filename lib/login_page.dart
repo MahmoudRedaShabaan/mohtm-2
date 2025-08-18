@@ -8,6 +8,8 @@ import 'home_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 
 class LoginPage extends StatefulWidget {
   final void Function(String lang)? onLanguageChanged;
@@ -20,12 +22,50 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
+  String? _fcmToken;
   @override
   void initState() {
     super.initState();
     _loadSavedCredentials();
   }
 
+  void _initFCM() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    // Request permissions on iOS
+    NotificationSettings settings= await messaging.requestPermission();
+    print('User granted permission: ${settings.authorizationStatus}');
+    final token = await messaging.getToken();
+    setState(() {
+      _fcmToken = token;
+    });
+    print("FCM Token: $_fcmToken");
+
+    // Update the logged-in user's fcmToken in Firestore (initial set)
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && token != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'fcmToken': token});
+    }
+
+    // Listen for token refreshes
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      print("New FCM Token: $newToken");
+      setState(() {
+        _fcmToken = newToken;
+      });
+      // Update the logged-in user's fcmToken in Firestore
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'fcmToken': newToken});
+      }
+    });
+  }
   void _loadSavedCredentials() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -63,6 +103,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         );
+        _initFCM();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.soticalUseNotFound)),
@@ -165,9 +206,7 @@ class _LoginPageState extends State<LoginPage> {
                             ListTile(
                               leading: Icon(
                                 Icons.check,
-                                color: (widget.currentLanguage ?? 'en') == 'en'
-                                    ? Colors.green
-                                    : Colors.transparent,
+                                color: (widget.currentLanguage ?? 'en') == 'en' ? Colors.green : Colors.transparent,
                               ),
                               title: const Text('English'),
                               onTap: () {
@@ -178,9 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                             ListTile(
                               leading: Icon(
                                 Icons.check,
-                                color: (widget.currentLanguage ?? 'en') == 'ar'
-                                    ? Colors.green
-                                    : Colors.transparent,
+                                color: (widget.currentLanguage ?? 'en') == 'ar' ? Colors.green : Colors.transparent,
                               ),
                               title: const Text('العربية'),
                               onTap: () {
@@ -288,6 +325,23 @@ class _LoginPageState extends State<LoginPage> {
                       style: const TextStyle(fontFamily: 'Roboto'),
                     ),
                     const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.login, color: Color(0xFF502878)),
+                      label: Text(AppLocalizations.of(context)!.login),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD6B4F7),
+                        foregroundColor: const Color(0xFF502878),
+                        minimumSize: const Size(double.infinity, 48),
+                        side: const BorderSide(color: Color(0xFFB365C1)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: () {
+                        loginUserWithEmailAndPassword2();
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Checkbox(
@@ -364,28 +418,28 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> loginUserWithEmailAndPassword() async {
-    try {
-      final UserCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage(
-              onLanguageChanged: widget.onLanguageChanged ?? (_) {},
-              currentLanguage: widget.currentLanguage ?? 'en',
-            )),
-      );
-      print(UserCredential);
-      // return "true";
-    } on FirebaseAuthException catch (e) {
-      print(e.message);
-      _errorMessage = e.message.toString();
-      // return "e.message";
-    }
-  }
+  // Future<void> loginUserWithEmailAndPassword() async {
+  //   try {
+  //     final UserCredential = await FirebaseAuth.instance
+  //         .signInWithEmailAndPassword(
+  //           email: _emailController.text.trim(),
+  //           password: _passwordController.text.trim(),
+  //         );
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => HomePage(
+  //             onLanguageChanged: widget.onLanguageChanged ?? (_) {},
+  //             currentLanguage: widget.currentLanguage ?? 'en',
+  //           )),
+  //     );
+  //     print(UserCredential);
+  //     // return "true";
+  //   } on FirebaseAuthException catch (e) {
+  //     print(e.message);
+  //     _errorMessage = e.message.toString();
+  //     // return "e.message";
+  //   }
+  // }
 
   Future<void> loginUserWithEmailAndPassword2() async {
     try {
@@ -394,6 +448,7 @@ class _LoginPageState extends State<LoginPage> {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
+      _initFCM();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (_rememberMe) {
         await prefs.setString('saved_email', _emailController.text.trim());
@@ -442,7 +497,7 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'An unexpected error occurred.';
+          _errorMessage = AppLocalizations.of(context)!.unexpectedErrorOccurred;
         });
       }
     }

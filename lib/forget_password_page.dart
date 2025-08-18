@@ -148,21 +148,22 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
           setState(() {
             _isLoading = false;
             print(
-              'Password reset email sent to ${_emailController.text.trim()}. Please check your inbox (and spam folder).',
+              AppLocalizations.of(context)!.passwordResetSent(_emailController.text.trim()),
             );
-            _resetMessage =
-                'Password reset email sent to ${_emailController.text.trim()}. Please check your inbox (and spam folder).';
+            _resetMessage = AppLocalizations.of(context)!.passwordResetSent(_emailController.text.trim());
           });
         } else {
           setState(() {
           _isLoading = false;
-          _resetMessage = 'Email not found';
+          _resetMessage = AppLocalizations.of(context)!.emailNotFound;
           });
         }
       } on FirebaseAuthException catch (e) {
         setState(() {
           _isLoading = false;
-          _resetMessage = 'Error sending reset email: ${e.message}';
+          _resetMessage = AppLocalizations.of(context)!.errorSendRestmail(e.message.toString().trim());
+
+         // _resetMessage = 'Error sending reset email: ${e.message}';
         });
         print('Error sending reset email: ${e.code} - ${e.message}');
         // Optionally, show a SnackBar here as well
@@ -172,7 +173,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
       } catch (e) {
         setState(() {
           _isLoading = false;
-          _resetMessage = 'An unexpected error occurred.';
+          _resetMessage = AppLocalizations.of(context)!.unexpectedErrorOccurred;
         });
         print('Unexpected error during password reset: $e');
         ScaffoldMessenger.of(
@@ -182,7 +183,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
     }else{
       setState(() {
        // _isLoading = true;
-        _resetMessage = '';
+        _resetMessage = AppLocalizations.of(context)!.pleaseInterValidInputs;
       });
     }
     return _resetMessage;

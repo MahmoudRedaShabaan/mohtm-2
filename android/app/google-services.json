@@ -58,6 +58,14 @@
           }
         },
         {
+          "client_id": "980266462699-e0ke5tofjvoir69jni6aphr9n7ekpo6n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.reda.mohtm2",
+            "certificate_hash": "81307778c97be9c2ff07bfe9d9ca97454500752d"
+          }
+        },
+        {
           "client_id": "980266462699-2b3el5lismnjjm2u0krqsnsssc77gsrr.apps.googleusercontent.com",
           "client_type": 3
         }

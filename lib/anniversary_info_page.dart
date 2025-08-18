@@ -27,12 +27,13 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
   String? _selectedPriority;
 
   // For multi-selection display
-  final List<String> _rememberBeforeOptions = [
-    'Month',
-    'Week',
-    'Day',
-    'At time of event',
-  ];
+  List<Map<String, dynamic>> get _rememberMeList => LookupService().rememberMe;
+  List<String> get _rememberBeforeOptions {
+    final locale = Localizations.localeOf(context).languageCode;
+    return _rememberMeList.map<String>((option) {
+      return locale == 'ar' ? (option['valueAr'] ?? '') : (option['valueEn'] ?? '');
+    }).toList();
+  }
   String? _selectedRememberBefore;
 
   @override
@@ -52,8 +53,17 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
       isLoading = false;
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
-        final rememberBefore = data['rememberBefore'];
-        _selectedRememberBefore = rememberBefore is String ? rememberBefore : (rememberBefore is List && rememberBefore.isNotEmpty ? rememberBefore.first : null);
+        final rememberBeforeId = data['rememberBefore']?.toString();
+        if (rememberBeforeId != null) {
+          final locale = Localizations.localeOf(context).languageCode;
+          final option = _rememberMeList.firstWhere(
+            (opt) => opt['id'].toString() == rememberBeforeId,
+            orElse: () => <String, dynamic>{},
+          );
+          _selectedRememberBefore = locale == 'ar' ? (option['valueAr'] ?? '') : (option['valueEn'] ?? '');
+        } else {
+          _selectedRememberBefore = null;
+        }
 
         _titleController = TextEditingController(text: data['title'] ?? '');
         _descriptionController = TextEditingController(
@@ -119,169 +129,299 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     }
     final rememberBefore = data['rememberBefore']  ?? '';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Anniversary Info'),
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: () {
-              if (_isEditing) {
-                _saveChanges();
-              } else {
-                _toggleEdit();
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: _showDeleteConfirmation,
-          ),
-        ],
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFF3E6F9),
+            Color(0xFFE9D7F7),
+            Color(0xFFD6B4F7),
+            Color(0xFFC7A1E6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            TextFormField(
-              controller: _titleController,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.anntitle),
-              enabled: _isEditing,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          title:  Text(AppLocalizations.of(context)!.occasionDetails),
+          actions: [
+            IconButton(
+              icon: Icon(_isEditing ? Icons.save : Icons.edit),
+              onPressed: () {
+                if (_isEditing) {
+                  _saveChanges();
+                } else {
+                  _toggleEdit();
+                }
+              },
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.description),
-              enabled: _isEditing,
-              maxLines: 3,
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: _showDeleteConfirmation,
             ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap:
-                  _isEditing
-                      ? () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDate ?? DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2100),
+          ],
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(32),
+              ),
+              color: const Color(0xFFF3E6F9),
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.anntitle,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                      enabled: _isEditing,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.description,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                      enabled: _isEditing,
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: _isEditing
+                          ? () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: _selectedDate ?? DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime(2100),
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  _selectedDate = picked;
+                                });
+                              }
+                            }
+                          : null,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.date,
+                            filled: true,
+                            fillColor: const Color(0xFFE9D7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(color: Color(0xFF502878)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                            ),
+                          ),
+                          enabled: _isEditing,
+                          controller: TextEditingController(
+                            text: _selectedDate != null
+                                ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                                : '',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedTypeId,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.type,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      dropdownColor: const Color(0xFFE9D7F7),
+                      icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF502878)),
+                      style: const TextStyle(color: Color(0xFF502878), fontWeight: FontWeight.w500),
+                      items: eventTypes.map<DropdownMenuItem<String>>((type) {
+                        final id = type['id'].toString();
+                        final name = locale == 'ar' ? (type['arabicName'] ?? '') : (type['englishName'] ?? '');
+                        return DropdownMenuItem<String>(
+                          value: id,
+                          child: Text(name, style: const TextStyle(color: Color(0xFF502878))),
                         );
-                        if (picked != null) {
-                          setState(() {
-                            _selectedDate = picked;
-                          });
-                        }
-                      }
-                      : null,
-              child: AbsorbPointer(
-                child: TextFormField(
-                  decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.date),
-                  enabled: _isEditing,
-                  controller: TextEditingController(
-                    text:
-                        _selectedDate != null
-                            ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                            : '',
-                  ),
+                      }).toList(),
+                      onChanged: _isEditing
+                          ? (String? newId) {
+                              setState(() {
+                                _selectedTypeId = newId;
+                                final selectedType = eventTypes.firstWhere(
+                                  (type) => type['id'].toString() == newId,
+                                  orElse: () => <String, dynamic>{},
+                                );
+                                final isOther = selectedType['englishName'] == 'Other' || selectedType['arabicName'] == 'اخرى' || newId == '4';
+                                if (!isOther) {
+                                  _addTypeController.text = '';
+                                }
+                              });
+                            }
+                          : null,
+                      disabledHint: Text(typeName, style: const TextStyle(color: Color(0xFF502878))),
+                    ),
+                    if (_selectedTypeId == '4' && _isEditing) ...[
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _addTypeController,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.specifyType,
+                          filled: true,
+                          fillColor: const Color(0xFFE9D7F7),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(color: Color(0xFF502878)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                          ),
+                        ),
+                        enabled: _isEditing,
+                      ),
+                    ]
+                    else if (!_isEditing && typeId != null && typeId.toString() == '4') ...[
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _addTypeController,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.specifyType,
+                          filled: true,
+                          fillColor: const Color(0xFFE9D7F7),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(color: Color(0xFF502878)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                          ),
+                        ),
+                        enabled: false,
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _relationshipController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.relationship,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                      ),
+                      enabled: _isEditing,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedPriority,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.priority,
+                        filled: true,
+                        fillColor: const Color(0xFFE9D7F7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      dropdownColor: const Color(0xFFE9D7F7),
+                      icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF502878)),
+                      style: const TextStyle(color: Color(0xFF502878), fontWeight: FontWeight.w500),
+                      items: annPriorities.map<DropdownMenuItem<String>>((priority) {
+                        final value = priority['id'].toString();
+                        final name = locale == 'ar' ? (priority['priorityAr'] ?? '') : (priority['priorityEn'] ?? '');
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(name, style: const TextStyle(color: Color(0xFF502878))),
+                        );
+                      }).toList(),
+                      onChanged: _isEditing
+                          ? (val) => setState(() => _selectedPriority = val)
+                          : null,
+                      disabledHint: Text(priorityName, style: const TextStyle(color: Color(0xFF502878))),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      AppLocalizations.of(context)!.rememberBefore,
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF502878)),
+                    ),
+                    Column(
+                      children: _rememberBeforeOptions.map((option) {
+                        return RadioListTile<String>(
+                          title: Text(option, style: const TextStyle(color: Color(0xFF502878)) ),
+                          value: option,
+                          groupValue: _selectedRememberBefore,
+                          onChanged: _isEditing
+                              ? (String? value) {
+                                  setState(() {
+                                    _selectedRememberBefore = value;
+                                  });
+                                }
+                              : null,
+                          activeColor: const Color(0xFFB365C1),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Type Dropdown
-            DropdownButtonFormField<String>(
-              value: _selectedTypeId,
-              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.type),
-              items: eventTypes.map<DropdownMenuItem<String>>((type) {
-                final id = type['id'].toString();
-                final name = locale == 'ar' ? (type['arabicName'] ?? '') : (type['englishName'] ?? '');
-                return DropdownMenuItem<String>(
-                  value: id,
-                  child: Text(name),
-                );
-              }).toList(),
-              onChanged: _isEditing
-                  ? (String? newId) {
-                      setState(() {
-                        _selectedTypeId = newId;
-                        // Optionally clear addType field if not Other
-                        final selectedType = eventTypes.firstWhere(
-                          (type) => type['id'].toString() == newId,
-                          orElse: () => <String, dynamic>{},
-                        );
-                        final isOther = selectedType['englishName'] == 'Other' || selectedType['arabicName'] == 'اخرى' || newId == '4';
-                        if (!isOther) {
-                          _addTypeController.text = '';
-                        }
-                      });
-                    }
-                  : null,
-              disabledHint: Text(typeName),
-            ),
-            
-            // Show special name field if selected type is Other (id=4)
-            if (_selectedTypeId == '4' && _isEditing) ...[
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _addTypeController,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.specifyType),
-                enabled: _isEditing,
-              ),
-            ]
-            else if (!_isEditing && typeId != null && typeId.toString() == '4') ...[
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _addTypeController,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.specifyType),
-                enabled: false,
-              ),
-            ],
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _relationshipController,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.relationship),
-              enabled: _isEditing,
-            ),
-            const SizedBox(height: 16),
-            // Priority Dropdown
-            DropdownButtonFormField<String>(
-              value: _selectedPriority,
-              decoration:  InputDecoration(labelText: AppLocalizations.of(context)!.priority),
-              items: annPriorities.map<DropdownMenuItem<String>>((priority) {
-                final value = priority['id'].toString();
-                final name = locale == 'ar' ? (priority['priorityAr'] ?? '') : (priority['priorityEn'] ?? '');
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(name),
-                );
-              }).toList(),
-              onChanged:
-                  _isEditing
-                      ? (val) => setState(() => _selectedPriority = val)
-                      : null,
-              disabledHint: Text(priorityName),
-            ),
-            const SizedBox(height: 16),
-             Text(
-              AppLocalizations.of(context)!.rememberBefore,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Column(
-              children: _rememberBeforeOptions.map((option) {
-                return RadioListTile<String>(
-                  title: Text(option),
-                  value: option,
-                  groupValue: _selectedRememberBefore,
-                  onChanged: _isEditing
-                      ? (String? value) {
-                          setState(() {
-                            _selectedRememberBefore = value;
-                          });
-                        }
-                      : null,
-                );
-              }).toList(),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -294,22 +434,46 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
   }
 
   Future<void> _saveChanges() async {
+    // Validation for mandatory fields
+    String? errorMsg;
+    if (_titleController.text.trim().isEmpty) {
+      errorMsg = AppLocalizations.of(context)!.anniversaryNameValidation;
+    } else if (_selectedDate == null) {
+      errorMsg = AppLocalizations.of(context)!.dateValidation;
+    } else if (_selectedTypeId == null || _selectedTypeId!.isEmpty) {
+      errorMsg = AppLocalizations.of(context)!.anniversarytypeValidation;
+    } else if (_selectedPriority == null || _selectedPriority!.isEmpty) {
+      errorMsg = AppLocalizations.of(context)!.priorityValidation;
+    }
+    if (errorMsg != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg)),
+      );
+      return;
+    }
     if (anniversaryDoc == null) return;
     setState(() => isLoading = true);
-    // Calculate rememberBeforeDate
+    // Calculate rememberBeforeDate and id
+    final locale = Localizations.localeOf(context).languageCode;
+    String? rememberBeforeId;
     DateTime? rememberBeforeDate;
     if (_selectedDate != null && _selectedRememberBefore != null) {
-      switch (_selectedRememberBefore) {
-        case 'Month':
+      final selectedOption = _rememberMeList.firstWhere(
+        (option) => (locale == 'ar' ? option['valueAr'] : option['valueEn']) == _selectedRememberBefore,
+        orElse: () => <String, dynamic>{},
+      );
+      rememberBeforeId = selectedOption['id']?.toString();
+      switch (rememberBeforeId) {
+        case '1': // Month
           rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 30));
           break;
-        case 'Week':
+        case '2': // Week
           rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 7));
           break;
-        case 'Day':
+        case '3': // Day
           rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 1));
           break;
-        case 'At time of event':
+        case '4': // At time of event
         default:
           rememberBeforeDate = _selectedDate;
       }
@@ -321,7 +485,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
       'relationship': _relationshipController.text,
       'priority': _selectedPriority,
       'date': _selectedDate,
-      'rememberBefore': _selectedRememberBefore,
+      'rememberBefore': rememberBeforeId,
       'rememberBeforeDate': rememberBeforeDate,
     };
     if (_selectedTypeId == '4') {
@@ -329,6 +493,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     } else {
       updateData['addType'] = null;
     }
+    try{
     await FirebaseFirestore.instance
         .collection('anniversaries')
         .doc(widget.anniversaryId)
@@ -339,7 +504,16 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     });
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Anniversary updated!')));
+    ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.annUpdateSuccessfully)));
+    }catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.failtoUpdateAnniversary)),
+      );
+      print('Error updating anniversary: $e');
+    }
   }
   void _showDeleteConfirmation() {
   showDialog(

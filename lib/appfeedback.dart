@@ -183,7 +183,7 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
                           borderSide: BorderSide(color: Color(0xFFB365C1)),
                         ),
                       ),
-                      maxLength: 100,
+                      maxLength: 50,
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -203,7 +203,7 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
                         ),
                       ),
                       maxLines: 6,
-                      maxLength: 1000,
+                      maxLength: 250,
                     ),
                     const SizedBox(height: 24),
                     if (_errorMessage != null)

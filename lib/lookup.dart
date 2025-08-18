@@ -13,6 +13,27 @@ class LookupService {
     'genderEn': 'Female', 
     'genderAr': 'انثى'
   }];
+
+  List<Map<String, dynamic>> rememberMe = [{
+    'id': '1',
+    'valueEn': 'Month', 
+    'valueAr': 'شهر'
+  },
+  {
+    'id': '2',
+    'valueEn': 'Week', 
+    'valueAr': 'أسبوع'
+  },
+  {
+    'id': '3',
+    'valueEn': 'Day', 
+    'valueAr': 'يوم'
+  },
+  {
+    'id': '4',
+    'valueEn': 'At time of event', 
+    'valueAr': 'فى وقت الحدث'
+  }];
   Future<void> fetchAnnPriority() async {
     final snapshot = await FirebaseFirestore.instance.collection('annpriority').get();
     annPriorities = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
