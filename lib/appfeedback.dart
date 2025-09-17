@@ -67,7 +67,7 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
         'title': title,
         'comment': comment,
         'timestamp': FieldValue.serverTimestamp(),
-        'read':false,
+        'read': false,
       });
       setState(() {
         _isSubmitting = false;
@@ -82,10 +82,12 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(
-                onLanguageChanged: (_) {},
-                currentLanguage: Localizations.localeOf(context).languageCode,
-              ),
+              builder:
+                  (context) => HomePage(
+                    onLanguageChanged: (_) {},
+                    currentLanguage:
+                        Localizations.localeOf(context).languageCode,
+                  ),
             ),
             (route) => false,
           );
@@ -93,10 +95,12 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => LoginPage(
-                onLanguageChanged: (_) {},
-                currentLanguage: Localizations.localeOf(context).languageCode,
-              ),
+              builder:
+                  (context) => LoginPage(
+                    onLanguageChanged: (_) {},
+                    currentLanguage:
+                        Localizations.localeOf(context).languageCode,
+                  ),
             ),
             (route) => false,
           );
@@ -132,7 +136,16 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          title: Text(AppLocalizations.of(context)!.feedbackTitle),
+          title: Text(
+            AppLocalizations.of(context)!.feedbackTitle,
+            style: const TextStyle(
+              fontFamily: 'Pacifico',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 80, 40, 120),
+            ),
+          ),
+          //title: Text(AppLocalizations.of(context)!.feedbackTitle),
         ),
         body: Center(
           child: SingleChildScrollView(
@@ -154,7 +167,10 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
                         labelText: AppLocalizations.of(context)?.email,
                         filled: true,
                         fillColor: const Color(0xFFE9D7F7),
-                        prefixIcon: const Icon(Icons.email, color: Color(0xFF502878)),
+                        prefixIcon: const Icon(
+                          Icons.email,
+                          color: Color(0xFF502878),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide(color: Color(0xFF502878)),
@@ -173,7 +189,10 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
                         labelText: AppLocalizations.of(context)?.subject,
                         filled: true,
                         fillColor: const Color(0xFFE9D7F7),
-                        prefixIcon: const Icon(Icons.title, color: Color(0xFF502878)),
+                        prefixIcon: const Icon(
+                          Icons.title,
+                          color: Color(0xFF502878),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide(color: Color(0xFF502878)),
@@ -192,7 +211,10 @@ class _AppFeedbackPageState extends State<AppFeedbackPage> {
                         labelText: AppLocalizations.of(context)!.body,
                         filled: true,
                         fillColor: const Color(0xFFE9D7F7),
-                        prefixIcon: const Icon(Icons.comment, color: Color(0xFF502878)),
+                        prefixIcon: const Icon(
+                          Icons.comment,
+                          color: Color(0xFF502878),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide(color: Color(0xFF502878)),

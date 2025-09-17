@@ -108,7 +108,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          title: Text(AppLocalizations.of(context)!.changePasswordTitle),
+          title: Text(
+          AppLocalizations.of(context)!.changePasswordTitle,
+          style: const TextStyle(
+            fontFamily: 'Pacifico',
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 80, 40, 120),
+          ),
+        ),
+          //title: Text(AppLocalizations.of(context)!.changePasswordTitle),
         ),
         body: Center(
           child: SingleChildScrollView(

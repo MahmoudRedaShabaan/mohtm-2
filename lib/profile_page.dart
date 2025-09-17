@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class User {
   String firstName;
   String lastName;
@@ -184,7 +183,11 @@ class _ProfilePageState extends State<ProfilePage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdatedsuccessfully)),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.profileUpdatedsuccessfully,
+          ),
+        ),
       );
     } catch (e) {
       print("Error saving changes: $e");
@@ -235,7 +238,16 @@ class _ProfilePageState extends State<ProfilePage> {
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          title: Text(AppLocalizations.of(context)!.profile),
+          title: Text(
+            AppLocalizations.of(context)!.profile,
+            style: const TextStyle(
+              fontFamily: 'Pacifico',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 80, 40, 120),
+            ),
+          ),
+          //title: Text(AppLocalizations.of(context)!.profile),
           actions: [
             IconButton(
               icon: Icon(_isEditing ? Icons.save : Icons.edit),
@@ -266,50 +278,56 @@ class _ProfilePageState extends State<ProfilePage> {
                             child:
                                 _pickedImage != null
                                     ? Image.file(
-                                        _pickedImage!,
-                                        fit: BoxFit.cover,
-                                        width: 120,
-                                        height: 120,
-                                      )
+                                      _pickedImage!,
+                                      fit: BoxFit.cover,
+                                      width: 120,
+                                      height: 120,
+                                    )
                                     : (_user!.profilePictureUrl != null
-                                        ? (_user!.profilePictureUrl!.startsWith('/')
-                                            ? (File(_user!.profilePictureUrl!).existsSync()
+                                        ? (_user!.profilePictureUrl!.startsWith(
+                                              '/',
+                                            )
+                                            ? (File(
+                                                  _user!.profilePictureUrl!,
+                                                ).existsSync()
                                                 ? Image.file(
-                                                    File(_user!.profilePictureUrl!),
-                                                    fit: BoxFit.cover,
-                                                    width: 120,
-                                                    height: 120,
-                                                  )
+                                                  File(
+                                                    _user!.profilePictureUrl!,
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                  width: 120,
+                                                  height: 120,
+                                                )
                                                 : Image.asset(
-                                                    'assets/images/placeholder.png',
-                                                    fit: BoxFit.cover,
-                                                    width: 120,
-                                                    height: 120,
-                                                  ))
+                                                  'assets/images/placeholder.png',
+                                                  fit: BoxFit.cover,
+                                                  width: 120,
+                                                  height: 120,
+                                                ))
                                             : Image.network(
-                                                _user!.profilePictureUrl!,
-                                                fit: BoxFit.cover,
-                                                width: 120,
-                                                height: 120,
-                                                errorBuilder: (
-                                                  context,
-                                                  error,
-                                                  stackTrace,
-                                                ) {
-                                                  return Image.asset(
-                                                    'assets/images/placeholder.png',
-                                                    fit: BoxFit.cover,
-                                                    width: 120,
-                                                    height: 120,
-                                                  );
-                                                },
-                                              ))
+                                              _user!.profilePictureUrl!,
+                                              fit: BoxFit.cover,
+                                              width: 120,
+                                              height: 120,
+                                              errorBuilder: (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) {
+                                                return Image.asset(
+                                                  'assets/images/placeholder.png',
+                                                  fit: BoxFit.cover,
+                                                  width: 120,
+                                                  height: 120,
+                                                );
+                                              },
+                                            ))
                                         : Image.asset(
-                                            'assets/images/placeholder.png',
-                                            fit: BoxFit.cover,
-                                            width: 120,
-                                            height: 120,
-                                          )),
+                                          'assets/images/placeholder.png',
+                                          fit: BoxFit.cover,
+                                          width: 120,
+                                          height: 120,
+                                        )),
                           ),
                           if (_isEditing)
                             Positioned(
@@ -436,17 +454,24 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _selectedGenderId,
-                      items: (() {
-                        final locale = Localizations.localeOf(context).languageCode;
-                        return LookupService().gender.map<DropdownMenuItem<String>>((gender) {
-                          final value = gender['id'].toString();
-                          final name = locale == 'ar' ? (gender['genderAr'] ?? '') : (gender['genderEn'] ?? '');
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(name),
-                          );
-                        }).toList();
-                      })(),
+                      items:
+                          (() {
+                            final locale =
+                                Localizations.localeOf(context).languageCode;
+                            return LookupService().gender
+                                .map<DropdownMenuItem<String>>((gender) {
+                                  final value = gender['id'].toString();
+                                  final name =
+                                      locale == 'ar'
+                                          ? (gender['genderAr'] ?? '')
+                                          : (gender['genderEn'] ?? '');
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(name),
+                                  );
+                                })
+                                .toList();
+                          })(),
                       onChanged:
                           _isEditing
                               ? (newValue) {

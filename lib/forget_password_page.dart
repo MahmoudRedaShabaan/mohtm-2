@@ -44,7 +44,16 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          title: Text(AppLocalizations.of(context)!.forgetPassword),
+          title: Text(
+          AppLocalizations.of(context)!.forgetPassword,
+          style: const TextStyle(
+            fontFamily: 'Pacifico',
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 80, 40, 120),
+          ),
+        ),
+        //  title: Text(AppLocalizations.of(context)!.forgetPassword),
         ),
         body: Center(
           child: SingleChildScrollView(

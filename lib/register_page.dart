@@ -9,7 +9,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
@@ -24,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     // Request permissions on iOS
-    NotificationSettings settings= await messaging.requestPermission();
+    NotificationSettings settings = await messaging.requestPermission();
     print('User granted permission: ${settings.authorizationStatus}');
     final token = await messaging.getToken();
     setState(() {
@@ -35,10 +34,9 @@ class _RegisterPageState extends State<RegisterPage> {
     // Update the logged-in user's fcmToken in Firestore (initial set)
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && token != null) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .update({'fcmToken': token});
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+        {'fcmToken': token},
+      );
     }
 
     // Listen for token refreshes
@@ -57,57 +55,61 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     });
   }
+
   Future<void> signInWithGoogle() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
       await googleSignIn.signOut(); // Force account picker every time
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) return; // User cancelled
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
       // Check if user email exists in Firestore 'users' collection
       final userEmail = userCredential.user?.email;
       if (userEmail != null) {
-        final query = await FirebaseFirestore.instance
-            .collection('users')
-            .where('email', isEqualTo: userEmail)
-            .limit(1)
-            .get();
+        final query =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .where('email', isEqualTo: userEmail)
+                .limit(1)
+                .get();
         if (query.docs.isEmpty) {
           // Add user to Firestore with basic values
           await FirebaseFirestore.instance
               .collection('users')
               .doc(userCredential.user!.uid)
-              .set({
-            'email': userEmail,
-            'gender': '1',
-          });
-           _initFCM();
+              .set({'email': userEmail, 'gender': '1'});
+          _initFCM();
         }
-       
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(
-              onLanguageChanged: (String _) {},
-              currentLanguage: 'en',
-            ),
+            builder:
+                (context) => HomePage(
+                  onLanguageChanged: (String _) {},
+                  currentLanguage: 'en',
+                ),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.soticalUseNotFound)),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.soticalUseNotFound),
+          ),
         );
       }
     } catch (e) {
       print('Google sign-in failed: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google sign-in failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
     }
   }
 
@@ -116,37 +118,41 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final LoginResult result = await FacebookAuth.instance.login();
       if (result.status == LoginStatus.success) {
-        final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
-        final userCredential = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+        final OAuthCredential facebookAuthCredential =
+            FacebookAuthProvider.credential(result.accessToken!.tokenString);
+        final userCredential = await FirebaseAuth.instance.signInWithCredential(
+          facebookAuthCredential,
+        );
         final userEmail = userCredential.user?.email;
         if (userEmail != null) {
-          final query = await FirebaseFirestore.instance
-              .collection('users')
-              .where('email', isEqualTo: userEmail)
-              .limit(1)
-              .get();
+          final query =
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .where('email', isEqualTo: userEmail)
+                  .limit(1)
+                  .get();
           if (query.docs.isEmpty) {
             // Add user to Firestore with basic values
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(userCredential.user!.uid)
-                .set({
-              'email': userEmail,
-              'gender': '1',
-            });
+                .set({'email': userEmail, 'gender': '1'});
           }
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(
-                onLanguageChanged: (String _) {},
-                currentLanguage: 'en',
-              ),
+              builder:
+                  (context) => HomePage(
+                    onLanguageChanged: (String _) {},
+                    currentLanguage: 'en',
+                  ),
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.soticalUseNotFound)),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.soticalUseNotFound),
+            ),
           );
         }
       } else {
@@ -156,11 +162,12 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (e) {
       print('Facebook sign-in failed: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Facebook sign-in failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Facebook sign-in failed: $e')));
     }
   }
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -198,7 +205,16 @@ class _RegisterPageState extends State<RegisterPage> {
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          title: Text(AppLocalizations.of(context)!.registerTitle),
+          title: Text(
+            AppLocalizations.of(context)!.registerTitle,
+            style: const TextStyle(
+              fontFamily: 'Pacifico',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 80, 40, 120),
+            ),
+          ),
+          //title: Text(AppLocalizations.of(context)!.registerTitle),
         ),
         body: Center(
           child: SingleChildScrollView(
@@ -222,7 +238,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           labelText: AppLocalizations.of(context)!.email,
                           filled: true,
                           fillColor: const Color(0xFFE9D7F7),
-                          prefixIcon: const Icon(Icons.email, color: Color(0xFF502878)),
+                          prefixIcon: const Icon(
+                            Icons.email,
+                            color: Color(0xFF502878),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide(color: Color(0xFF502878)),
@@ -234,10 +253,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(context)!.emailValidation;
+                            return AppLocalizations.of(
+                              context,
+                            )!.emailValidation;
                           }
                           if (!value.contains('@')) {
-                            return AppLocalizations.of(context)!.emailValidation;
+                            return AppLocalizations.of(
+                              context,
+                            )!.emailValidation;
                           }
                           return null;
                         },
@@ -249,7 +272,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           labelText: AppLocalizations.of(context)!.password,
                           filled: true,
                           fillColor: const Color(0xFFE9D7F7),
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFF502878)),
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Color(0xFF502878),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide(color: Color(0xFF502878)),
@@ -260,7 +286,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Color(0xFF502878),
                             ),
                             onPressed: () {
@@ -273,10 +301,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         obscureText: _obscurePassword,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(context)!.passwordValidation;
+                            return AppLocalizations.of(
+                              context,
+                            )!.passwordValidation;
                           }
                           if (value.length < 6) {
-                            return AppLocalizations.of(context)!.passwordLengthValidation;
+                            return AppLocalizations.of(
+                              context,
+                            )!.passwordLengthValidation;
                           }
                           return null;
                         },
@@ -285,10 +317,14 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                         controller: _confirmPasswordController,
                         decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.confirmPassword,
+                          labelText:
+                              AppLocalizations.of(context)!.confirmPassword,
                           filled: true,
                           fillColor: const Color(0xFFE9D7F7),
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFF502878)),
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Color(0xFF502878),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide(color: Color(0xFF502878)),
@@ -299,12 +335,15 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                              _obscureConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Color(0xFF502878),
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
                               });
                             },
                           ),
@@ -312,10 +351,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         obscureText: _obscureConfirmPassword,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(context)!.pleaseConfirmPassword;
+                            return AppLocalizations.of(
+                              context,
+                            )!.pleaseConfirmPassword;
                           }
                           if (value != _passwordController.text) {
-                            return AppLocalizations.of(context)!.passwordMatchValidation;
+                            return AppLocalizations.of(
+                              context,
+                            )!.passwordMatchValidation;
                           }
                           return null;
                         },
@@ -324,10 +367,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            String res=await createAccountByEmailAndPassword();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(content: Text(res)),
-                            );
+                            String res =
+                                await createAccountByEmailAndPassword();
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(res)));
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -344,7 +388,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: 12),
                       ElevatedButton.icon(
                         icon: const Icon(Icons.login, color: Color(0xFF502878)),
-                        label: Text(AppLocalizations.of(context)!.sigupWithGoogle),
+                        label: Text(
+                          AppLocalizations.of(context)!.sigupWithGoogle,
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFD6B4F7),
                           foregroundColor: const Color(0xFF502878),
@@ -368,6 +414,7 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
   Future<String> createAccountByEmailAndPassword() async {
     String email = _emailController.text;
     String password = _passwordController.text;
@@ -379,10 +426,7 @@ class _RegisterPageState extends State<RegisterPage> {
       User? user = userCredential.user;
       if (user != null) {
         final lang = Localizations.localeOf(context).languageCode;
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .set({
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
           'email': _emailController.text,
           'gender': '1',
           'lang': lang,
@@ -390,7 +434,9 @@ class _RegisterPageState extends State<RegisterPage> {
         // Send email verification
         await user.sendEmailVerification();
         // Return a message instructing the user to check their email
-        return AppLocalizations.of(context)!.registerSuccessMessageWithVerification;
+        return AppLocalizations.of(
+          context,
+        )!.registerSuccessMessageWithVerification;
       } else {
         return AppLocalizations.of(context)!.registerErrorMessage;
       }
@@ -407,7 +453,6 @@ class _RegisterPageState extends State<RegisterPage> {
       return AppLocalizations.of(context)!.registerErrorMessage;
     }
   }
-
 }
 
 // print(default_api.read_file(path = "lib/login_page.dart"))

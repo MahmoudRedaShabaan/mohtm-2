@@ -47,6 +47,12 @@ dependencies:
   flutter_facebook_auth: ^7.1.2
   shared_preferences: ^2.5.3
   package_info_plus: ^8.3.1
+  flutter_local_notifications: ^19.4.0
+  android_intent_plus: ^4.0.3
+  device_info_plus: ^10.1.0
+  flutter_timezone: ^4.1.1
+  upgrader: ^11.5.0
+
   
 
 dev_dependencies:
@@ -66,7 +72,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
  # ios: true
-  image_path: "assets/images/icon.png"
+  image_path: "assets/images/icon1.png"
   remove_alpha_ios: true
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -88,6 +94,7 @@ flutter:
     - assets/images/icon.png
     - assets/images/title.png
     - assets/images/iconremovebg.png
+    - packages/timezone/data/latest_all.tzf
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

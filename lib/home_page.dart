@@ -3,10 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/anniversary_info_page.dart';
 import 'package:myapp/appfeedback.dart';
+import 'package:myapp/important_ann.dart';
 import 'package:myapp/login_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:myapp/lookup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
 
 class Anniversary {
   final DateTime date;
@@ -26,11 +30,13 @@ class HomePage extends StatefulWidget {
   // HomePage({super.key, required Null Function(String lang) onLanguageChanged});
   final void Function(String lang) onLanguageChanged;
   final String currentLanguage;
+  final int initialTabIndex;
 
   HomePage({
     super.key,
     required this.onLanguageChanged,
     required this.currentLanguage,
+    this.initialTabIndex = 0,
   });
   // Static list of anniversaries (replace with actual data fetching later)
   final List<Anniversary> todayAnniversaries = <Anniversary>[];
@@ -41,12 +47,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _appVersion = '';
+  late int _currentIndex;
+  static const MethodChannel _widgetChannel = MethodChannel('com.reda.mohtm2/widget');
 
   @override
   void initState() {
     super.initState();
     filteredAnniversaries = widget.todayAnniversaries;
     _loadAppVersion();
+    _currentIndex = widget.initialTabIndex;
   }
 
   void _loadAppVersion() async {
@@ -56,12 +65,16 @@ class _HomePageState extends State<HomePage> {
       _appVersion = info.version;
     });
   }
+
   Future<void> _updateUserLang(String lang) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'lang': lang});
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+        {'lang': lang},
+      );
     }
   }
+
   DateTime? startDate;
   DateTime? endDate;
   // String _currentLanguage = "en"; // 'en' for English, 'ar' for Arabic
@@ -71,13 +84,55 @@ class _HomePageState extends State<HomePage> {
   DateTime? filterEndDate;
   List<QueryDocumentSnapshot> filteredDocs = [];
   bool isFiltering = false;
-
-
+  
+  Future<void> _writeOccasionWidgetSummary(List<QueryDocumentSnapshot> docs) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // Build a compact JSON payload with items (up to 5) and total count
+      final int totalCount = docs.length;
+      final List<Map<String, dynamic>> items = docs.take(5).map((doc) {
+        final date = (doc['date'] as Timestamp?)?.toDate();
+        final String dateStr = date != null ? '${date.day}/${date.month}/${date.year}' : '';
+        final String title = (doc['title'] ?? '').toString();
+        final String typeId = (doc['type']?.toString() ?? '');
+        final locale = Localizations.localeOf(context).languageCode;
+        final eventTypes = LookupService().eventTypes;
+        String typeName = typeId;
+        if (typeId.isNotEmpty) {
+          if (typeId == '4') {
+            typeName = doc['addType']?.toString() ?? '';
+          } else {
+            final typeObj = eventTypes.firstWhere(
+              (type) => type['id'].toString() == typeId,
+              orElse: () => <String, dynamic>{},
+            );
+            typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
+          }
+        }
+        final relationship = (doc['relationship'] ?? '').toString();
+        return {
+          'title': title,
+          'date': dateStr,
+          'type': typeName,
+          'relationship': relationship,
+        };
+      }).toList();
+      final payload = {
+        'items': items,
+        'total': totalCount,
+      };
+      await prefs.setString('widget_occasion_items', jsonEncode(payload));
+      await _widgetChannel.invokeMethod('updateOccasionWidget');
+    } catch (_) {
+      // Ignore errors; widget update is best effort
+    }
+  }
 
   void filterAnniversaries() {
     if (startDate == null || endDate == null) {
       return;
     }
+    if (!mounted) return;
     setState(() {
       filteredAnniversaries =
           widget.todayAnniversaries.where((anniversary) {
@@ -99,7 +154,8 @@ class _HomePageState extends State<HomePage> {
               ? TextDirection.rtl
               : TextDirection.ltr,
       child: DefaultTabController(
-        length: 2, // Number of tabs
+        length: 3, // Number of tabs
+        initialIndex:_currentIndex,
         child: Scaffold(
           appBar: AppBar(
             leading: Builder(
@@ -128,7 +184,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.favorite, color: Color.fromARGB(255, 80, 40, 120), size: 28),
+                const Icon(
+                  Icons.favorite,
+                  color: Color.fromARGB(255, 80, 40, 120),
+                  size: 28,
+                ),
               ],
             ),
             // title: Image.asset(
@@ -138,6 +198,13 @@ class _HomePageState extends State<HomePage> {
             // ),
             backgroundColor: const Color.fromARGB(255, 182, 142, 190),
             actions: <Widget>[
+              // IconButton(
+              //   icon: const Icon(Icons.add_circle_outline),
+              //   tooltip: 'Add',
+              //   onPressed: () {
+              //     Navigator.pushNamed(context, "/add_anniversary");
+              //   },
+              // ),
               IconButton(
                 icon: const Icon(Icons.language),
                 onPressed: () {
@@ -195,14 +262,20 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ],
-            bottom: const TabBar(
+            bottom: TabBar(
               tabs: [
                 Tab(
                   icon: Icon(Icons.calendar_today),
-                ), // Today's Anniversaries icon// Today's Anniversaries icon
+                  text: AppLocalizations.of(context)!.todaysOccasions,
+                ),
+                Tab(
+                  icon: Icon(Icons.notifications_active),
+                  text: AppLocalizations.of(context)!.notifiedOccasions,
+                ),
                 Tab(
                   icon: Icon(Icons.filter_list),
-                ), // Filter Anniversaries icon// Filter Anniversaries icon
+                  text: AppLocalizations.of(context)!.filter,
+                ),
               ],
             ),
           ),
@@ -214,22 +287,59 @@ class _HomePageState extends State<HomePage> {
                     padding: EdgeInsets.zero,
                     children: <Widget>[
                       DrawerHeader(
-                        decoration: const BoxDecoration(color: Color.fromARGB(255, 211, 154, 223)),
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 211, 154, 223),
+                        ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CircleAvatar(
                               radius: 36,
-                              backgroundImage:
-                                  AssetImage('assets/images/icon.png'),
+                              backgroundImage: AssetImage(
+                                'assets/images/icon.png',
+                              ),
                             ),
                             const SizedBox(height: 12),
                             Text(
                               AppLocalizations.of(context)!.mohtmMenu,
-                              style: const TextStyle(color: Colors.white, fontSize: 24),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                              ),
                             ),
                           ],
                         ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.alarm),
+                        title: Text(AppLocalizations.of(context)!.reminders),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/reminders');
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.task_alt),
+                        title: Text(AppLocalizations.of(context)!.tasks),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/tasks');
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.priority_high),
+                        title: Text(
+                          AppLocalizations.of(context)!.importantOccasions,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ImportantAnnPage(),
+                            ),
+                          );
+                        },
                       ),
                       ListTile(
                         leading: const Icon(Icons.star),
@@ -251,7 +361,9 @@ class _HomePageState extends State<HomePage> {
                         children: <Widget>[
                           ListTile(
                             leading: const Icon(Icons.lock_reset),
-                            title: Text(AppLocalizations.of(context)!.changePassword),
+                            title: Text(
+                              AppLocalizations.of(context)!.changePassword,
+                            ),
                             onTap: () {
                               Navigator.pop(context); // Close the drawer first
                               Navigator.pushNamed(context, '/change_password');
@@ -266,7 +378,9 @@ class _HomePageState extends State<HomePage> {
                           Navigator.pop(context);
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const AppFeedbackPage()),
+                            MaterialPageRoute(
+                              builder: (context) => const AppFeedbackPage(),
+                            ),
                           );
                         },
                       ),
@@ -289,7 +403,10 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.grey.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: Text(
                         _appVersion.isNotEmpty ? 'Version: $_appVersion' : '',
                         style: const TextStyle(
@@ -308,43 +425,72 @@ class _HomePageState extends State<HomePage> {
 
           body: SafeArea(
             child: TabBarView(
+              
               children: [
-                // Content for Today's Anniversaries tab
+                // Tab 1: Today's Occasions
                 StreamBuilder<List<QueryDocumentSnapshot>>(
                   stream: getTodaysAnniversariesStream(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+
+                    final List<QueryDocumentSnapshot> todayAnniversaries =
+                        snapshot.hasData ? snapshot.data! : <QueryDocumentSnapshot>[];
+
+                    // Always update the widget, even if empty
+                    _writeOccasionWidgetSummary(todayAnniversaries);
+
+                    if (todayAnniversaries.isEmpty) {
                       return Center(
-                        child: Text(
-                          AppLocalizations.of(context)!.noAnniversariesToday,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.noAnniversariesToday,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }
 
-                    final todayAnniversaries = snapshot.data!;
-
                     return ListView.builder(
+                      padding: const EdgeInsets.all(16),
                       itemCount: todayAnniversaries.length,
                       itemBuilder: (context, index) {
                         final doc = todayAnniversaries[index];
                         final date = (doc['date'] as Timestamp).toDate();
                         final title = doc['title'] ?? '';
                         final typeId = doc['type']?.toString() ?? '';
-                        final locale = Localizations.localeOf(context).languageCode;
+                        final locale =
+                            Localizations.localeOf(context).languageCode;
                         final eventTypes = LookupService().eventTypes;
                         String typeName = typeId;
                         if (typeId.isNotEmpty) {
-                          if(typeId=="4") {
-                            typeName=doc['addType']?.toString() ?? '';
+                          if (typeId == "4") {
+                            typeName = doc['addType']?.toString() ?? '';
                           } else {
-                          final typeObj = eventTypes.firstWhere(
-                            (type) => type['id'].toString() == typeId,
-                            orElse: () => <String, dynamic>{},
-                          );
-                          typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
+                            final typeObj = eventTypes.firstWhere(
+                              (type) => type['id'].toString() == typeId,
+                              orElse: () => <String, dynamic>{},
+                            );
+                            typeName =
+                                locale == 'ar'
+                                    ? (typeObj['arabicName'] ?? typeId)
+                                    : (typeObj['englishName'] ?? typeId);
                           }
                         }
                         final priorityId = doc['priority']?.toString() ?? '';
@@ -355,7 +501,10 @@ class _HomePageState extends State<HomePage> {
                             (p) => p['id'].toString() == priorityId,
                             orElse: () => <String, dynamic>{},
                           );
-                          priorityName = locale == 'ar' ? (priorityObj['priorityAr'] ?? priorityId) : (priorityObj['priorityEn'] ?? priorityId);
+                          priorityName =
+                              locale == 'ar'
+                                  ? (priorityObj['priorityAr'] ?? priorityId)
+                                  : (priorityObj['priorityEn'] ?? priorityId);
                         }
                         Color priorityColor;
                         switch (priorityId) {
@@ -372,46 +521,68 @@ class _HomePageState extends State<HomePage> {
                             priorityColor = Colors.grey;
                         }
                         return Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
                           elevation: 4,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AnniversaryInfoPage(
-                                    anniversaryId: doc.id,
-                                  ),
+                                  builder:
+                                      (context) => AnniversaryInfoPage(
+                                        anniversaryId: doc.id,
+                                      ),
                                 ),
                               );
                             },
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
                               child: Row(
                                 children: [
                                   CircleAvatar(
                                     radius: 28,
-                                    backgroundColor: priorityColor.withOpacity(0.15),
+                                    backgroundColor: priorityColor.withOpacity(
+                                      0.15,
+                                    ),
                                     child: Text(
                                       '${date.day}/${date.month}\n${date.year}',
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             Icon(
-                                              typeName == 'Birthday' || typeName == 'عيد ميلاد' ? Icons.cake :
-                                              typeName == 'Wedding' || typeName == 'زواج' ? Icons.favorite :
-                                              typeName == 'Death' || typeName == 'وفاة' ? Icons.sentiment_very_dissatisfied :
-                                              Icons.event,
+                                              typeName == 'Birthday' ||
+                                                      typeName == 'عيد ميلاد'
+                                                  ? Icons.cake
+                                                  : typeName == 'Wedding' ||
+                                                      typeName == 'زواج'
+                                                  ? Icons.favorite
+                                                  : typeName == 'Death' ||
+                                                      typeName == 'وفاة'
+                                                  ? Icons
+                                                      .sentiment_very_dissatisfied
+                                                  : Icons.event,
                                               color: Colors.deepPurple,
                                               size: 20,
                                             ),
@@ -419,7 +590,10 @@ class _HomePageState extends State<HomePage> {
                                             Expanded(
                                               child: Text(
                                                 title,
-                                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
@@ -427,15 +601,28 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          AppLocalizations.of(context)!.typeLabel(typeName),
-                                          style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.typeLabel(typeName),
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 14,
+                                          ),
                                         ),
-                                        if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
+                                        if (doc['relationship'] != null &&
+                                            doc['relationship']
+                                                .toString()
+                                                .isNotEmpty)
                                           Padding(
-                                            padding: const EdgeInsets.only(top: 2.0),
+                                            padding: const EdgeInsets.only(
+                                              top: 2.0,
+                                            ),
                                             child: Text(
                                               doc['relationship'],
-                                              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 13,
+                                              ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -444,9 +631,236 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(width: 8),
                                   Chip(
-                                    label: Text(priorityName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    label: Text(
+                                      priorityName,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     backgroundColor: priorityColor,
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+                // Tab 2: Notified Occasions
+                StreamBuilder<List<QueryDocumentSnapshot>>(
+                  stream: getNotifiedOccasionsStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.notifications_active,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              AppLocalizations.of(context)!.noNotifiedOccasions,
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final notifiedOccasions = snapshot.data!;
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: notifiedOccasions.length,
+                      itemBuilder: (context, index) {
+                        final doc = notifiedOccasions[index];
+                        final date = (doc['date'] as Timestamp).toDate();
+                        final title = doc['title'] ?? '';
+                        final typeId = doc['type']?.toString() ?? '';
+                        final locale =
+                            Localizations.localeOf(context).languageCode;
+                        final eventTypes = LookupService().eventTypes;
+                        String typeName = typeId;
+                        if (typeId.isNotEmpty) {
+                          if (typeId == "4") {
+                            typeName = doc['addType']?.toString() ?? '';
+                          } else {
+                            final typeObj = eventTypes.firstWhere(
+                              (type) => type['id'].toString() == typeId,
+                              orElse: () => <String, dynamic>{},
+                            );
+                            typeName =
+                                locale == 'ar'
+                                    ? (typeObj['arabicName'] ?? typeId)
+                                    : (typeObj['englishName'] ?? typeId);
+                          }
+                        }
+                        final priorityId = doc['priority']?.toString() ?? '';
+                        final annPriorities = LookupService().annPriorities;
+                        String priorityName = priorityId;
+                        if (priorityId.isNotEmpty) {
+                          final priorityObj = annPriorities.firstWhere(
+                            (p) => p['id'].toString() == priorityId,
+                            orElse: () => <String, dynamic>{},
+                          );
+                          priorityName =
+                              locale == 'ar'
+                                  ? (priorityObj['priorityAr'] ?? priorityId)
+                                  : (priorityObj['priorityEn'] ?? priorityId);
+                        }
+                        Color priorityColor;
+                        switch (priorityId) {
+                          case '1':
+                            priorityColor = Colors.red;
+                            break;
+                          case '2':
+                            priorityColor = Colors.orange;
+                            break;
+                          case '3':
+                            priorityColor = Colors.yellow[700]!;
+                            break;
+                          default:
+                            priorityColor = Colors.grey;
+                        }
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => AnniversaryInfoPage(
+                                        anniversaryId: doc.id,
+                                      ),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 28,
+                                    backgroundColor: priorityColor.withOpacity(
+                                      0.15,
+                                    ),
+                                    child: Text(
+                                      '${date.day}/${date.month}\n${date.year}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              typeName == 'Birthday' ||
+                                                      typeName == 'عيد ميلاد'
+                                                  ? Icons.cake
+                                                  : typeName == 'Wedding' ||
+                                                      typeName == 'زواج'
+                                                  ? Icons.favorite
+                                                  : typeName == 'Death' ||
+                                                      typeName == 'وفاة'
+                                                  ? Icons
+                                                      .sentiment_very_dissatisfied
+                                                  : Icons.event,
+                                              color: Colors.deepPurple,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                title,
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.typeLabel(typeName),
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        if (doc['relationship'] != null &&
+                                            doc['relationship']
+                                                .toString()
+                                                .isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 2.0,
+                                            ),
+                                            child: Text(
+                                              doc['relationship'],
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 13,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Chip(
+                                    label: Text(
+                                      priorityName,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    backgroundColor: priorityColor,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 0,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -484,18 +898,40 @@ class _HomePageState extends State<HomePage> {
                                       icon: const Icon(Icons.date_range),
                                       label: Text(
                                         filterStartDate == null
-                                            ? AppLocalizations.of(context)!.startDate
+                                            ? AppLocalizations.of(
+                                              context,
+                                            )!.startDate
                                             : 'Start: ${filterStartDate!.day}/${filterStartDate!.month}',
                                       ),
                                       onPressed: () async {
+                                        final currentYear = DateTime.now().year;
+                                        final initialDate =
+                                            filterStartDate != null
+                                                ? DateTime(
+                                                  currentYear,
+                                                  filterStartDate!.month,
+                                                  filterStartDate!.day,
+                                                )
+                                                : DateTime(currentYear, 1, 1);
+
                                         final pickedDate = await showDatePicker(
                                           context: context,
-                                          initialDate:
-                                              filterStartDate ??
-                                              DateTime(2000, 1, 1),
-                                          firstDate: DateTime(2000, 1, 1),
-                                          lastDate: DateTime(2000, 12, 31),
-                                          helpText: AppLocalizations.of(context)!.startDate,
+                                          initialDate: initialDate,
+                                          firstDate: DateTime(
+                                            currentYear,
+                                            1,
+                                            1,
+                                          ),
+                                          lastDate: DateTime(
+                                            currentYear,
+                                            12,
+                                            31,
+                                          ),
+                                          helpText:
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.startDate,
+                                          fieldHintText: "MM/DD",
                                         );
                                         if (pickedDate != null) {
                                           setState(() {
@@ -516,18 +952,40 @@ class _HomePageState extends State<HomePage> {
                                       icon: const Icon(Icons.date_range),
                                       label: Text(
                                         filterEndDate == null
-                                            ? AppLocalizations.of(context)!.endDate
+                                            ? AppLocalizations.of(
+                                              context,
+                                            )!.endDate
                                             : 'End: ${filterEndDate!.day}/${filterEndDate!.month}',
                                       ),
                                       onPressed: () async {
+                                        final currentYear = DateTime.now().year;
+                                        final initialDate =
+                                            filterEndDate != null
+                                                ? DateTime(
+                                                  currentYear,
+                                                  filterEndDate!.month,
+                                                  filterEndDate!.day,
+                                                )
+                                                : DateTime(currentYear, 12, 31);
+
                                         final pickedDate = await showDatePicker(
                                           context: context,
-                                          initialDate:
-                                              filterEndDate ??
-                                              DateTime(2000, 12, 31),
-                                          firstDate: DateTime(2000, 1, 1),
-                                          lastDate: DateTime(2000, 12, 31),
-                                          helpText: AppLocalizations.of(context)!.endDate,
+                                          initialDate: initialDate,
+                                          firstDate: DateTime(
+                                            currentYear,
+                                            1,
+                                            1,
+                                          ),
+                                          lastDate: DateTime(
+                                            currentYear,
+                                            12,
+                                            31,
+                                          ),
+                                          helpText:
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.endDate,
+                                          fieldHintText: "MM/DD",
                                         );
                                         if (pickedDate != null) {
                                           setState(() {
@@ -554,7 +1012,9 @@ class _HomePageState extends State<HomePage> {
                                     child: ElevatedButton.icon(
                                       onPressed: filterAnniversariesByMonthDay,
                                       icon: const Icon(Icons.filter_alt),
-                                      label:  Text(AppLocalizations.of(context)!.filter),
+                                      label: Text(
+                                        AppLocalizations.of(context)!.filter,
+                                      ),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color.fromARGB(
                                           255,
@@ -591,7 +1051,10 @@ class _HomePageState extends State<HomePage> {
                                           170,
                                         ),
                                       ),
-                                      tooltip: AppLocalizations.of(context)!.clearFilter,
+                                      tooltip:
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.clearFilter,
                                       iconSize: 28,
                                     ),
                                   ),
@@ -610,8 +1073,30 @@ class _HomePageState extends State<HomePage> {
                                   child: CircularProgressIndicator(),
                                 )
                                 : filteredDocs.isEmpty
-                                ?  Center(
-                                  child: Text(AppLocalizations.of(context)!.noAnniversariesFound),
+                                ? Center(
+                                  child: Column(
+                                    mainAxisSize:
+                                        MainAxisSize
+                                            .min, // Prevents the column from taking up all available vertical space
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today,
+                                        size: 64,
+                                        color: Colors.grey[400],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.noAnniversariesFound,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 )
                                 : ListView.builder(
                                   itemCount: filteredDocs.length,
@@ -620,30 +1105,52 @@ class _HomePageState extends State<HomePage> {
                                     final date =
                                         (doc['date'] as Timestamp).toDate();
                                     final title = doc['title'] ?? '';
-                                    final String typeId = doc['type']?.toString() ?? '';
-                                    final locale = Localizations.localeOf(context).languageCode;
-                                    final eventTypes = LookupService().eventTypes;
+                                    final String typeId =
+                                        doc['type']?.toString() ?? '';
+                                    final locale =
+                                        Localizations.localeOf(
+                                          context,
+                                        ).languageCode;
+                                    final eventTypes =
+                                        LookupService().eventTypes;
                                     String typeName = typeId;
                                     if (typeId.isNotEmpty) {
-                                      if (typeId=="4") {
-                                        typeName=doc['addType']?.toString() ?? '';
+                                      if (typeId == "4") {
+                                        typeName =
+                                            doc['addType']?.toString() ?? '';
                                       } else {
-                                      final typeObj = eventTypes.firstWhere(
-                                        (type) => type['id'].toString() == typeId,
-                                        orElse: () => <String, dynamic>{},
-                                      );
-                                      typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
+                                        final typeObj = eventTypes.firstWhere(
+                                          (type) =>
+                                              type['id'].toString() == typeId,
+                                          orElse: () => <String, dynamic>{},
+                                        );
+                                        typeName =
+                                            locale == 'ar'
+                                                ? (typeObj['arabicName'] ??
+                                                    typeId)
+                                                : (typeObj['englishName'] ??
+                                                    typeId);
                                       }
                                     }
-                                    final priorityId = doc['priority']?.toString() ?? '';
-                                    final annPriorities = LookupService().annPriorities;
+                                    final priorityId =
+                                        doc['priority']?.toString() ?? '';
+                                    final annPriorities =
+                                        LookupService().annPriorities;
                                     String priorityName = priorityId;
                                     if (priorityId.isNotEmpty) {
-                                      final priorityObj = annPriorities.firstWhere(
-                                        (p) => p['id'].toString() == priorityId,
-                                        orElse: () => <String, dynamic>{},
-                                      );
-                                      priorityName = locale == 'ar' ? (priorityObj['priorityAr'] ?? priorityId) : (priorityObj['priorityEn'] ?? priorityId);
+                                      final priorityObj = annPriorities
+                                          .firstWhere(
+                                            (p) =>
+                                                p['id'].toString() ==
+                                                priorityId,
+                                            orElse: () => <String, dynamic>{},
+                                          );
+                                      priorityName =
+                                          locale == 'ar'
+                                              ? (priorityObj['priorityAr'] ??
+                                                  priorityId)
+                                              : (priorityObj['priorityEn'] ??
+                                                  priorityId);
                                     }
                                     Color priorityColor;
                                     switch (priorityId) {
@@ -660,71 +1167,129 @@ class _HomePageState extends State<HomePage> {
                                         priorityColor = Colors.grey;
                                     }
                                     return Card(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 8,
+                                      ),
                                       elevation: 4,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(16),
                                         onTap: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => AnniversaryInfoPage(
-                                                anniversaryId: doc.id,
-                                              ),
+                                              builder:
+                                                  (context) =>
+                                                      AnniversaryInfoPage(
+                                                        anniversaryId: doc.id,
+                                                      ),
                                             ),
                                           );
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 12,
+                                          ),
                                           child: Row(
                                             children: [
                                               CircleAvatar(
                                                 radius: 28,
-                                                backgroundColor: priorityColor.withOpacity(0.15),
+                                                backgroundColor: priorityColor
+                                                    .withOpacity(0.15),
                                                 child: Text(
                                                   '${date.day}/${date.month}\n${date.year}',
                                                   textAlign: TextAlign.center,
-                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
                                               const SizedBox(width: 16),
                                               Expanded(
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Row(
                                                       children: [
                                                         Icon(
-                                                          typeName == 'Birthday' || typeName == 'عيد ميلاد' ? Icons.cake :
-                                                          typeName == 'Wedding' || typeName == 'زواج' ? Icons.favorite :
-                                                          typeName == 'Death' || typeName == 'وفاة' ? Icons.sentiment_very_dissatisfied :
-                                                          Icons.event,
-                                                          color: Colors.deepPurple,
+                                                          typeName ==
+                                                                      'Birthday' ||
+                                                                  typeName ==
+                                                                      'عيد ميلاد'
+                                                              ? Icons.cake
+                                                              : typeName ==
+                                                                      'Wedding' ||
+                                                                  typeName ==
+                                                                      'زواج'
+                                                              ? Icons.favorite
+                                                              : typeName ==
+                                                                      'Death' ||
+                                                                  typeName ==
+                                                                      'وفاة'
+                                                              ? Icons
+                                                                  .sentiment_very_dissatisfied
+                                                              : Icons.event,
+                                                          color:
+                                                              Colors.deepPurple,
                                                           size: 20,
                                                         ),
-                                                        const SizedBox(width: 6),
+                                                        const SizedBox(
+                                                          width: 6,
+                                                        ),
                                                         Expanded(
                                                           child: Text(
                                                             title,
-                                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                                            overflow: TextOverflow.ellipsis,
+                                                            style:
+                                                                const TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                           ),
                                                         ),
                                                       ],
                                                     ),
                                                     const SizedBox(height: 4),
                                                     Text(
-                                                      AppLocalizations.of(context)!.typeLabel(typeName),
-                                                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.typeLabel(typeName),
+                                                      style: TextStyle(
+                                                        color: Colors.grey[700],
+                                                        fontSize: 14,
+                                                      ),
                                                     ),
-                                                    if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
+                                                    if (doc['relationship'] !=
+                                                            null &&
+                                                        doc['relationship']
+                                                            .toString()
+                                                            .isNotEmpty)
                                                       Padding(
-                                                        padding: const EdgeInsets.only(top: 2.0),
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                              top: 2.0,
+                                                            ),
                                                         child: Text(
                                                           doc['relationship'],
-                                                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                                                          overflow: TextOverflow.ellipsis,
+                                                          style: TextStyle(
+                                                            color:
+                                                                Colors
+                                                                    .grey[600],
+                                                            fontSize: 13,
+                                                          ),
+                                                          overflow:
+                                                              TextOverflow
+                                                                  .ellipsis,
                                                         ),
                                                       ),
                                                   ],
@@ -732,9 +1297,19 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               const SizedBox(width: 8),
                                               Chip(
-                                                label: Text(priorityName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                label: Text(
+                                                  priorityName,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                                 backgroundColor: priorityColor,
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 0,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -746,7 +1321,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-                ), // Content for second tab
+                ), // Tab 3: Filter Anniversaries
               ],
             ),
           ),
@@ -761,7 +1336,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 
   // Future<void> signOut(BuildContext context) async {
   //   try {
@@ -786,7 +1360,6 @@ class _HomePageState extends State<HomePage> {
   //   }
   // }
   Future<void> signOut(BuildContext context) async {
-
     try {
       print('Signing out...');
       await FirebaseAuth.instance.signOut();
@@ -796,10 +1369,11 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => LoginPage(
-              onLanguageChanged: widget.onLanguageChanged,
-              currentLanguage: widget.currentLanguage,
-            ),
+            builder:
+                (context) => LoginPage(
+                  onLanguageChanged: widget.onLanguageChanged,
+                  currentLanguage: widget.currentLanguage,
+                ),
           ),
           (route) => false,
         );
@@ -836,8 +1410,93 @@ class _HomePageState extends State<HomePage> {
         );
   }
 
+  Stream<List<QueryDocumentSnapshot>> getNotifiedOccasionsStream() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Stream.value([]);
+    }
+
+    final today = DateTime.now();
+    print('🔍 DEBUG: Current date: ${today.day}/${today.month}/${today.year}');
+
+    return FirebaseFirestore.instance
+        .collection('anniversaries')
+        .where('createdBy', isEqualTo: user.uid)
+        .snapshots()
+        .map((snapshot) {
+          print('🔍 DEBUG: Found ${snapshot.docs.length} total documents');
+
+          final filteredDocs =
+              snapshot.docs.where((doc) {
+                print('🔍 DEBUG: Document ${doc.id}:');
+                print('🔍 DEBUG: date ${doc['date']}:');
+                print('🔍 DEBUG: rememberBefore ${doc['rememberBeforeDate']}:');
+                final Timestamp? eventDateTs = doc['date'];
+                final Timestamp? rememberBeforeTs = doc['rememberBeforeDate'];
+
+                print('🔍 DEBUG: Document ${doc.id}:');
+                print('  - Title: ${doc['title']}');
+                print('  - Event Date: $eventDateTs');
+                print('  - Remember Before Date: $rememberBeforeTs');
+
+                if (eventDateTs == null || rememberBeforeTs == null) {
+                  print(
+                    '  - ❌ Skipped: Missing event date or remember before date',
+                  );
+                  return false;
+                }
+
+                final eventDate = eventDateTs.toDate();
+                final rememberBeforeDate = rememberBeforeTs.toDate();
+                final currentDate = DateTime(2000, today.month, today.day);
+                final eventDateNormalized = DateTime(
+                  2000,
+                  eventDate.month,
+                  eventDate.day,
+                );
+                final rememberBeforeDateNormalized = DateTime(
+                  2000,
+                  rememberBeforeDate.month,
+                  rememberBeforeDate.day,
+                );
+
+                print(
+                  '  - Event Date: ${eventDate.day}/${eventDate.month}/${eventDate.year}',
+                );
+                print(
+                  '  - Remember Before Date: ${rememberBeforeDate.day}/${rememberBeforeDate.month}/${rememberBeforeDate.year}',
+                );
+                print(
+                  '  - Current Date: ${currentDate.day}/${currentDate.month}',
+                );
+
+                // Validation: current date >= remember before date AND current date < event date
+                // (comparing only day and month, ignoring year)
+                final condition1 =
+                    currentDate.isAtSameMomentAs(
+                      rememberBeforeDateNormalized,
+                    ) ||
+                    currentDate.isAfter(rememberBeforeDateNormalized);
+                final condition2 = currentDate.isBefore(eventDateNormalized);
+
+                print(
+                  '  - Condition 1 (current >= remember before): $condition1',
+                );
+                print('  - Condition 2 (current < event): $condition2');
+                print('  - Final result: ${condition1 && condition2}');
+                print('  ---');
+
+                return condition1 && condition2;
+              }).toList();
+
+          print('🔍 DEBUG: Filtered to ${filteredDocs.length} documents');
+          return filteredDocs;
+        });
+  }
+
   void filterAnniversariesByMonthDay() async {
     if (filterStartDate == null || filterEndDate == null) return;
+    if (!mounted) return;
     setState(() {
       isFiltering = true;
     });
@@ -873,10 +1532,10 @@ class _HomePageState extends State<HomePage> {
           }
         }).toList();
 
+    if (!mounted) return;
     setState(() {
       filteredDocs = docs;
       isFiltering = false;
     });
   }
-
 }

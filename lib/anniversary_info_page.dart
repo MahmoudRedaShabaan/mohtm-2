@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:myapp/lookup.dart';
 
-
 class AnniversaryInfoPage extends StatefulWidget {
   final String anniversaryId;
 
@@ -31,9 +30,12 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
   List<String> get _rememberBeforeOptions {
     final locale = Localizations.localeOf(context).languageCode;
     return _rememberMeList.map<String>((option) {
-      return locale == 'ar' ? (option['valueAr'] ?? '') : (option['valueEn'] ?? '');
+      return locale == 'ar'
+          ? (option['valueAr'] ?? '')
+          : (option['valueEn'] ?? '');
     }).toList();
   }
+
   String? _selectedRememberBefore;
 
   @override
@@ -60,7 +62,10 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
             (opt) => opt['id'].toString() == rememberBeforeId,
             orElse: () => <String, dynamic>{},
           );
-          _selectedRememberBefore = locale == 'ar' ? (option['valueAr'] ?? '') : (option['valueEn'] ?? '');
+          _selectedRememberBefore =
+              locale == 'ar'
+                  ? (option['valueAr'] ?? '')
+                  : (option['valueEn'] ?? '');
         } else {
           _selectedRememberBefore = null;
         }
@@ -82,6 +87,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
       }
     });
   }
+
   String? _selectedTypeId;
 
   void _editAnniversary() {
@@ -114,7 +120,10 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
         (type) => type['id'].toString() == _selectedTypeId,
         orElse: () => <String, dynamic>{},
       );
-      typeName = locale == 'ar' ? (typeObj['arabicName'] ?? '') : (typeObj['englishName'] ?? '');
+      typeName =
+          locale == 'ar'
+              ? (typeObj['arabicName'] ?? '')
+              : (typeObj['englishName'] ?? '');
     }
     final relationship = data['relationship'] ?? '';
     final priorityId = data['priority']?.toString() ?? '';
@@ -125,9 +134,12 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
         (p) => p['id'].toString() == priorityId,
         orElse: () => <String, dynamic>{},
       );
-      priorityName = locale == 'ar' ? (priorityObj['priorityAr'] ?? priorityId) : (priorityObj['priorityEn'] ?? priorityId);
+      priorityName =
+          locale == 'ar'
+              ? (priorityObj['priorityAr'] ?? priorityId)
+              : (priorityObj['priorityEn'] ?? priorityId);
     }
-    final rememberBefore = data['rememberBefore']  ?? '';
+    final rememberBefore = data['rememberBefore'] ?? '';
 
     return Container(
       decoration: const BoxDecoration(
@@ -149,7 +161,16 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          title:  Text(AppLocalizations.of(context)!.occasionDetails),
+          title: Text(
+            AppLocalizations.of(context)!.occasionDetails,
+            style: const TextStyle(
+              fontFamily: 'Pacifico',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 80, 40, 120),
+            ),
+          ),
+          //title:  Text(AppLocalizations.of(context)!.occasionDetails),
           actions: [
             IconButton(
               icon: Icon(_isEditing ? Icons.save : Icons.edit),
@@ -190,11 +211,15 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                         fillColor: const Color(0xFFE9D7F7),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF502878),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFB365C1),
+                          ),
                         ),
                       ),
                       enabled: _isEditing,
@@ -208,11 +233,15 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                         fillColor: const Color(0xFFE9D7F7),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF502878),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFB365C1),
+                          ),
                         ),
                       ),
                       enabled: _isEditing,
@@ -220,21 +249,22 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                     ),
                     const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: _isEditing
-                          ? () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: _selectedDate ?? DateTime.now(),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime(2100),
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  _selectedDate = picked;
-                                });
+                      onTap:
+                          _isEditing
+                              ? () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _selectedDate ?? DateTime.now(),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _selectedDate = picked;
+                                  });
+                                }
                               }
-                            }
-                          : null,
+                              : null,
                       child: AbsorbPointer(
                         child: TextFormField(
                           decoration: InputDecoration(
@@ -243,18 +273,23 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                             fillColor: const Color(0xFFE9D7F7),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25),
-                              borderSide: const BorderSide(color: Color(0xFF502878)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF502878),
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25),
-                              borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFB365C1),
+                              ),
                             ),
                           ),
                           enabled: _isEditing,
                           controller: TextEditingController(
-                            text: _selectedDate != null
-                                ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                                : '',
+                            text:
+                                _selectedDate != null
+                                    ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                                    : '',
                           ),
                         ),
                       ),
@@ -268,41 +303,70 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                         fillColor: const Color(0xFFE9D7F7),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF502878),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFB365C1),
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
                       dropdownColor: const Color(0xFFE9D7F7),
-                      icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF502878)),
-                      style: const TextStyle(color: Color(0xFF502878), fontWeight: FontWeight.w500),
-                      items: eventTypes.map<DropdownMenuItem<String>>((type) {
-                        final id = type['id'].toString();
-                        final name = locale == 'ar' ? (type['arabicName'] ?? '') : (type['englishName'] ?? '');
-                        return DropdownMenuItem<String>(
-                          value: id,
-                          child: Text(name, style: const TextStyle(color: Color(0xFF502878))),
-                        );
-                      }).toList(),
-                      onChanged: _isEditing
-                          ? (String? newId) {
-                              setState(() {
-                                _selectedTypeId = newId;
-                                final selectedType = eventTypes.firstWhere(
-                                  (type) => type['id'].toString() == newId,
-                                  orElse: () => <String, dynamic>{},
-                                );
-                                final isOther = selectedType['englishName'] == 'Other' || selectedType['arabicName'] == 'اخرى' || newId == '4';
-                                if (!isOther) {
-                                  _addTypeController.text = '';
-                                }
-                              });
-                            }
-                          : null,
-                      disabledHint: Text(typeName, style: const TextStyle(color: Color(0xFF502878))),
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Color(0xFF502878),
+                      ),
+                      style: const TextStyle(
+                        color: Color(0xFF502878),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      items:
+                          eventTypes.map<DropdownMenuItem<String>>((type) {
+                            final id = type['id'].toString();
+                            final name =
+                                locale == 'ar'
+                                    ? (type['arabicName'] ?? '')
+                                    : (type['englishName'] ?? '');
+                            return DropdownMenuItem<String>(
+                              value: id,
+                              child: Text(
+                                name,
+                                style: const TextStyle(
+                                  color: Color(0xFF502878),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                      onChanged:
+                          _isEditing
+                              ? (String? newId) {
+                                setState(() {
+                                  _selectedTypeId = newId;
+                                  final selectedType = eventTypes.firstWhere(
+                                    (type) => type['id'].toString() == newId,
+                                    orElse: () => <String, dynamic>{},
+                                  );
+                                  final isOther =
+                                      selectedType['englishName'] == 'Other' ||
+                                      selectedType['arabicName'] == 'اخرى' ||
+                                      newId == '4';
+                                  if (!isOther) {
+                                    _addTypeController.text = '';
+                                  }
+                                });
+                              }
+                              : null,
+                      disabledHint: Text(
+                        typeName,
+                        style: const TextStyle(color: Color(0xFF502878)),
+                      ),
                     ),
                     if (_selectedTypeId == '4' && _isEditing) ...[
                       const SizedBox(height: 16),
@@ -314,17 +378,22 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                           fillColor: const Color(0xFFE9D7F7),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(color: Color(0xFF502878)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF502878),
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFB365C1),
+                            ),
                           ),
                         ),
                         enabled: _isEditing,
                       ),
-                    ]
-                    else if (!_isEditing && typeId != null && typeId.toString() == '4') ...[
+                    ] else if (!_isEditing &&
+                        typeId != null &&
+                        typeId.toString() == '4') ...[
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _addTypeController,
@@ -334,11 +403,15 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                           fillColor: const Color(0xFFE9D7F7),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(color: Color(0xFF502878)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF502878),
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFB365C1),
+                            ),
                           ),
                         ),
                         enabled: false,
@@ -353,11 +426,15 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                         fillColor: const Color(0xFFE9D7F7),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF502878),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFB365C1),
+                          ),
                         ),
                       ),
                       enabled: _isEditing,
@@ -371,51 +448,89 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                         fillColor: const Color(0xFFE9D7F7),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFF502878)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF502878),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFB365C1),
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
                       dropdownColor: const Color(0xFFE9D7F7),
-                      icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF502878)),
-                      style: const TextStyle(color: Color(0xFF502878), fontWeight: FontWeight.w500),
-                      items: annPriorities.map<DropdownMenuItem<String>>((priority) {
-                        final value = priority['id'].toString();
-                        final name = locale == 'ar' ? (priority['priorityAr'] ?? '') : (priority['priorityEn'] ?? '');
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(name, style: const TextStyle(color: Color(0xFF502878))),
-                        );
-                      }).toList(),
-                      onChanged: _isEditing
-                          ? (val) => setState(() => _selectedPriority = val)
-                          : null,
-                      disabledHint: Text(priorityName, style: const TextStyle(color: Color(0xFF502878))),
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Color(0xFF502878),
+                      ),
+                      style: const TextStyle(
+                        color: Color(0xFF502878),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      items:
+                          annPriorities.map<DropdownMenuItem<String>>((
+                            priority,
+                          ) {
+                            final value = priority['id'].toString();
+                            final name =
+                                locale == 'ar'
+                                    ? (priority['priorityAr'] ?? '')
+                                    : (priority['priorityEn'] ?? '');
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                name,
+                                style: const TextStyle(
+                                  color: Color(0xFF502878),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                      onChanged:
+                          _isEditing
+                              ? (val) => setState(() => _selectedPriority = val)
+                              : null,
+                      disabledHint: Text(
+                        priorityName,
+                        style: const TextStyle(color: Color(0xFF502878)),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       AppLocalizations.of(context)!.rememberBefore,
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF502878)),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF502878),
+                      ),
                     ),
                     Column(
-                      children: _rememberBeforeOptions.map((option) {
-                        return RadioListTile<String>(
-                          title: Text(option, style: const TextStyle(color: Color(0xFF502878)) ),
-                          value: option,
-                          groupValue: _selectedRememberBefore,
-                          onChanged: _isEditing
-                              ? (String? value) {
-                                  setState(() {
-                                    _selectedRememberBefore = value;
-                                  });
-                                }
-                              : null,
-                          activeColor: const Color(0xFFB365C1),
-                        );
-                      }).toList(),
+                      children:
+                          _rememberBeforeOptions.map((option) {
+                            return RadioListTile<String>(
+                              title: Text(
+                                option,
+                                style: const TextStyle(
+                                  color: Color(0xFF502878),
+                                ),
+                              ),
+                              value: option,
+                              groupValue: _selectedRememberBefore,
+                              onChanged:
+                                  _isEditing
+                                      ? (String? value) {
+                                        setState(() {
+                                          _selectedRememberBefore = value;
+                                        });
+                                      }
+                                      : null,
+                              activeColor: const Color(0xFFB365C1),
+                            );
+                          }).toList(),
                     ),
                   ],
                 ),
@@ -446,9 +561,9 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
       errorMsg = AppLocalizations.of(context)!.priorityValidation;
     }
     if (errorMsg != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMsg)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMsg)));
       return;
     }
     if (anniversaryDoc == null) return;
@@ -459,13 +574,17 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     DateTime? rememberBeforeDate;
     if (_selectedDate != null && _selectedRememberBefore != null) {
       final selectedOption = _rememberMeList.firstWhere(
-        (option) => (locale == 'ar' ? option['valueAr'] : option['valueEn']) == _selectedRememberBefore,
+        (option) =>
+            (locale == 'ar' ? option['valueAr'] : option['valueEn']) ==
+            _selectedRememberBefore,
         orElse: () => <String, dynamic>{},
       );
       rememberBeforeId = selectedOption['id']?.toString();
       switch (rememberBeforeId) {
         case '1': // Month
-          rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 30));
+          rememberBeforeDate = _selectedDate!.subtract(
+            const Duration(days: 30),
+          );
           break;
         case '2': // Week
           rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 7));
@@ -493,63 +612,74 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     } else {
       updateData['addType'] = null;
     }
-    try{
-    await FirebaseFirestore.instance
-        .collection('anniversaries')
-        .doc(widget.anniversaryId)
-        .update(updateData);
-    setState(() {
-      _isEditing = false;
-      isLoading = false;
-    });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.annUpdateSuccessfully)));
-    }catch (e) {
+    try {
+      await FirebaseFirestore.instance
+          .collection('anniversaries')
+          .doc(widget.anniversaryId)
+          .update(updateData);
+      setState(() {
+        _isEditing = false;
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.annUpdateSuccessfully),
+        ),
+      );
+    } catch (e) {
       setState(() {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.failtoUpdateAnniversary)),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.failtoUpdateAnniversary),
+        ),
       );
       print('Error updating anniversary: $e');
     }
   }
-  void _showDeleteConfirmation() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title:  Text(AppLocalizations.of(context)!.deleteAnniversary),
-      content:  Text(AppLocalizations.of(context)!.deleteAnniversaryConfirmation),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child:  Text(AppLocalizations.of(context)!.cancel),
-        ),
-        TextButton(
-          onPressed: () async {
-            Navigator.of(context).pop(); // Close the dialog
-            // Now delete and immediately pop the page if still mounted
-            await _deleteAnniversaryAndPop();
-          },
-          child:  Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: Colors.red)),
-        ),
-      ],
-    ),
-  );
-}
 
-Future<void> _deleteAnniversaryAndPop() async {
-if (anniversaryDoc == null) return;
-  await FirebaseFirestore.instance
-      .collection('anniversaries')
-      .doc(widget.anniversaryId)
-      .delete();
-  if (!mounted) return;
-  WidgetsBinding.instance.addPostFrameCallback((_) {
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.deleteAnniversary),
+            content: Text(
+              AppLocalizations.of(context)!.deleteAnniversaryConfirmation,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // Close the dialog
+                  // Now delete and immediately pop the page if still mounted
+                  await _deleteAnniversaryAndPop();
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.delete,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _deleteAnniversaryAndPop() async {
+    if (anniversaryDoc == null) return;
+    await FirebaseFirestore.instance
+        .collection('anniversaries')
+        .doc(widget.anniversaryId)
+        .delete();
     if (!mounted) return;
-    Navigator.of(context).pop();
-    // Optionally show a snackbar here if you have access to the previous context
-  });
-}
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      // Optionally show a snackbar here if you have access to the previous context
+    });
+  }
 }

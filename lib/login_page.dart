@@ -36,9 +36,11 @@ class _LoginPageState extends State<LoginPage> {
     NotificationSettings settings= await messaging.requestPermission();
     print('User granted permission: ${settings.authorizationStatus}');
     final token = await messaging.getToken();
+    if (mounted) {
     setState(() {
       _fcmToken = token;
     });
+    }
     print("FCM Token: $_fcmToken");
 
     // Update the logged-in user's fcmToken in Firestore (initial set)
@@ -53,9 +55,11 @@ class _LoginPageState extends State<LoginPage> {
     // Listen for token refreshes
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       print("New FCM Token: $newToken");
+      if (mounted) {
       setState(() {
         _fcmToken = newToken;
       });
+      }
       // Update the logged-in user's fcmToken in Firestore
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -267,7 +271,7 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       AppLocalizations.of(context)!.loginToMohtm,
                       style: const TextStyle(
-                        fontFamily: 'Roboto',
+                        fontFamily: 'Pacifico',
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF502878),
@@ -315,9 +319,11 @@ class _LoginPageState extends State<LoginPage> {
                             color: Color(0xFF502878),
                           ),
                           onPressed: () {
+                            if (mounted) {
                             setState(() {
                               _obscurePassword = !_obscurePassword;
                             });
+                            }
                           },
                         ),
                       ),
@@ -348,9 +354,11 @@ class _LoginPageState extends State<LoginPage> {
                           value: _rememberMe,
                           activeColor: const Color(0xFFB365C1),
                           onChanged: (value) {
+                            if (mounted) {
                             setState(() {
                               _rememberMe = value ?? false;
                             });
+                            }
                           },
                         ),
                         Text(AppLocalizations.of(context)!.rememberme, style: const TextStyle(color: Color(0xFF502878))),
