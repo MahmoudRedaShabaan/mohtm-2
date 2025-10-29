@@ -20,7 +20,7 @@ class TasksPage extends StatefulWidget {
 
 class _TasksPageState extends State<TasksPage> {
   String? _selectedCategoryId;
-  String _selectedStatus = 'all'; // 'all', 'open', 'done'
+  String _selectedStatus = 'open'; // 'all', 'open', 'done'
   List<Map<String, dynamic>> _categories = [];
   static const MethodChannel _widgetChannel = MethodChannel(
     'com.reda.mohtm2/widget',
@@ -37,6 +37,7 @@ class _TasksPageState extends State<TasksPage> {
   @override
   void initState() {
     super.initState();
+    _addCategoryDefault();
     _loadCategories();
     print('initState called');
     print('_scrollController: $_scrollController');
@@ -129,6 +130,30 @@ class _TasksPageState extends State<TasksPage> {
     }
   }
 
+  Future<void> _addCategoryDefault() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    try {
+      Query qs = await FirebaseFirestore.instance
+          .collection('userTaskCategory')
+          .where('userId', isEqualTo: user.uid)
+          .where('name', isEqualTo: 'default');
+      final QuerySnapshot querySnapshot = await qs.get();
+      final docs = querySnapshot.docs;
+      if (docs.isEmpty) {
+        final doc = await FirebaseFirestore.instance
+            .collection('userTaskCategory')
+            .add({
+              'name': 'default',
+              'userId': user.uid,
+              'createdAt': FieldValue.serverTimestamp(),
+            });
+      }
+    } catch (e) {
+      print('Error adding default category: $e');
+    }
+  }
+
   Future<void> _addCategory() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -185,9 +210,11 @@ class _TasksPageState extends State<TasksPage> {
               'createdAt': FieldValue.serverTimestamp(),
             });
         await _loadCategories();
-        setState(() {
-          _selectedCategoryId = doc.id;
-        });
+        if (mounted) {
+          setState(() {
+            _selectedCategoryId = doc.id;
+          });
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -367,6 +394,7 @@ class _TasksPageState extends State<TasksPage> {
     Query query = FirebaseFirestore.instance
         .collection('tasks')
         .where('userId', isEqualTo: user.uid);
+    //  .where('status', isEqualTo: 'open');
 
     // Apply category filter
     if (_selectedCategoryId != null) {
@@ -420,7 +448,6 @@ class _TasksPageState extends State<TasksPage> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Directionality(
       textDirection:
           Localizations.localeOf(context).languageCode == 'ar'
@@ -545,6 +572,10 @@ class _TasksPageState extends State<TasksPage> {
                           ),
                           items: [
                             DropdownMenuItem<String>(
+                              value: 'done',
+                              child: Text(AppLocalizations.of(context)!.done),
+                            ),
+                            DropdownMenuItem<String>(
                               value: 'all',
                               child: Text(
                                 AppLocalizations.of(context)!.allTasks,
@@ -553,10 +584,6 @@ class _TasksPageState extends State<TasksPage> {
                             DropdownMenuItem<String>(
                               value: 'open',
                               child: Text(AppLocalizations.of(context)!.open),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'done',
-                              child: Text(AppLocalizations.of(context)!.done),
                             ),
                           ],
                           onChanged: (value) {

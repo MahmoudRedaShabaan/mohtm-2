@@ -148,18 +148,18 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
       });
       try {
         bool res = await checkIfEmailExistsInFirestore(
-          _emailController.text.trim(),
+          _emailController.text.toLowerCase().trim(),
         );
         if (res == true) {
           await FirebaseAuth.instance.sendPasswordResetEmail(
-            email: _emailController.text.trim(),
+            email: _emailController.text.toLowerCase().trim(),
           );
           setState(() {
             _isLoading = false;
             print(
-              AppLocalizations.of(context)!.passwordResetSent(_emailController.text.trim()),
+              AppLocalizations.of(context)!.passwordResetSent(_emailController.text.toLowerCase().trim()),
             );
-            _resetMessage = AppLocalizations.of(context)!.passwordResetSent(_emailController.text.trim());
+            _resetMessage = AppLocalizations.of(context)!.passwordResetSent(_emailController.text.toLowerCase().trim());
           });
         } else {
           setState(() {

@@ -226,11 +226,12 @@ class _HomePageState extends State<HomePage> {
                                           : Colors.transparent,
                                 ),
                                 title: const Text('English'),
-                                onTap: () async {
-                                  widget.onLanguageChanged('en');
-                                  await _updateUserLang('en');
-                                  Navigator.pop(context);
-                                },
+                                  onTap: () async {
+                                    widget.onLanguageChanged('en');
+                                    await _updateUserLang('en');
+                                    if (!mounted) return;
+                                    Navigator.pop(context);
+                                  },
                               ),
                               ListTile(
                                 leading: Icon(
@@ -244,6 +245,7 @@ class _HomePageState extends State<HomePage> {
                                 onTap: () async {
                                   widget.onLanguageChanged('ar');
                                   await _updateUserLang('ar');
+                                  if (!mounted) return;
                                   Navigator.pop(context);
                                 },
                               ),

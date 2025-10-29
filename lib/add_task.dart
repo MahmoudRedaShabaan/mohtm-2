@@ -75,6 +75,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           title: Text(AppLocalizations.of(context)!.addCategory),
           content: Form(
             key: formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction, // <-- Add this line
             child: TextFormField(
               controller: controller,
               autofocus: true,
@@ -119,9 +120,11 @@ class _AddTaskPageState extends State<AddTaskPage> {
               'createdAt': FieldValue.serverTimestamp(),
             });
         await _loadCategories();
-        setState(() {
-          _selectedCategoryId = doc.id;
-        });
+        if (mounted) {
+          setState(() {
+            _selectedCategoryId = doc.id;
+          });
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -381,6 +384,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction, // <-- Add this line
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

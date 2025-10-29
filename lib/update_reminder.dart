@@ -17,7 +17,6 @@ Future<void> _openExactAlarmSettings(BuildContext context) async {
   await intent.launch();
 }
 
-
 class UpdateReminderPage extends StatefulWidget {
   final String reminderId;
   final Map<String, dynamic> reminderData;
@@ -36,8 +35,9 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   DateTime? _selectedDateTime;
+  bool _isUpdating = false;
   String _repeat = "Don't repeat";
-  String _durationType = 'forever';
+  String _durationType = 'until';
   int? _repeatCount;
   DateTime? _untilDate;
   int _repeatInterval = 1;
@@ -68,7 +68,10 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
     _repeat = data['repeat'] ?? "Don't repeat";
     _durationType = data['durationType'] ?? 'forever';
     _repeatCount = data['repeatCount'];
-    _untilDate = data['untilDate'] != null ? (data['untilDate'] as Timestamp).toDate() : null;
+    _untilDate =
+        data['untilDate'] != null
+            ? (data['untilDate'] as Timestamp).toDate()
+            : null;
     _repeatInterval = data['repeatInterval'] ?? 1;
     _selectedWeekdays = List<int>.from(data['weekdays'] ?? []);
     _selectedRepeatUnit = data['repeatUnit'] ?? 'minute';
@@ -102,7 +105,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
 
   Future<void> _pickDateTime() async {
     if (!_isEditing) return;
-    
+
     final date = await showDatePicker(
       context: context,
       initialDate: _selectedDateTime ?? DateTime.now(),
@@ -112,9 +115,10 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
     if (date == null) return;
     final time = await showTimePicker(
       context: context,
-      initialTime: _selectedDateTime != null 
-          ? TimeOfDay.fromDateTime(_selectedDateTime!)
-          : TimeOfDay.now(),
+      initialTime:
+          _selectedDateTime != null
+              ? TimeOfDay.fromDateTime(_selectedDateTime!)
+              : TimeOfDay.now(),
     );
     if (time == null) return;
     setState(() {
@@ -130,7 +134,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
 
   void _showRepeatOptions() async {
     if (!_isEditing) return;
-    
+
     String? selected;
     int tempInterval = _repeatInterval;
     String tempUnit = _selectedRepeatUnit;
@@ -301,9 +305,11 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                           final n = int.tryParse(intervalController.text);
                           if (n == null || n < 1 || n > 99) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  AppLocalizations.of(context)!.validNumberbetween
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.validNumberbetween,
                                 ),
                               ),
                             );
@@ -312,10 +318,11 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                           tempInterval = n;
                           if (tempUnit == 'week' && tempWeekdays.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  AppLocalizations.of(context)!.pleaseselectAtLeastOneWeekday,
-                                  
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.pleaseselectAtLeastOneWeekday,
                                 ),
                               ),
                             );
@@ -373,39 +380,49 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
           child: Row(
             children: [
               ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.forever),
-                selected: _durationType == 'forever',
-                onSelected: _isEditing ? (selected) {
-                  setState(() {
-                    _durationType = 'forever';
-                    _repeatCount = null;
-                    _untilDate = null;
-                  });
-                } : null,
+                label: Text(AppLocalizations.of(context)!.untilDate),
+                selected: _durationType == 'until',
+                onSelected:
+                    _isEditing
+                        ? (selected) {
+                          setState(() {
+                            _durationType = 'until';
+                            _repeatCount = null;
+                          });
+                        }
+                        : null,
               ),
               const SizedBox(width: 8),
               ChoiceChip(
                 label: Text(AppLocalizations.of(context)!.count),
                 selected: _durationType == 'count',
-                onSelected: _isEditing ? (selected) {
-                  setState(() {
-                    _durationType = 'count';
-                    _repeatCount = 1;
-                    _untilDate = null;
-                  });
-                } : null,
+                onSelected:
+                    _isEditing
+                        ? (selected) {
+                          setState(() {
+                            _durationType = 'count';
+                            _repeatCount = 1;
+                            _untilDate = null;
+                          });
+                        }
+                        : null,
               ),
               const SizedBox(width: 8),
               ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.untilDate),
-                selected: _durationType == 'until',
-                onSelected: _isEditing ? (selected) {
-                  setState(() {
-                    _durationType = 'until';
-                    _repeatCount = null;
-                  });
-                } : null,
+                label: Text(AppLocalizations.of(context)!.forever),
+                selected: _durationType == 'forever',
+                onSelected:
+                    _isEditing
+                        ? (selected) {
+                          setState(() {
+                            _durationType = 'forever';
+                            _repeatCount = null;
+                            _untilDate = null;
+                          });
+                        }
+                        : null,
               ),
+              
             ],
           ),
         ),
@@ -429,11 +446,14 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                 }
                 return null;
               },
-              onChanged: _isEditing ? (value) {
-                setState(() {
-                  _repeatCount = int.tryParse(value);
-                });
-              } : null,
+              onChanged:
+                  _isEditing
+                      ? (value) {
+                        setState(() {
+                          _repeatCount = int.tryParse(value);
+                        });
+                      }
+                      : null,
             ),
           ),
         if (_durationType == 'until')
@@ -472,25 +492,55 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
   }
 
   Future<void> _updateReminder() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_isUpdating) return; // prevent double-press
+    setState(() {
+      _isUpdating = true;
+    });
+    if (!_formKey.currentState!.validate()) {
+      if (mounted) {
+        setState(() {
+          _isUpdating = false;
+        });
+      }
+      return;
+    }
     if (_selectedDateTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.pleaseselecydatetime)),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseselecydatetime),
+        ),
       );
+      if (mounted) {
+        setState(() {
+          _isUpdating = false;
+        });
+      }
       return;
-    }else if (_selectedDateTime?.isBefore(DateTime.now())??false) {
+    } else if (_selectedDateTime?.isBefore(DateTime.now()) ?? false) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context)!.selectfuturedatetime),
         ), //Text('Please select a future date and time.')),
       );
+      if (mounted) {
+        setState(() {
+          _isUpdating = false;
+        });
+      }
       return;
     }
+    if(_repeat!='Don\'t repeat'){
     if (_durationType == 'until' && _untilDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.pleaseselectanuntildate)),//Text('Please select an until date.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseselectanuntildate),
+        ), //Text('Please select an until date.')),
       );
+      setState(() {
+        _isUpdating = false;
+      });
       return;
+    }
     }
 
     final user = FirebaseAuth.instance.currentUser;
@@ -509,8 +559,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
           .doc(widget.reminderId)
           .delete();
 
-      // Create new reminder data
-      List<String> newNotificationIds = [];
+  // Create new reminder data
       final reminder = {
         'userId': user.uid,
         'title': _titleController.text.trim(),
@@ -532,7 +581,8 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
           .add(reminder);
 
       // Schedule new notifications
-      newNotificationIds = await scheduleReminderNotification(
+      //newNotificationIds
+      var result = await scheduleReminderNotification(
         id: DateTime.now().millisecondsSinceEpoch % 1000000,
         title: _titleController.text.trim(),
         dateTime: _selectedDateTime!,
@@ -545,74 +595,205 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
       );
 
       // Update with notification IDs
-      await docRef.update({'notificationIds': newNotificationIds});
+      await docRef.update({
+        'notificationIds': result.$1,
+        'notificationTimes': result.$2,
+      });
+      // await docRef.update({'notificationTimes': result.$2});
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(AppLocalizations.of(context)!.reminderUpdatedSuccessfully)),//Text('Reminder updated successfully!')),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.reminderUpdatedSuccessfully,
+            ),
+          ),
         );
         Navigator.pop(context);
+      }
+      if (mounted) {
+        setState(() {
+          _isUpdating = false;
+        });
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of( context)!.errorUpdatingReminder+e.toString())),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.errorUpdatingReminder +
+                  e.toString(),
+            ),
+          ),
         );
+      }
+      if (mounted) {
+        setState(() {
+          _isUpdating = false;
+        });
       }
     }
   }
 
-  Future<void> _deleteReminder() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.reminderDelete),
-          content: Text(AppLocalizations.of(context)!.reminderDeleteConfirmation),
-          actions: <Widget>[
-            TextButton(
-              child: Text(AppLocalizations.of(context)!.cancel),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(AppLocalizations.of(context)!.delete),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                
-                try {
-                  // Cancel notifications
-                  for (String notificationId in _notificationIds) {
-                    int notifInt = int.tryParse(notificationId) ?? 0;
-                    await flutterLocalNotificationsPlugin.cancel(notifInt);
-                  }
-                  
-                  // Delete from Firebase
-                  await FirebaseFirestore.instance
-                      .collection('reminders')
-                      .doc(widget.reminderId)
-                      .delete();
+  // Future<void> _deleteReminder() async {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(AppLocalizations.of(context)!.reminderDelete),
+  //         content: Text(
+  //           AppLocalizations.of(context)!.reminderDeleteConfirmation,
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text(AppLocalizations.of(context)!.cancel),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //           TextButton(
+  //             child: Text(AppLocalizations.of(context)!.delete),
+  //             onPressed: () async {
+  //              // Navigator.of(context).pop();
+  //               bool success = false;
+  //               String? errorMsg;
+  //               try {
+  //                 // Cancel notifications
+  //                 for (String notificationId in _notificationIds) {
+  //                   int notifInt = int.tryParse(notificationId) ?? 0;
+  //                   await flutterLocalNotificationsPlugin.cancel(notifInt);
+  //                 }
+  //                 // Delete from Firebase
+  //                 await FirebaseFirestore.instance
+  //                     .collection('reminders')
+  //                     .doc(widget.reminderId)
+  //                     .delete();
+  //                 success = true;
+  //                 if (!mounted) return;
+  //                 ScaffoldMessenger.of(context).showSnackBar(
+  //                   SnackBar(
+  //                     content: Text(
+  //                       AppLocalizations.of(
+  //                         context,
+  //                       )!.reminderDeletedSuccessfully,
+  //                     ),
+  //                   ),
+  //                 );
+  //                 Navigator.pop(context);
+  //               } catch (e) {
+  //                 errorMsg =
+  //                     AppLocalizations.of(context)!.errorDeletingReminder +
+  //                     e.toString();
+  //                 if (!mounted) return;
+  //                 ScaffoldMessenger.of(
+  //                   context,
+  //                 ).showSnackBar(SnackBar(content: Text(errorMsg)));
+  //               }
 
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(content: Text(AppLocalizations.of(context)!.reminderDeletedSuccessfully)),//Text('Reminder deleted successfully!')),
-                    );
-                    Navigator.pop(context);
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(AppLocalizations.of(context)!.errorDeletingReminder+e.toString())),
-                    );
-                  }
-                }
-              },
+  //               // Navigate first, then show snackbar using root messenger
+  //               // if (mounted) {
+  //               //   Navigator.of(context).pop();
+  //               //   await Future.delayed(const Duration(milliseconds: 100));
+  //               //   final messenger =
+  //               //       ScaffoldMessenger.maybeOf(context) ??
+  //               //       ScaffoldMessenger.maybeOf(Navigator.of(context).context);
+  //               //   if (messenger != null) {
+  //               //     messenger.showSnackBar(
+  //               //       SnackBar(
+  //               //         content: Text(
+  //               //           success
+  //               //               ? AppLocalizations.of(
+  //               //                 context,
+  //               //               )!.reminderDeletedSuccessfully
+  //               //               : errorMsg ??
+  //               //                   AppLocalizations.of(
+  //               //                     context,
+  //               //                   )!.errorDeletingReminder,
+  //               //         ),
+  //               //       ),
+  //               //     );
+  //               //   }
+  //               // }
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  Future<void> _deleteReminder() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.reminderDelete),
+            content: Text(
+              AppLocalizations.of(context)!.reminderDeleteConfirmation,
             ),
-          ],
-        );
-      },
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(AppLocalizations.of(context)!.delete),
+              ),
+            ],
+          ),
     );
+    if (confirm != true) return;
+    try {
+      String id = widget.reminderId;
+      List<String> notificationIds;
+      print('Deleting reminder with ID: $id');
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        debugPrint('No user logged in. Cannot delete reminder.');
+        return;
+      }
+      final ref = FirebaseFirestore.instance.collection('reminders').doc(id);
+      final doc = await ref.get();
+      if (ref.id.isNotEmpty) {
+        notificationIds = List<String>.from(doc['notificationIds'] ?? []);
+        print(notificationIds.length);
+        print(notificationIds);
+        print(ref.id);
+
+        for (String notificationId in notificationIds) {
+          print(notificationId);
+          int notifInt = int.tryParse(notificationId) ?? 0;
+          await flutterLocalNotificationsPlugin.cancel(notifInt);
+
+          debugPrint('Canceled local notification with ID: $notificationId');
+        }
+        await ref.delete();
+      }
+
+      // await FirebaseFirestore.instance
+      //     .collection('reminders')
+      //     .doc(widget.reminderId)
+      //     .delete();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.reminderDeletedSuccessfully,
+          ),
+        ),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error deleting reminder: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.errorDeletingReminder + e.toString(),
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -653,29 +834,48 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
+          autovalidateMode:
+              AutovalidateMode.onUserInteraction, // <-- Add this line
           child: ListView(
             children: [
-              if (_isEditing)
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(
-                        AppLocalizations.of(context)!.fixNotificationsPermission,
-                        style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey[800]),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () => _openExactAlarmSettings(context),
-                        icon: const Icon(Icons.settings),
-                        label: Text(AppLocalizations.of(context)!.fixNotificationsPermission),
-                        style: ElevatedButton.styleFrom(backgroundColor: secondaryColor, foregroundColor: Colors.white),
-                      ),
-                    ]),
-                  ),
-                ),
+              // if (_isEditing)
+              //   Card(
+              //     elevation: 2,
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(12),
+              //     ),
+              //     child: Padding(
+              //       padding: const EdgeInsets.all(16),
+              //       child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           Text(
+              //             AppLocalizations.of(
+              //               context,
+              //             )!.fixNotificationsPermission,
+              //             style: TextStyle(
+              //               fontWeight: FontWeight.w600,
+              //               color: Colors.grey[800],
+              //             ),
+              //           ),
+              //           const SizedBox(height: 8),
+              //           ElevatedButton.icon(
+              //             onPressed: () => _openExactAlarmSettings(context),
+              //             icon: const Icon(Icons.settings),
+              //             label: Text(
+              //               AppLocalizations.of(
+              //                 context,
+              //               )!.fixNotificationsPermission,
+              //             ),
+              //             style: ElevatedButton.styleFrom(
+              //               backgroundColor: secondaryColor,
+              //               foregroundColor: Colors.white,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
               TextFormField(
                 controller: _titleController,
                 enabled: _isEditing,
@@ -686,7 +886,9 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                 validator: (value) {
                   if (_isEditing) {
                     if (value == null || value.trim().isEmpty) {
-                      return AppLocalizations.of(context)!.reminderTitleRequired;
+                      return AppLocalizations.of(
+                        context,
+                      )!.reminderTitleRequired;
                     }
                     if (value.length > 100) {
                       return AppLocalizations.of(context)!.reminderTitleTooLong;
@@ -698,13 +900,20 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
               const SizedBox(height: 16),
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ListTile(
-                  leading: const Icon(Icons.calendar_today, color: Colors.deepPurple),
+                  leading: const Icon(
+                    Icons.calendar_today,
+                    color: Colors.deepPurple,
+                  ),
                   title: Text(
                     _selectedDateTime == null
                         ? AppLocalizations.of(context)!.selecydatetime
-                        : DateFormat('dd-MM-yyyy hh:mm a').format(_selectedDateTime!),
+                        : DateFormat(
+                          'dd-MM-yyyy hh:mm a',
+                        ).format(_selectedDateTime!),
                   ),
                   onTap: _pickDateTime,
                 ),
@@ -712,12 +921,17 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
               const SizedBox(height: 16),
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ListTile(
                   leading: const Icon(Icons.repeat, color: Colors.deepPurple),
                   title: Text(
-                    AppLocalizations.of(context)!.repeat + ': ' +
-                        (_repeat == 'Every x unit' ? 'Every $_repeatInterval $_selectedRepeatUnit' : _repeat),
+                    AppLocalizations.of(context)!.repeat +
+                        ': ' +
+                        (_repeat == 'Every x unit'
+                            ? 'Every $_repeatInterval $_selectedRepeatUnit'
+                            : _repeat),
                   ),
                   onTap: _showRepeatOptions,
                 ),
@@ -726,14 +940,26 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
               if (_isEditing) ...[
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _updateReminder,
+                  onPressed: !_isUpdating ? _updateReminder : null,
+                  //onPressed: _updateReminder,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text(AppLocalizations.of(context)!.modify),
+                  child: _isUpdating
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      : Text(AppLocalizations.of(context)!.modify),
                 ),
               ],
             ],
@@ -743,4 +969,3 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
     );
   }
 }
-              

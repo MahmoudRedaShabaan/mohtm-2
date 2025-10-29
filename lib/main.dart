@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:timezone/browser.dart';
 //import 'package:timezone/data/latest.dart' as tz;
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -30,14 +31,19 @@ import 'lookup.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'dart:async';
 import 'tasks.dart';
 import 'reminders.dart';
 import 'package:upgrader/upgrader.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 const MethodChannel _widgetChannel = MethodChannel('com.reda.mohtm2/widget');
-String minRequiredVersion='';
+String minRequiredVersion = '';
+String? payload;
+//const MethodChannel backgroundChannel = MethodChannel('com.reda.mohtm2/widget_background');
 // Add this function at the top level, outside of any class
 // Add this function at the top level, outside of any class
 @pragma('vm:entry-point')
@@ -72,41 +78,42 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print('Handling a background message: ${message.messageId}');
 
+  if (message.data.containsKey('action')) {
+    if (message.data['action'] == 'Send_WidgetUpdate_SilentNotification') {
+      await _writeOccasionWidgetSummary();
+    }
+  }
   // Update FCM token in background
   await _updateFCMTokenInBackground();
 }
 
-@pragma('vm:entry-point')
-Future<void> _updateScreenWidgetsInBackground() async {
-  _writeTasksWidgetSummary();
-  _writeRemindersWidgetSummary();
-  _writeOccasionWidgetSummary();
-}
-Future<String> _loadMinRequiredVersion() async {
-    final doc = await FirebaseFirestore.instance.collection('appVersion').doc('1').get();
-    if (doc.exists) {
-       minRequiredVersion = doc['minRequiredVersion']?.toString() ?? '1.1.1';
-      print('App version from Firestore: $minRequiredVersion');
-    } else {
-      print('No appVersion document found in Firestore.');
-      minRequiredVersion= '1.1.1';  
-    }
-    return minRequiredVersion;
-  }
-
 Future<void> _writeOccasionWidgetSummary() async {
   try {
-    Stream<List<QueryDocumentSnapshot>> todaysAnniversariesStream =
-        getTodaysAnniversariesStream();
-    final prefs = await SharedPreferences.getInstance();
-    List<QueryDocumentSnapshot> docs = [];
-    await for (List<QueryDocumentSnapshot> anniversaryList
-        in todaysAnniversariesStream) {
-      // Add all the documents from the stream event to our list.
-      docs.addAll(anniversaryList);
+    print("_writeOccasionWidgetSummary called");
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("No user logged in");
+      return;
     }
-    // Build a compact JSON payload with items (up to 5) and total count
+    final today = DateTime.now();
+    final querySnapshot =
+        await FirebaseFirestore.instance
+            .collection('anniversaries')
+            .where('createdBy', isEqualTo: user.uid)
+            .get();
+    final docs =
+        querySnapshot.docs.where((doc) {
+          final Timestamp? ts = doc['date'];
+          if (ts == null) return false;
+          final date = ts.toDate();
+          return date.month == today.month && date.day == today.day;
+        }).toList();
+    final snapshot =
+        await FirebaseFirestore.instance.collection('eventtype').get();
+    final eventTypes =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     final int totalCount = docs.length;
+    print('totalCount: $totalCount');
     final List<Map<String, dynamic>> items =
         docs.take(5).map((doc) {
           final date = (doc['date'] as Timestamp?)?.toDate();
@@ -114,9 +121,9 @@ Future<void> _writeOccasionWidgetSummary() async {
               date != null ? '${date.day}/${date.month}/${date.year}' : '';
           final String title = (doc['title'] ?? '').toString();
           final String typeId = (doc['type']?.toString() ?? '');
-          //_locale
           final locale = 'en';
-          final eventTypes = LookupService().eventTypes;
+
+          //final eventTypes = LookupService().eventTypes;
           String typeName = typeId;
           if (typeId.isNotEmpty) {
             if (typeId == '4') {
@@ -140,34 +147,142 @@ Future<void> _writeOccasionWidgetSummary() async {
             'relationship': relationship,
           };
         }).toList();
+    final prefs = await SharedPreferences.getInstance();
     final payload = {'items': items, 'total': totalCount};
     await prefs.setString('widget_occasion_items', jsonEncode(payload));
     await _widgetChannel.invokeMethod('updateOccasionWidget');
-  } catch (_) {
+  } catch (e) {
+    print('Failed to write occasion widget summary: $e');
+    // Ignore errors; widget update is best effort
+  }
+}
+
+
+@pragma('vm:entry-point')
+Future<void> _updateScreenWidgetsInBackground() async {
+  _writeTasksWidgetSummary();
+  _writeRemindersWidgetSummary();
+  _writeOccasionWidgetSummary();
+}
+
+Future<void> _loadMinRequiredVersion() async {
+  final doc =
+      await FirebaseFirestore.instance.collection('appVersion').doc('1').get();
+  if (doc.exists) {
+    minRequiredVersion = doc['minRequiredVersion']?.toString() ?? '1.1.1';
+    print('App version from Firestore: $minRequiredVersion');
+  } else {
+    print('No appVersion document found in Firestore.');
+    minRequiredVersion = '1.1.1';
+  }
+ // return minRequiredVersion;
+}
+
+Future<void> _writeOccasionWidgetSummary1() async {
+  try {
+    print("_writeOccasionWidgetSummary called");
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("No user logged in");
+      return;
+    }
+    final today = DateTime.now();
+    final querySnapshot =
+        await FirebaseFirestore.instance
+            .collection('anniversaries')
+            .where('createdBy', isEqualTo: user.uid)
+            .get();
+    final docs =
+        querySnapshot.docs.where((doc) {
+          final Timestamp? ts = doc['date'];
+          if (ts == null) return false;
+          final date = ts.toDate();
+          return date.month == today.month && date.day == today.day;
+        }).toList();
+    final snapshot =
+        await FirebaseFirestore.instance.collection('eventtype').get();
+    final eventTypes =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    final int totalCount = docs.length;
+    print('totalCount: $totalCount');
+    final List<Map<String, dynamic>> items =
+        docs.take(5).map((doc) {
+          final date = (doc['date'] as Timestamp?)?.toDate();
+          final String dateStr =
+              date != null ? '${date.day}/${date.month}/${date.year}' : '';
+          final String title = (doc['title'] ?? '').toString();
+          final String typeId = (doc['type']?.toString() ?? '');
+          final locale = 'en';
+
+          //final eventTypes = LookupService().eventTypes;
+          String typeName = typeId;
+          if (typeId.isNotEmpty) {
+            if (typeId == '4') {
+              typeName = doc['addType']?.toString() ?? '';
+            } else {
+              final typeObj = eventTypes.firstWhere(
+                (type) => type['id'].toString() == typeId,
+                orElse: () => <String, dynamic>{},
+              );
+              typeName =
+                  locale == 'ar'
+                      ? (typeObj['arabicName'] ?? typeId)
+                      : (typeObj['englishName'] ?? typeId);
+            }
+          }
+          final relationship = (doc['relationship'] ?? '').toString();
+          return {
+            'title': title,
+            'date': dateStr,
+            'type': typeName,
+            'relationship': relationship,
+          };
+        }).toList();
+    final prefs = await SharedPreferences.getInstance();
+    final payload = {'items': items, 'total': totalCount};
+    await prefs.setString('widget_occasion_items', jsonEncode(payload));
+    await _widgetChannel.invokeMethod('updateOccasionWidget');
+  } catch (e) {
+    print('Failed to write occasion widget summary: $e');
     // Ignore errors; widget update is best effort
   }
 }
 
 Stream<List<QueryDocumentSnapshot>> getTodaysAnniversariesStream() {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) {
-    // Return an empty stream if not logged in
+  try {
+    print('getTodaysAnniversariesStream called');
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Return an empty stream if not logged in
+      return Stream.value([]);
+    }
+    final today = DateTime.now();
+    print('befor call DB');
+    return FirebaseFirestore.instance
+        .collection('anniversaries')
+        .where('createdBy', isEqualTo: user.uid)
+        .snapshots()
+        .map((snapshot) {
+          // 1. Store the filtered result in a variable
+          final todaysAnniversaries =
+              snapshot.docs.where((doc) {
+                final Timestamp? ts = doc['date'];
+                if (ts == null) return false;
+                final date = ts.toDate();
+                return date.month == today.month && date.day == today.day;
+              }).toList();
+
+          // 2. Print the result for debugging
+          print('Found ${todaysAnniversaries.length} anniversaries for today.');
+          print('Anniversaries found: $todaysAnniversaries');
+
+          // 3. Return the variable
+          return todaysAnniversaries;
+        });
+  } catch (e) {
+    print('Failed to get today\'s anniversaries stream: $e');
     return Stream.value([]);
   }
-  final today = DateTime.now();
-  return FirebaseFirestore.instance
-      .collection('anniversaries')
-      .where('createdBy', isEqualTo: user.uid)
-      .snapshots()
-      .map(
-        (snapshot) =>
-            snapshot.docs.where((doc) {
-              final Timestamp? ts = doc['date'];
-              if (ts == null) return false;
-              final date = ts.toDate();
-              return date.month == today.month && date.day == today.day;
-            }).toList(),
-      );
 }
 
 Future<void> _writeRemindersWidgetSummary() async {
@@ -533,8 +648,10 @@ Future<void> _rescheduleRepeatingReminders() async {
           ),
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         );
+        String nextDateString = next.toString();
         await doc.reference.update({
           'notificationIds': FieldValue.arrayUnion([newId.toString()]),
+          'notificationTimes': FieldValue.arrayUnion([nextDateString]),
         });
       } catch (e) {
         // ignore scheduling errors to avoid blocking app start
@@ -555,6 +672,65 @@ Future<void> main() async {
 
   tz.setLocalLocation(tz.getLocation(timeZoneName));
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // NOTE ABOUT PERSISTENCE ISSUE (important):
+  //
+  // Many users report that after a successful login the released APK
+  // still forces them to re-login on next app open (FirebaseAuth.currentUser
+  // is null on cold restart). The root causes are environment/config related
+  // (missing/incorrect `google-services.json`, wrong package name, missing
+  // SHA key for Google sign-in, Play App Signing differences) or platform
+  // edge-cases where the Firebase SDK doesn't restore persisted auth state.
+  //
+  // To help diagnose and (temporarily) mitigate this, we attempt a best-effort
+  // silent restore using the app's existing "remember me" credentials stored
+  // in SharedPreferences. This is only a pragmatic fallback so the app doesn't
+  // force the user to re-enter credentials every time the release APK is run.
+  //
+  // IMPORTANT:
+  // - This is a workaround, not a proper fix. The real fix is to ensure
+  //   Firebase is configured correctly for the release build (check
+  //   `android/app/google-services.json`, applicationId, and SHA fingerprints
+  //   in the Firebase console). If Google sign-in is used, make sure the
+  //   release key's SHA-1 is registered.
+  // - Storing raw passwords in SharedPreferences is insecure. Migrate to
+  //   `flutter_secure_storage` or another secure mechanism if you keep this
+  //   behavior. Do NOT ship with plaintext password persistence for production.
+  //
+  // The code below attempts to sign in using saved credentials only if the
+  // user is not already signed in and the user previously opted into
+  // "remember me".
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final remember = prefs.getBool('remember_me') ?? false;
+    final savedEmail = prefs.getString('saved_email') ?? '';
+    final savedPassword = prefs.getString('saved_password') ?? '';
+    // Diagnostic: print whether saved credentials are present (don't print raw password)
+    try {
+      print('Prefs at startup: remember=$remember, savedEmail=${savedEmail.isNotEmpty ? savedEmail : '<empty>'}, savedPasswordPresent=${savedPassword.isNotEmpty}, savedPasswordLen=${savedPassword.length}');
+    } catch (_) {}
+    if (FirebaseAuth.instance.currentUser == null && remember && savedEmail.isNotEmpty && savedPassword.isNotEmpty) {
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: savedEmail,
+          password: savedPassword,
+        );
+        print('Restored Firebase session from saved credentials for $savedEmail');
+      } catch (e) {
+        print('Failed to restore saved credentials: $e');
+      }
+    } else {
+      print('No saved credentials to restore or user already signed in');
+    }
+  } catch (e) {
+    print('Error while attempting restore login: $e');
+  }
+  // Log current FirebaseAuth state for diagnostics on release builds
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    print('FirebaseAuth.currentUser after init: uid=${user?.uid} providerData=${user?.providerData}');
+  } catch (e) {
+    print('Error reading FirebaseAuth.currentUser: $e');
+  }
   await LookupService().initialize();
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
@@ -563,6 +739,12 @@ Future<void> main() async {
     ),
     onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
   );
+  // Check for a pending notification from a terminated state
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
+      await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+
+   payload = notificationAppLaunchDetails?.notificationResponse?.payload;
+
 
   // Create notification channel for Android
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -580,6 +762,15 @@ Future<void> main() async {
   await _rescheduleRepeatingReminders();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Upgrader.clearSavedSettings();
+  // Initialize and fetch Remote Config values
+  final remoteConfig = FirebaseRemoteConfig.instance;
+  await remoteConfig.setConfigSettings(RemoteConfigSettings(
+    fetchTimeout: const Duration(minutes: 1),
+    minimumFetchInterval: const Duration(minutes: 30),
+  ));
+  await remoteConfig.fetchAndActivate();
+  final String minVersion = remoteConfig.getString('min_version');
+    print('minVersion yp in build: $minVersion');
   //  typedef WillDisplayUpgradeCallback = Future<UpgraderDisplay> Function(UpgraderDisplay display);
   runApp(const MyApp());
 }
@@ -587,6 +778,7 @@ Future<void> main() async {
 const bool isTesting = true;
 
 class MyApp extends StatefulWidget {
+  
   const MyApp({super.key});
 
   @override
@@ -594,6 +786,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  
   Locale _locale = const Locale('en');
   String? _fcmToken;
   Timer? _reminderTopUpTimer;
@@ -617,9 +810,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _writeTasksWidgetSummary();
     _writeRemindersWidgetSummary();
     _writeOccasionWidgetSummary();
-    _loadMinRequiredVersion();
+      _loadMinRequiredVersion();
+     print('MinVersion: $minRequiredVersion');
     WidgetsBinding.instance.addObserver(this);
     _reminderTopUpTimer = Timer.periodic(const Duration(hours: 2), (_) {
+      print("Top-up rescheduler running Every 2 hours");
       _rescheduleRepeatingReminders();
       _refreshFCMTokenIfNeeded();
       _writeTasksWidgetSummary();
@@ -700,6 +895,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void _initFCM() async {
+    await _loadMinRequiredVersion();
+
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     // Request permissions on iOS
@@ -708,10 +905,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     // Always get a fresh token on app start
     final token = await messaging.getToken();
-    setState(() {
-      _fcmToken = token;
-    });
-    print("FCM Token: $_fcmToken");
+    print("FCM Token: $token");
+    // Update the UI only if the State is still mounted
+    if (mounted) {
+      setState(() {
+        _fcmToken = token;
+      });
+    }
 
     // Update the logged-in user's fcmToken in Firestore (initial set)
     final user = FirebaseAuth.instance.currentUser;
@@ -732,9 +932,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Listen for token refreshes - this is the key mechanism
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       print("FCM Token Refreshed: $newToken");
-      setState(() {
-        _fcmToken = newToken;
-      });
+      if (mounted) {
+        setState(() {
+          _fcmToken = newToken;
+        });
+      }
 
       // Update the logged-in user's fcmToken in Firestore
       final user = FirebaseAuth.instance.currentUser;
@@ -900,12 +1102,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    final String minVersion = remoteConfig.getString('min_version');
+    print('minVersion in build: $minVersion');
     return UpgradeAlert(
       dialogStyle: UpgradeDialogStyle.cupertino,
       upgrader: Upgrader(
+        // debugDisplayAlways: true,
+        // debugLogging: true,
         languageCode: _locale.languageCode,
-        minAppVersion: minRequiredVersion, 
-        messages : _locale.languageCode == 'ar' ? UpgraderMessages(code: 'ar') : UpgraderMessages(code: 'en'),
+        minAppVersion: minVersion,
+        messages:
+            _locale.languageCode == 'ar'
+                ? UpgraderMessages(code: 'ar')
+                : UpgraderMessages(code: 'en'),
       ),
       child: MaterialApp(
         navigatorKey: navigatorKey, // Assign the key here
@@ -914,11 +1124,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         supportedLocales: const [Locale('en'), Locale('ar')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
+
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
           AppLocalizations.delegate,
         ],
-        home: StreamBuilder(
+        navigatorObservers: [FirebaseAnalyticsObserver(analytics: analytics)],
+        home:payload=='reminder_channel_alarm' ? const  RemindersPage(): StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {

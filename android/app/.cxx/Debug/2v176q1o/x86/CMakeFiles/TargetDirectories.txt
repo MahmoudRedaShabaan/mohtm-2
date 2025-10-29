@@ -1,0 +1,2 @@
+C:/fullter/Projects/mohtm-2/android/app/.cxx/Debug/2v176q1o/x86/CMakeFiles/edit_cache.dir
+C:/fullter/Projects/mohtm-2/android/app/.cxx/Debug/2v176q1o/x86/CMakeFiles/rebuild_cache.dir

@@ -7,6 +7,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart';
+import 'login_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -84,7 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
           await FirebaseFirestore.instance
               .collection('users')
               .doc(userCredential.user!.uid)
-              .set({'email': userEmail, 'gender': '1'});
+              .set({'email': userEmail, 'gender': '1', 'fcmToken': _fcmToken});
           _initFCM();
         }
 
@@ -367,11 +368,27 @@ class _RegisterPageState extends State<RegisterPage> {
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            String res =
-                                await createAccountByEmailAndPassword();
+                            var res = await createAccountByEmailAndPassword();
                             ScaffoldMessenger.of(
                               context,
-                            ).showSnackBar(SnackBar(content: Text(res)));
+                            ).showSnackBar(SnackBar(content: Text(res.$1)));
+                            if (res.$2 == true) {
+                              print("registeration success");
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => LoginPage(
+                                        key: ValueKey('login'),
+                                        onLanguageChanged: (lang) {},
+                                        currentLanguage:
+                                            Localizations.localeOf(
+                                              context,
+                                            ).languageCode,
+                                      ),
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -415,8 +432,8 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Future<String> createAccountByEmailAndPassword() async {
-    String email = _emailController.text;
+  Future<(String, bool)> createAccountByEmailAndPassword() async {
+    String email = _emailController.text.toLowerCase();
     String password = _passwordController.text;
 
     try {
@@ -427,18 +444,21 @@ class _RegisterPageState extends State<RegisterPage> {
       if (user != null) {
         final lang = Localizations.localeOf(context).languageCode;
         await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'email': _emailController.text,
+          'email': _emailController.text.toLowerCase(),
           'gender': '1',
           'lang': lang,
+          'fcmToken': _fcmToken,
         });
         // Send email verification
         await user.sendEmailVerification();
+        await FirebaseAuth.instance.signOut();
         // Return a message instructing the user to check their email
-        return AppLocalizations.of(
-          context,
-        )!.registerSuccessMessageWithVerification;
+        return (
+          AppLocalizations.of(context)!.registerSuccessMessageWithVerification,
+          true,
+        );
       } else {
-        return AppLocalizations.of(context)!.registerErrorMessage;
+        return (AppLocalizations.of(context)!.registerErrorMessage, false);
       }
     } on FirebaseAuthException catch (e) {
       // Handle registration errors
@@ -446,11 +466,11 @@ class _RegisterPageState extends State<RegisterPage> {
       print(e.code);
       print("mmmreda");
       print(e.message);
-      return AppLocalizations.of(context)!.registerErrorMessage;
+      return (AppLocalizations.of(context)!.registerErrorMessage, false);
     } catch (e) {
       // Handle other potential errors (e.g., Firestore errors)
       print("Error saving user data: $e");
-      return AppLocalizations.of(context)!.registerErrorMessage;
+      return (AppLocalizations.of(context)!.registerErrorMessage, false);
     }
   }
 }

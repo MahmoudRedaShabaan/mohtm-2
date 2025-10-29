@@ -42,13 +42,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = "17"
+        //jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     defaultConfig {
@@ -59,10 +60,10 @@ android {
        //  minSdk = flutter.minSdkVersion
         minSdk = 23 
         targetSdk = flutter.targetSdkVersion
-        //versionCode = flutter.versionCode
-        //versionName = flutter.versionName
-        versionCode = 13
-        versionName = "1.1.2"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+        // versionCode = 14
+        // versionName = "1.1.3"
     }
 
    

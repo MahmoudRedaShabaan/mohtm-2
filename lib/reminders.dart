@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:myapp/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
 // import 'package:timezone/timezone.dart' as tz;
@@ -95,7 +96,7 @@ class RemindersPage extends StatelessWidget {
         final data = doc.data() as Map<String, dynamic>;
         final dateTime = (data['dateTime'] as Timestamp).toDate();
         final isOutdated = _isReminderOutdated(data, dateTime);
-        if(! isOutdated) {
+        if (!isOutdated) {
           print('Not outdated');
           print(data['title']);
           nonOutdatedDocs.add(doc);
@@ -109,7 +110,8 @@ class RemindersPage extends StatelessWidget {
             final String duedate =
                 date != null ? '${date.day}/${date.month}/${date.year}' : '';
             final String title = (doc['title'] ?? '').toString();
-            final String repeat = (doc['repeat']?.toString() ?? 'Don\'t repeat');
+            final String repeat =
+                (doc['repeat']?.toString() ?? 'Don\'t repeat');
 
             return {'title': title, 'date': duedate, 'repeat': repeat};
           }).toList();
@@ -197,7 +199,22 @@ class RemindersPage extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 182, 142, 190),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder:
+                      (context) => HomePage(
+                        onLanguageChanged: (_) {},
+                        currentLanguage:
+                            Localizations.localeOf(context).languageCode,
+                      ),
+                ),
+              );
+            }
+          },
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(

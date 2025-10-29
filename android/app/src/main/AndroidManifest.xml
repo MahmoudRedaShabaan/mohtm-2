@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Needed for exact alarm scheduling on Android 12+ -->
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM " />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Allow network access -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -57,7 +59,8 @@
         <!-- App Widgets -->
         <receiver
             android:name="com.reda.mohtm2.OccasionWidgetProvider"
-            android:exported="true">
+            android:exported="true"
+            android:label="Mohtm - Occasion Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.reda.mohtm2.ACTION_UPDATE_OCCASION_WIDGET" />
@@ -69,7 +72,8 @@
 
         <receiver
             android:name="com.reda.mohtm2.ReminderWidgetProvider"
-            android:exported="true">
+            android:exported="true"
+            android:label="Mohtm - Reminder Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 				<action android:name="com.reda.mohtm2.ACTION_UPDATE_REMINDER_WIDGET" />
@@ -81,7 +85,8 @@
 
         <receiver
             android:name="com.reda.mohtm2.TaskWidgetProvider"
-            android:exported="true">
+            android:exported="true"
+            android:label="Mohtm - Task Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 				<action android:name="com.reda.mohtm2.ACTION_UPDATE_TASK_WIDGET" />
@@ -99,6 +104,11 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <!-- <service
+            android:name=".BackgroundWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service> -->
     </application>
     
     <!-- Required to query activities that can process text, see:

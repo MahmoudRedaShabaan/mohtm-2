@@ -34,11 +34,12 @@ class AddReminderPage extends StatefulWidget {
 }
 
 class _AddReminderPageState extends State<AddReminderPage> {
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   DateTime? _selectedDateTime;
   String _repeat = "Don't repeat";
-  String _durationType = 'forever';
+  String _durationType = 'until';
   int? _repeatCount;
   DateTime? _untilDate;
   int _repeatInterval = 1;
@@ -354,13 +355,12 @@ class _AddReminderPageState extends State<AddReminderPage> {
           child: Row(
             children: [
               ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.forever),
-                selected: _durationType == 'forever',
+                label: Text(AppLocalizations.of(context)!.untilDate),
+                selected: _durationType == 'until',
                 onSelected: (selected) {
                   setState(() {
-                    _durationType = 'forever';
+                    _durationType = 'until';
                     _repeatCount = null;
-                    _untilDate = null;
                   });
                 },
               ),
@@ -378,15 +378,17 @@ class _AddReminderPageState extends State<AddReminderPage> {
               ),
               const SizedBox(width: 8),
               ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.untilDate),
-                selected: _durationType == 'until',
+                label: Text(AppLocalizations.of(context)!.forever),
+                selected: _durationType == 'forever',
                 onSelected: (selected) {
                   setState(() {
-                    _durationType = 'until';
+                    _durationType = 'forever';
                     _repeatCount = null;
+                    _untilDate = null;
                   });
                 },
               ),
+              
             ],
           ),
         ),
@@ -449,14 +451,26 @@ class _AddReminderPageState extends State<AddReminderPage> {
   }
 
   Future<void> _saveReminder() async {
+    if (_isLoading) return;
+    setState(() {
+      _isLoading = true;
+    });
     List<String> notificationIds = [];
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
     if (_selectedDateTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context)!.pleaseselecydatetime),
         ), //Text('Please select date & time.')),
       );
+      setState(() {
+        _isLoading = false;
+      });
       return;
     } else if (_selectedDateTime?.isBefore(DateTime.now()) ?? false) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -464,18 +478,31 @@ class _AddReminderPageState extends State<AddReminderPage> {
           content: Text(AppLocalizations.of(context)!.selectfuturedatetime),
         ), //Text('Please select a future date and time.')),
       );
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
+    if(_repeat!='Don\'t repeat'){
     if (_durationType == 'until' && _untilDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context)!.pleaseselectanuntildate),
         ), //Text('Please select an until date.')),
       );
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
+    }
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
     final reminder = {
       'userId': user.uid,
       'title': _titleController.text.trim(),
@@ -497,7 +524,8 @@ class _AddReminderPageState extends State<AddReminderPage> {
     // await _requestExactAlarmPermission();
     // Schedule local notification
     try {
-      notificationIds = await scheduleReminderNotification(
+      //notificationIds 
+      var result= await scheduleReminderNotification(
         id: DateTime.now().millisecondsSinceEpoch % 1000000, // simple unique id
         title: _titleController.text.trim(),
         dateTime: _selectedDateTime!,
@@ -508,7 +536,8 @@ class _AddReminderPageState extends State<AddReminderPage> {
         weekdays: _selectedRepeatUnit == 'week' ? _selectedWeekdays : null,
         timeOfReminder: AppLocalizations.of(context)!.timeOfReminder,
       );
-      docRef.update({'notificationIds': notificationIds});
+      await docRef.update({'notificationIds': result.$1,'notificationTimes': result.$2});
+     // docRef.update({'notificationTimes': result.$2});
     } catch (e) {
       if (await _shouldShowExactAlarmDialog()) {
         showDialog(
@@ -535,11 +564,17 @@ class _AddReminderPageState extends State<AddReminderPage> {
               ),
         );
       }
+      setState(() {
+        _isLoading = false;
+      });
       rethrow;
     }
     if (mounted) {
       Navigator.pop(context);
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -565,45 +600,47 @@ class _AddReminderPageState extends State<AddReminderPage> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
+          autovalidateMode:
+              AutovalidateMode.onUserInteraction, // <-- Add this line
           child: ListView(
             children: [
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.fixNotificationsPermission,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () => _openExactAlarmSettings(context),
-                        icon: const Icon(Icons.settings),
-                        label: Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.fixNotificationsPermission,
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: secondaryColor,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Card(
+              //   elevation: 2,
+              //   shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.circular(12),
+              //   ),
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(16),
+              //     child: Column(
+              //       crossAxisAlignment: CrossAxisAlignment.start,
+              //       children: [
+              //         Text(
+              //           AppLocalizations.of(
+              //             context,
+              //           )!.fixNotificationsPermission,
+              //           style: TextStyle(
+              //             fontWeight: FontWeight.w600,
+              //             color: Colors.grey[800],
+              //           ),
+              //         ),
+              //         const SizedBox(height: 8),
+              //         ElevatedButton.icon(
+              //           onPressed: () => _openExactAlarmSettings(context),
+              //           icon: const Icon(Icons.settings),
+              //           label: Text(
+              //             AppLocalizations.of(
+              //               context,
+              //             )!.fixNotificationsPermission,
+              //           ),
+              //           style: ElevatedButton.styleFrom(
+              //             backgroundColor: secondaryColor,
+              //             foregroundColor: Colors.white,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
@@ -660,7 +697,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
               _buildDurationOptions(),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _saveReminder,
+                onPressed: _isLoading ? null : _saveReminder,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
@@ -669,7 +706,17 @@ class _AddReminderPageState extends State<AddReminderPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(AppLocalizations.of(context)!.saveReminder),
+                child:
+                    _isLoading
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                        : Text(AppLocalizations.of(context)!.saveReminder),
               ),
             ],
           ),
@@ -679,7 +726,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
   }
 }
 
-Future<List<String>> scheduleReminderNotification({
+Future<(List<String>, List<String>)> scheduleReminderNotification({
   required int id,
   required String title,
   required DateTime dateTime,
@@ -691,6 +738,7 @@ Future<List<String>> scheduleReminderNotification({
   required String timeOfReminder,
 }) async {
   List<String> notificationIds = [];
+  List<String> notificationTimes = [];
   try {
     print("i am here before .");
     var androidDetails = const AndroidNotificationDetails(
@@ -707,7 +755,7 @@ Future<List<String>> scheduleReminderNotification({
       print("i am here repeated null before .");
       // final String timeZoneName = await FlutterTimezone.getLocalTimezone();
       //final location = tz.getLocation(timeZoneName);
-     // print(tz.TZDateTime.from(dateTime, location));
+      // print(tz.TZDateTime.from(dateTime, location));
       // print(TZDateTime.from(dateTime));
       await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
@@ -721,23 +769,48 @@ Future<List<String>> scheduleReminderNotification({
       );
       print("i am here repeated null after .");
       notificationIds.add(id.toString());
+      notificationTimes.add( tz.TZDateTime.from(dateTime, tz.local).toIso8601String());
     } else {
       // Repeated
       print("i am here not repeated null before .");
       final bool isForever = (repeatCount == null && untilDate == null);
       if (isForever) {
         // schedule-on-fire: only next occurrence
-        await flutterLocalNotificationsPlugin.zonedSchedule(
-          id,
-          title,
-          timeOfReminder,
-          tz.TZDateTime.from(dateTime, tz.local),
-          notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          payload: 'reminder_channel_alarm',
-        );
-        notificationIds.add(id.toString());
-      } else {
+        // await flutterLocalNotificationsPlugin.zonedSchedule(
+        //   id,
+        //   title,
+        //   timeOfReminder,
+        //   tz.TZDateTime.from(dateTime, tz.local),
+        //   notificationDetails,
+        //   androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        //   payload: 'reminder_channel_alarm',
+        // );
+        // notificationIds.add(id.toString());
+        // notificationTimes.add( tz.TZDateTime.from(dateTime, tz.local).toIso8601String());
+      switch (repeatUnit) {
+          case 'minute':
+          repeatCount=100;
+            break;
+          case 'hour':
+          repeatCount=100;
+            break;
+          case 'day':
+          untilDate = DateTime.now().add(const Duration(days: 100)); // 2 years from now
+            break;
+          case 'week':
+          untilDate = DateTime.now().add(const Duration(days: 100)); // 2 years from now
+            break;
+          case 'month':
+          untilDate = DateTime.now().add(const Duration(days: 365 )); // 5 years from now
+            break;
+          case 'year':
+          untilDate = DateTime.now().add(const Duration(days: 365 * 5)); // 10 years from now
+            break;
+          default:
+          untilDate = DateTime.now().add(const Duration(days: 365 * 2)); // 2 years from now
+        }
+      } 
+      // else {
         // pre-schedule occurrences for count or until
         Duration interval;
         switch (repeatUnit) {
@@ -786,13 +859,14 @@ Future<List<String>> scheduleReminderNotification({
               if (repeatCount != null && scheduled >= repeatCount) break;
               final int updatedId = id + scheduled;
               notificationIds.add(updatedId.toString());
+              notificationTimes.add(tz.TZDateTime.from(occurrence, tz.local).toIso8601String());
               await flutterLocalNotificationsPlugin.zonedSchedule(
                 updatedId,
                 title,
                 timeOfReminder,
                 tz.TZDateTime.from(occurrence, tz.local),
                 notificationDetails,
-                androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+                androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
                 payload: 'reminder_channel_alarm',
               );
               scheduled++;
@@ -810,13 +884,14 @@ Future<List<String>> scheduleReminderNotification({
             if (repeatCount != null && count >= repeatCount) break;
             final int updatedId = id + count;
             notificationIds.add(updatedId.toString());
+            notificationTimes.add(tz.TZDateTime.from(next, tz.local).toIso8601String());
             await flutterLocalNotificationsPlugin.zonedSchedule(
               updatedId,
               title,
               timeOfReminder,
               tz.TZDateTime.from(next, tz.local),
               notificationDetails,
-              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
               payload: 'reminder_channel_alarm',
             );
             next = next.add(interval);
@@ -825,9 +900,9 @@ Future<List<String>> scheduleReminderNotification({
         }
       }
       print("i am here not repeated null after .");
-    }
+   // }
   } catch (e) {
     print("Error scheduling notification: $e");
   }
-  return notificationIds;
+  return (notificationIds, notificationTimes);  
 }

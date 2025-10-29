@@ -199,6 +199,7 @@ class _UpdateTaskPageState extends State<UpdateTaskPage> {
                 padding: const EdgeInsets.all(16),
                 child: Form(
                   key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction, // <-- Add this line
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [

@@ -72,6 +72,7 @@ class AddAnniversaryForm extends StatefulWidget {
 }
 
 class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   DateTime? _selectedDate;
   final TextEditingController _nameController = TextEditingController();
@@ -105,7 +106,9 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
   }
 
   String _selectedRememberBefore = '';
-  static const MethodChannel _widgetChannel = MethodChannel('com.reda.mohtm2/widget');
+  static const MethodChannel _widgetChannel = MethodChannel(
+    'com.reda.mohtm2/widget',
+  );
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -129,6 +132,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
     }
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction, // <-- Add this line
       child: Column(
         children: <Widget>[
           const SizedBox(height: 7.0),
@@ -417,28 +421,47 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
-                setState(() {
-                  _dateError =
-                      _selectedDate == null
-                          ? AppLocalizations.of(context)!.dateValidation
-                          : null;
-                });
-                if (_formKey.currentState!.validate() &&
-                    _selectedDate != null) {
-                  String res = await uploadTask();
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(res)));
-                  // Always try to refresh the widget after an add attempt
-                  await _updateOccasionWidgetFromToday();
-                  if (res == AppLocalizations.of(context)!.annAddSuccessfully) {
-                    // After successful add, refresh widget from today's data
-                    await Future.delayed(const Duration(milliseconds: 200));
-                    Navigator.pop(context);
-                  }
-                }
-              },
+              onPressed:
+                  _isLoading
+                      ? null
+                      : () async {
+                        setState(() {
+                          _isLoading = true;
+                          _dateError =
+                              _selectedDate == null
+                                  ? AppLocalizations.of(context)!.dateValidation
+                                  : null;
+                        });
+                        if (_formKey.currentState!.validate() &&
+                            _selectedDate != null) {
+                          String res = await uploadTask();
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(res)));
+                          // Always try to refresh the widget after an add attempt
+                          await _updateOccasionWidgetFromToday();
+                          if (res ==
+                              AppLocalizations.of(
+                                context,
+                              )!.annAddSuccessfully) {
+                            // After successful add, refresh widget from today's data
+                            await Future.delayed(
+                              const Duration(milliseconds: 200),
+                            );
+                            Navigator.pop(context);
+                            if (mounted) {
+                              Navigator.of(
+                                context,
+                              ).popUntil((route) => route.isFirst);
+                            }
+                          }
+                        }
+                        if (mounted) {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                      },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD6B4F7),
                 foregroundColor: const Color(0xFF502878),
@@ -448,13 +471,23 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Text(
-                  AppLocalizations.of(context)!.save,
-                  style: const TextStyle(fontSize: 18),
-                ),
-              ),
+              child:
+                  _isLoading
+                      ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF502878),
+                          strokeWidth: 3,
+                        ),
+                      )
+                      : Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Text(
+                          AppLocalizations.of(context)!.save,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ),
             ),
           ),
         ],
@@ -562,50 +595,54 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
       final today = DateTime.now();
-      final snap = await FirebaseFirestore.instance
-          .collection('anniversaries')
-          .where('createdBy', isEqualTo: user.uid)
-          .get();
-      final docs = snap.docs.where((doc) {
-        final Timestamp? ts = doc['date'];
-        if (ts == null) return false;
-        final d = ts.toDate();
-        return d.month == today.month && d.day == today.day;
-      }).toList();
+      final snap =
+          await FirebaseFirestore.instance
+              .collection('anniversaries')
+              .where('createdBy', isEqualTo: user.uid)
+              .get();
+      final docs =
+          snap.docs.where((doc) {
+            final Timestamp? ts = doc['date'];
+            if (ts == null) return false;
+            final d = ts.toDate();
+            return d.month == today.month && d.day == today.day;
+          }).toList();
 
       final prefs = await SharedPreferences.getInstance();
       final locale = Localizations.localeOf(context).languageCode;
       final eventTypes = LookupService().eventTypes;
       final int totalCount = docs.length;
-      final List<Map<String, dynamic>> items = docs.take(5).map((doc) {
-        final date = (doc['date'] as Timestamp?)?.toDate();
-        final String dateStr = date != null ? '${date.day}/${date.month}/${date.year}' : '';
-        final String title = (doc['title'] ?? '').toString();
-        final String typeId = (doc['type']?.toString() ?? '');
-        String typeName = typeId;
-        if (typeId.isNotEmpty) {
-          if (typeId == '4') {
-            typeName = doc['addType']?.toString() ?? '';
-          } else {
-            final typeObj = eventTypes.firstWhere(
-              (type) => type['id'].toString() == typeId,
-              orElse: () => <String, dynamic>{},
-            );
-            typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
-          }
-        }
-        final relationship = (doc['relationship'] ?? '').toString();
-        return {
-          'title': title,
-          'date': dateStr,
-          'type': typeName,
-          'relationship': relationship,
-        };
-      }).toList();
-      final payload = {
-        'items': items,
-        'total': totalCount,
-      };
+      final List<Map<String, dynamic>> items =
+          docs.take(5).map((doc) {
+            final date = (doc['date'] as Timestamp?)?.toDate();
+            final String dateStr =
+                date != null ? '${date.day}/${date.month}/${date.year}' : '';
+            final String title = (doc['title'] ?? '').toString();
+            final String typeId = (doc['type']?.toString() ?? '');
+            String typeName = typeId;
+            if (typeId.isNotEmpty) {
+              if (typeId == '4') {
+                typeName = doc['addType']?.toString() ?? '';
+              } else {
+                final typeObj = eventTypes.firstWhere(
+                  (type) => type['id'].toString() == typeId,
+                  orElse: () => <String, dynamic>{},
+                );
+                typeName =
+                    locale == 'ar'
+                        ? (typeObj['arabicName'] ?? typeId)
+                        : (typeObj['englishName'] ?? typeId);
+              }
+            }
+            final relationship = (doc['relationship'] ?? '').toString();
+            return {
+              'title': title,
+              'date': dateStr,
+              'type': typeName,
+              'relationship': relationship,
+            };
+          }).toList();
+      final payload = {'items': items, 'total': totalCount};
       await prefs.setString('widget_occasion_items', jsonEncode(payload));
       await _widgetChannel.invokeMethod('updateOccasionWidget');
     } catch (_) {

@@ -24,6 +24,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
   late TextEditingController _addTypeController;
   DateTime? _selectedDate;
   String? _selectedPriority;
+  bool _isDeleting = false;
 
   // For multi-selection display
   List<Map<String, dynamic>> get _rememberMeList => LookupService().rememberMe;
@@ -184,91 +185,34 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: _showDeleteConfirmation,
+              onPressed: _isDeleting ? null : _showDeleteConfirmation,
             ),
           ],
         ),
-        body: Center(
-          child: SingleChildScrollView(
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(32),
-              ),
-              color: const Color(0xFFF3E6F9),
-              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: ListView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    TextFormField(
-                      controller: _titleController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.anntitle,
-                        filled: true,
-                        fillColor: const Color(0xFFE9D7F7),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF502878),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFB365C1),
-                          ),
-                        ),
-                      ),
-                      enabled: _isEditing,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.description,
-                        filled: true,
-                        fillColor: const Color(0xFFE9D7F7),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF502878),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFB365C1),
-                          ),
-                        ),
-                      ),
-                      enabled: _isEditing,
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap:
-                          _isEditing
-                              ? () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _selectedDate ?? DateTime.now(),
-                                  firstDate: DateTime(1900),
-                                  lastDate: DateTime(2100),
-                                );
-                                if (picked != null) {
-                                  setState(() {
-                                    _selectedDate = picked;
-                                  });
-                                }
-                              }
-                              : null,
-                      child: AbsorbPointer(
-                        child: TextFormField(
+        body: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                child: Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  color: const Color(0xFFF3E6F9),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 32,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        TextFormField(
+                          controller: _titleController,
                           decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.date,
+                            labelText: AppLocalizations.of(context)!.anntitle,
                             filled: true,
                             fillColor: const Color(0xFFE9D7F7),
                             border: OutlineInputBorder(
@@ -285,258 +229,337 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                             ),
                           ),
                           enabled: _isEditing,
-                          controller: TextEditingController(
-                            text:
-                                _selectedDate != null
-                                    ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                                    : '',
-                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedTypeId,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.type,
-                        filled: true,
-                        fillColor: const Color(0xFFE9D7F7),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF502878),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFB365C1),
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      dropdownColor: const Color(0xFFE9D7F7),
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Color(0xFF502878),
-                      ),
-                      style: const TextStyle(
-                        color: Color(0xFF502878),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      items:
-                          eventTypes.map<DropdownMenuItem<String>>((type) {
-                            final id = type['id'].toString();
-                            final name =
-                                locale == 'ar'
-                                    ? (type['arabicName'] ?? '')
-                                    : (type['englishName'] ?? '');
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Text(
-                                name,
-                                style: const TextStyle(
-                                  color: Color(0xFF502878),
-                                ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _descriptionController,
+                          decoration: InputDecoration(
+                            labelText:
+                                AppLocalizations.of(context)!.description,
+                            filled: true,
+                            fillColor: const Color(0xFFE9D7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF502878),
                               ),
-                            );
-                          }).toList(),
-                      onChanged:
-                          _isEditing
-                              ? (String? newId) {
-                                setState(() {
-                                  _selectedTypeId = newId;
-                                  final selectedType = eventTypes.firstWhere(
-                                    (type) => type['id'].toString() == newId,
-                                    orElse: () => <String, dynamic>{},
-                                  );
-                                  final isOther =
-                                      selectedType['englishName'] == 'Other' ||
-                                      selectedType['arabicName'] == 'اخرى' ||
-                                      newId == '4';
-                                  if (!isOther) {
-                                    _addTypeController.text = '';
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFB365C1),
+                              ),
+                            ),
+                          ),
+                          enabled: _isEditing,
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap:
+                              _isEditing
+                                  ? () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate:
+                                          _selectedDate ?? DateTime.now(),
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (picked != null) {
+                                      setState(() {
+                                        _selectedDate = picked;
+                                      });
+                                    }
                                   }
-                                });
-                              }
-                              : null,
-                      disabledHint: Text(
-                        typeName,
-                        style: const TextStyle(color: Color(0xFF502878)),
-                      ),
-                    ),
-                    if (_selectedTypeId == '4' && _isEditing) ...[
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _addTypeController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.specifyType,
-                          filled: true,
-                          fillColor: const Color(0xFFE9D7F7),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF502878),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFB365C1),
-                            ),
-                          ),
-                        ),
-                        enabled: _isEditing,
-                      ),
-                    ] else if (!_isEditing &&
-                        typeId != null &&
-                        typeId.toString() == '4') ...[
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _addTypeController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.specifyType,
-                          filled: true,
-                          fillColor: const Color(0xFFE9D7F7),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF502878),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFB365C1),
-                            ),
-                          ),
-                        ),
-                        enabled: false,
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _relationshipController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.relationship,
-                        filled: true,
-                        fillColor: const Color(0xFFE9D7F7),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF502878),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFB365C1),
-                          ),
-                        ),
-                      ),
-                      enabled: _isEditing,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedPriority,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.priority,
-                        filled: true,
-                        fillColor: const Color(0xFFE9D7F7),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF502878),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFB365C1),
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      dropdownColor: const Color(0xFFE9D7F7),
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Color(0xFF502878),
-                      ),
-                      style: const TextStyle(
-                        color: Color(0xFF502878),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      items:
-                          annPriorities.map<DropdownMenuItem<String>>((
-                            priority,
-                          ) {
-                            final value = priority['id'].toString();
-                            final name =
-                                locale == 'ar'
-                                    ? (priority['priorityAr'] ?? '')
-                                    : (priority['priorityEn'] ?? '');
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                name,
-                                style: const TextStyle(
-                                  color: Color(0xFF502878),
+                                  : null,
+                          child: AbsorbPointer(
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!.date,
+                                filled: true,
+                                fillColor: const Color(0xFFE9D7F7),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF502878),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFB365C1),
+                                  ),
                                 ),
                               ),
-                            );
-                          }).toList(),
-                      onChanged:
-                          _isEditing
-                              ? (val) => setState(() => _selectedPriority = val)
-                              : null,
-                      disabledHint: Text(
-                        priorityName,
-                        style: const TextStyle(color: Color(0xFF502878)),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.rememberBefore,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF502878),
-                      ),
-                    ),
-                    Column(
-                      children:
-                          _rememberBeforeOptions.map((option) {
-                            return RadioListTile<String>(
-                              title: Text(
-                                option,
-                                style: const TextStyle(
-                                  color: Color(0xFF502878),
-                                ),
+                              enabled: _isEditing,
+                              controller: TextEditingController(
+                                text:
+                                    _selectedDate != null
+                                        ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                                        : '',
                               ),
-                              value: option,
-                              groupValue: _selectedRememberBefore,
-                              onChanged:
-                                  _isEditing
-                                      ? (String? value) {
-                                        setState(() {
-                                          _selectedRememberBefore = value;
-                                        });
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _selectedTypeId,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.type,
+                            filled: true,
+                            fillColor: const Color(0xFFE9D7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF502878),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFB365C1),
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          dropdownColor: const Color(0xFFE9D7F7),
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                            color: Color(0xFF502878),
+                          ),
+                          style: const TextStyle(
+                            color: Color(0xFF502878),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          items:
+                              eventTypes.map<DropdownMenuItem<String>>((type) {
+                                final id = type['id'].toString();
+                                final name =
+                                    locale == 'ar'
+                                        ? (type['arabicName'] ?? '')
+                                        : (type['englishName'] ?? '');
+                                return DropdownMenuItem<String>(
+                                  value: id,
+                                  child: Text(
+                                    name,
+                                    style: const TextStyle(
+                                      color: Color(0xFF502878),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                          onChanged:
+                              _isEditing
+                                  ? (String? newId) {
+                                    setState(() {
+                                      _selectedTypeId = newId;
+                                      final selectedType = eventTypes
+                                          .firstWhere(
+                                            (type) =>
+                                                type['id'].toString() == newId,
+                                            orElse: () => <String, dynamic>{},
+                                          );
+                                      final isOther =
+                                          selectedType['englishName'] ==
+                                              'Other' ||
+                                          selectedType['arabicName'] ==
+                                              'اخرى' ||
+                                          newId == '4';
+                                      if (!isOther) {
+                                        _addTypeController.text = '';
                                       }
-                                      : null,
-                              activeColor: const Color(0xFFB365C1),
-                            );
-                          }).toList(),
+                                    });
+                                  }
+                                  : null,
+                          disabledHint: Text(
+                            typeName,
+                            style: const TextStyle(color: Color(0xFF502878)),
+                          ),
+                        ),
+                        if (_selectedTypeId == '4' && _isEditing) ...[
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _addTypeController,
+                            decoration: InputDecoration(
+                              labelText:
+                                  AppLocalizations.of(context)!.specifyType,
+                              filled: true,
+                              fillColor: const Color(0xFFE9D7F7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF502878),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFB365C1),
+                                ),
+                              ),
+                            ),
+                            enabled: _isEditing,
+                          ),
+                        ] else if (!_isEditing &&
+                            typeId != null &&
+                            typeId.toString() == '4') ...[
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _addTypeController,
+                            decoration: InputDecoration(
+                              labelText:
+                                  AppLocalizations.of(context)!.specifyType,
+                              filled: true,
+                              fillColor: const Color(0xFFE9D7F7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF502878),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFB365C1),
+                                ),
+                              ),
+                            ),
+                            enabled: false,
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _relationshipController,
+                          decoration: InputDecoration(
+                            labelText:
+                                AppLocalizations.of(context)!.relationship,
+                            filled: true,
+                            fillColor: const Color(0xFFE9D7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF502878),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFB365C1),
+                              ),
+                            ),
+                          ),
+                          enabled: _isEditing,
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _selectedPriority,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.priority,
+                            filled: true,
+                            fillColor: const Color(0xFFE9D7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF502878),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFB365C1),
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          dropdownColor: const Color(0xFFE9D7F7),
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                            color: Color(0xFF502878),
+                          ),
+                          style: const TextStyle(
+                            color: Color(0xFF502878),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          items:
+                              annPriorities.map<DropdownMenuItem<String>>((
+                                priority,
+                              ) {
+                                final value = priority['id'].toString();
+                                final name =
+                                    locale == 'ar'
+                                        ? (priority['priorityAr'] ?? '')
+                                        : (priority['priorityEn'] ?? '');
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    name,
+                                    style: const TextStyle(
+                                      color: Color(0xFF502878),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                          onChanged:
+                              _isEditing
+                                  ? (val) =>
+                                      setState(() => _selectedPriority = val)
+                                  : null,
+                          disabledHint: Text(
+                            priorityName,
+                            style: const TextStyle(color: Color(0xFF502878)),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          AppLocalizations.of(context)!.rememberBefore,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF502878),
+                          ),
+                        ),
+                        Column(
+                          children:
+                              _rememberBeforeOptions.map((option) {
+                                return RadioListTile<String>(
+                                  title: Text(
+                                    option,
+                                    style: const TextStyle(
+                                      color: Color(0xFF502878),
+                                    ),
+                                  ),
+                                  value: option,
+                                  groupValue: _selectedRememberBefore,
+                                  onChanged:
+                                      _isEditing
+                                          ? (String? value) {
+                                            setState(() {
+                                              _selectedRememberBefore = value;
+                                            });
+                                          }
+                                          : null,
+                                  activeColor: const Color(0xFFB365C1),
+                                );
+                              }).toList(),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            if (_isDeleting)
+              Container(
+                color: Colors.black.withOpacity(0.3),
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+          ],
         ),
       ),
     );
@@ -671,6 +694,9 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
 
   Future<void> _deleteAnniversaryAndPop() async {
     if (anniversaryDoc == null) return;
+    setState(() {
+      _isDeleting = true;
+    });
     await FirebaseFirestore.instance
         .collection('anniversaries')
         .doc(widget.anniversaryId)
@@ -678,7 +704,14 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
     if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      Navigator.of(context).pop();
+      setState(() {
+        _isDeleting = false;
+      });
+      Navigator.of(
+        context,
+      ).popUntil((route) => route.isFirst); // Go to home page
+
+      //  Navigator.of(context).pop();
       // Optionally show a snackbar here if you have access to the previous context
     });
   }
