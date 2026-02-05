@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+//import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 class UpdateTaskPage extends StatefulWidget {
   final String taskId;
@@ -273,7 +273,7 @@ class _UpdateTaskPageState extends State<UpdateTaskPage> {
                              Text(AppLocalizations.of(context)!.category1),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
-                              value: _selectedCategoryId,
+                              initialValue: _selectedCategoryId,
                               items: _categories
                                   .map((c) => DropdownMenuItem<String>(value: c['id'], child: Text(c['name'])))
                                   .toList(),
@@ -297,7 +297,7 @@ class _UpdateTaskPageState extends State<UpdateTaskPage> {
                              Text(AppLocalizations.of(context)!.statusTask),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
-                              value: _status,
+                              initialValue: _status,
                               items:  [
                                 DropdownMenuItem(value: 'open', child: Text(AppLocalizations.of(context)!.open)),
                                 DropdownMenuItem(value: 'done', child: Text(AppLocalizations.of(context)!.done)),

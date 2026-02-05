@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 class LookupService {
   List<Map<String, dynamic>> annPriorities = [];
@@ -36,7 +35,7 @@ class LookupService {
   }];
   Future<void> fetchAnnPriority() async {
     final snapshot = await FirebaseFirestore.instance.collection('annpriority').get();
-    annPriorities = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    annPriorities = snapshot.docs.map((doc) => doc.data()).toList();
   }
   static final LookupService _instance = LookupService._internal();
   factory LookupService() => _instance;
@@ -54,7 +53,7 @@ class LookupService {
 
   Future<void> fetchEventTypes() async {
     final snapshot = await FirebaseFirestore.instance.collection('eventtype').get();
-    eventTypes = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    eventTypes = snapshot.docs.map((doc) => doc.data()).toList();
   }
 }
 

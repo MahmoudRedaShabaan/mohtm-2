@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 import 'package:myapp/lookup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
@@ -252,7 +254,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               color: Color(0xFF502878),
               fontWeight: FontWeight.w500,
             ),
-            value: _selectedType,
+            initialValue: _selectedType,
             onChanged: (String? newValue) {
               setState(() {
                 _selectedType = newValue;
@@ -365,7 +367,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               color: Color(0xFF502878),
               fontWeight: FontWeight.w500,
             ),
-            value: _selectedPriority,
+            initialValue: _selectedPriority,
             onChanged: (String? newValue) {
               setState(() {
                 _selectedPriority = newValue;

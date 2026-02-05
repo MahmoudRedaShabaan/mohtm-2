@@ -10,7 +10,8 @@ import 'constants.dart';
 // import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 //import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 
 Future<void> _openExactAlarmSettings(BuildContext context) async {
   final intent = const AndroidIntent(
@@ -27,7 +28,7 @@ Future<bool> _shouldShowExactAlarmDialog() async {
 }
 
 class AddReminderPage extends StatefulWidget {
-  const AddReminderPage({Key? key}) : super(key: key);
+  const AddReminderPage({super.key});
 
   @override
   State<AddReminderPage> createState() => _AddReminderPageState();
@@ -305,10 +306,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
                           }
                           Navigator.pop(context, {
                             'repeat':
-                                'Every ' +
-                                intervalController.text +
-                                ' ' +
-                                tempUnit,
+                                'Every ${intervalController.text} $tempUnit',
                             'interval': tempInterval,
                             'unit': tempUnit,
                             if (tempUnit == 'week')
@@ -349,7 +347,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 12),
-        Text(AppLocalizations.of(context)!.duration + ':'),
+        Text('${AppLocalizations.of(context)!.duration}:'),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -402,11 +400,13 @@ class _AddReminderPageState extends State<AddReminderPage> {
               keyboardType: TextInputType.number,
               initialValue: _repeatCount?.toString(),
               validator: (value) {
-                if (value == null || value.isEmpty)
+                if (value == null || value.isEmpty) {
                   return AppLocalizations.of(context)!.repeatCountRequired;
+                }
                 final n = int.tryParse(value);
-                if (n == null || n < 1)
+                if (n == null || n < 1) {
                   return AppLocalizations.of(context)!.repeatCountvalidation;
+                }
                 return null;
               },
               onChanged: (value) {
@@ -421,7 +421,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
             padding: const EdgeInsets.only(top: 8.0),
             child: Row(
               children: [
-                Text(AppLocalizations.of(context)!.untilDate2 + ': '),
+                Text('${AppLocalizations.of(context)!.untilDate2}: '),
                 Text(
                   _untilDate == null
                       ? AppLocalizations.of(context)!.notSet
@@ -685,11 +685,9 @@ class _AddReminderPageState extends State<AddReminderPage> {
                 child: ListTile(
                   leading: const Icon(Icons.repeat, color: Colors.deepPurple),
                   title: Text(
-                    AppLocalizations.of(context)!.repeat +
-                        ': ' +
-                        (_repeat == 'Every x unit'
+                    '${AppLocalizations.of(context)!.repeat}: ${_repeat == 'Every x unit'
                             ? 'Every $_repeatInterval $_selectedRepeatUnit'
-                            : _repeat),
+                            : _repeat}',
                   ),
                   onTap: _showRepeatOptions,
                 ),
@@ -853,8 +851,9 @@ Future<(List<String>, List<String>)> scheduleReminderNotification({
                 dateTime.hour,
                 dateTime.minute,
               ).add(Duration(days: delta));
-              if (occurrence.isBefore(dateTime))
+              if (occurrence.isBefore(dateTime)) {
                 continue; // don't schedule before start
+              }
               if (untilDate != null && occurrence.isAfter(untilDate)) continue;
               if (repeatCount != null && scheduled >= repeatCount) break;
               final int updatedId = id + scheduled;
@@ -873,8 +872,9 @@ Future<(List<String>, List<String>)> scheduleReminderNotification({
             }
             // move to next week block
             cursor = cursor.add(Duration(days: 7 * (repeatInterval ?? 1)));
-            if (repeatCount == null && untilDate == null && scheduled > 500)
+            if (repeatCount == null && untilDate == null && scheduled > 500) {
               break; // guard
+            }
           }
         } else {
           int count = 0;

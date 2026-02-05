@@ -5,13 +5,17 @@ import 'package:myapp/anniversary_info_page.dart';
 import 'package:myapp/appfeedback.dart';
 import 'package:myapp/important_ann.dart';
 import 'package:myapp/login_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_share/flutter_share.dart';
+import 'package:share_plus/share_plus.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 import 'package:myapp/lookup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
-
+import 'package:url_launcher/url_launcher.dart';
 class Anniversary {
   final DateTime date;
   final String name;
@@ -127,7 +131,18 @@ class _HomePageState extends State<HomePage> {
       // Ignore errors; widget update is best effort
     }
   }
-
+Future<void> share() async {
+    await Share.share( 'https://play.google.com/store/apps/details?id=com.reda.mohtm2',
+        subject: 'Example Chooser Title');
+  }
+Future<void> rateApp() async {
+  final Uri playStoreUrl = Uri.parse('https://play.google.com/store/apps/details?id=com.reda.mohtm2');
+  if (await canLaunch(playStoreUrl.toString())) {
+    await launch(playStoreUrl.toString());
+  } else {
+    throw 'Could not launch $playStoreUrl';
+  }
+}
   void filterAnniversaries() {
     if (startDate == null || endDate == null) {
       return;
@@ -347,14 +362,14 @@ class _HomePageState extends State<HomePage> {
                         leading: const Icon(Icons.star),
                         title: Text(AppLocalizations.of(context)!.rateUs),
                         onTap: () {
-                          // TODO: Implement rate us functionality
-                        },
+                          rateApp();
+                          },
                       ),
                       ListTile(
                         leading: const Icon(Icons.share),
                         title: Text(AppLocalizations.of(context)!.shareApp),
                         onTap: () {
-                          // TODO: Implement share app functionality
+                          share();
                         },
                       ),
                       ExpansionTile(

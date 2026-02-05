@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:myapp/appfeedback.dart';
-import 'constants.dart';
 import 'home_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -26,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _loadSavedCredentials();
+    getDeviceToken();
   }
 
   void _initFCM() async {
@@ -78,15 +79,31 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void getDeviceToken() async {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      await FirebaseFirestore.instance.collection('devices').doc(token).set({
+        'token': token,
+        'addDate': Timestamp.now(),
+      });
+    }
+  }
+
   // GOOGLE SIGN-IN
   Future<void> signInWithGoogle() async {
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+  final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.signOut(); // Show account picker every time
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return; // User cancelled
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      late final GoogleSignInAccount googleUser;
+      try {
+        // Interactive authentication (replaces signIn())
+        googleUser = await googleSignIn.authenticate();
+      } catch (e) {
+        // User cancelled or platform-specific failure
+        print('GoogleSignIn.authenticate failed or cancelled: $e');
+        return;
+      }
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
@@ -128,11 +145,8 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
     }
   }
 

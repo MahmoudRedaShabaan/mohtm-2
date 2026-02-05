@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 import 'package:myapp/lookup.dart';
 
 class AnniversaryInfoPage extends StatefulWidget {
@@ -304,7 +306,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                         ),
                         const SizedBox(height: 16),
                         DropdownButtonFormField<String>(
-                          value: _selectedTypeId,
+                          initialValue: _selectedTypeId,
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.type,
                             filled: true,
@@ -456,7 +458,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
                         ),
                         const SizedBox(height: 16),
                         DropdownButtonFormField<String>(
-                          value: _selectedPriority,
+                          initialValue: _selectedPriority,
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.priority,
                             filled: true,

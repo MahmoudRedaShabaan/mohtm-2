@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 
 import 'constants.dart';
 
@@ -53,6 +55,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       });
     } catch (e) {
       print('Error loading categories: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -126,6 +129,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           });
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -312,17 +316,19 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   Future<String> _saveTask() async {
+    final loc = AppLocalizations.of(context)!;
+
     if (!_formKey.currentState!.validate()) {
-      return AppLocalizations.of(context)!.error+' : '+AppLocalizations.of(context)!.pleasefillinallrequiredfields;
+      return '${loc.error} : ${loc.pleasefillinallrequiredfields}';
     }
 
     if (_selectedCategoryId == null) {
-      return AppLocalizations.of(context)!.error+' : '+AppLocalizations.of(context)!.pleaseselectacategory;
+      return '${loc.error} : ${loc.pleaseselectacategory}';
     }
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return AppLocalizations.of(context)!.error+' : '+AppLocalizations.of(context)!.usernotauthenticated;
+      return '${loc.error} : ${loc.usernotauthenticated}';
     }
 
     try {
@@ -345,10 +351,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
       await FirebaseFirestore.instance.collection('tasks').add(taskData);
 
-      return AppLocalizations.of(context)!.tasksavedSuccessfully;
+      return loc.tasksavedSuccessfully;
     } catch (e) {
       print('Error saving task: $e');
-      return AppLocalizations.of(context)!.error+' : '+AppLocalizations.of(context)!.errorsavingtask + e.toString();
+      return '${loc.error} : ${loc.errorsavingtask}$e';
     } finally {
       setState(() {
         _isLoading = false;
@@ -548,7 +554,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                         DropdownButtonFormField<String?>(
                           isDense: true,
                           isExpanded: true,
-                          value: _selectedCategoryId,
+                          initialValue: _selectedCategoryId,
                           decoration: InputDecoration(
                             hintText:
                                 AppLocalizations.of(context)!.selectcategory,

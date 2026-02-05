@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
-import 'package:version/version.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -13,6 +11,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:myapp/anniversary_info_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 // import 'package:upgrader/upgrader.dart';
 import 'home_page.dart';
 import 'package:myapp/login_page.dart';
@@ -28,14 +27,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'lookup.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'dart:async';
-import 'tasks.dart';
-import 'reminders.dart';
 import 'package:upgrader/upgrader.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -43,6 +42,8 @@ final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 const MethodChannel _widgetChannel = MethodChannel('com.reda.mohtm2/widget');
 String minRequiredVersion = '';
 String? payload;
+String minVersion = '1.1.12';
+String? initialLanguage; // Store initial language from preferences
 //const MethodChannel backgroundChannel = MethodChannel('com.reda.mohtm2/widget_background');
 // Add this function at the top level, outside of any class
 // Add this function at the top level, outside of any class
@@ -70,6 +71,10 @@ void onDidReceiveNotificationResponse(
   } catch (e) {
     print('Failed to parse notification payload: $e');
   }
+}
+
+class AppConfig {
+  static const String MIN_APP_VERSION = '9.9.9';
 }
 
 @pragma('vm:entry-point')
@@ -111,7 +116,7 @@ Future<void> _writeOccasionWidgetSummary() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('eventtype').get();
     final eventTypes =
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        snapshot.docs.map((doc) => doc.data()).toList();
     final int totalCount = docs.length;
     print('totalCount: $totalCount');
     final List<Map<String, dynamic>> items =
@@ -165,18 +170,18 @@ Future<void> _updateScreenWidgetsInBackground() async {
   _writeOccasionWidgetSummary();
 }
 
-Future<void> _loadMinRequiredVersion() async {
-  final doc =
-      await FirebaseFirestore.instance.collection('appVersion').doc('1').get();
-  if (doc.exists) {
-    minRequiredVersion = doc['minRequiredVersion']?.toString() ?? '1.1.1';
-    print('App version from Firestore: $minRequiredVersion');
-  } else {
-    print('No appVersion document found in Firestore.');
-    minRequiredVersion = '1.1.1';
-  }
- // return minRequiredVersion;
-}
+// Future<void> _loadMinRequiredVersion() async {
+//   final doc =
+//       await FirebaseFirestore.instance.collection('appVersion').doc('1').get();
+//   if (doc.exists) {
+//     minRequiredVersion = doc['minRequiredVersion']?.toString() ?? '1.1.1';
+//     print('App version from Firestore: $minRequiredVersion');
+//   } else {
+//     print('No appVersion document found in Firestore.');
+//     minRequiredVersion = '1.1.1';
+//   }
+//  // return minRequiredVersion;
+// }
 
 Future<void> _writeOccasionWidgetSummary1() async {
   try {
@@ -202,7 +207,7 @@ Future<void> _writeOccasionWidgetSummary1() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('eventtype').get();
     final eventTypes =
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        snapshot.docs.map((doc) => doc.data()).toList();
     final int totalCount = docs.length;
     print('totalCount: $totalCount');
     final List<Map<String, dynamic>> items =
@@ -323,7 +328,7 @@ Future<void> _writeRemindersWidgetSummary() async {
         }
       }
       // Build a compact JSON payload with items (up to 5) and total count
-      final int totalCount = await nonOutdatedDocs.length;
+      final int totalCount = nonOutdatedDocs.length;
       final List<Map<String, dynamic>> items =
           nonOutdatedDocs.take(5).map((doc) {
             final date = (doc['dateTime'] as Timestamp?)?.toDate();
@@ -440,7 +445,7 @@ Future<void> _writeTasksWidgetSummary() async {
     final QuerySnapshot querySnapshot = await query.get();
     final docs = querySnapshot.docs;
     // Build a compact JSON payload with items (up to 5) and total count
-    final int totalCount = await docs.length;
+    final int totalCount = docs.length;
     final List<Map<String, dynamic>> items =
         docs.take(5).map((doc) {
           final date = (doc['duedate'] as Timestamp?)?.toDate();
@@ -611,8 +616,9 @@ Future<void> _rescheduleRepeatingReminders() async {
           }
           if (durationType == 'until' &&
               untilDate != null &&
-              candidate.isAfter(untilDate))
+              candidate.isAfter(untilDate)) {
             break;
+          }
         }
         next = candidate;
       }
@@ -665,13 +671,84 @@ Future<void> _rescheduleRepeatingReminders() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Verify PackageInfo can read the app version
+  try {
+    final packageInfo = await PackageInfo.fromPlatform();
+    print('📱 ==== PACKAGE INFO ====');
+    print('App name: ${packageInfo.appName}');
+    print('Package name: ${packageInfo.packageName}');
+    print('Version: ${packageInfo.version}');
+    print('Build number: ${packageInfo.buildNumber}');
+    print('========================');
+  } catch (e) {
+    print('❌ ERROR: Cannot read PackageInfo: $e');
+    print('⚠️  This means upgrader cannot detect your app version!');
+    print('⚠️  Make sure package_info_plus is in pubspec.yaml dependencies');
+  }
+  
   tz.initializeTimeZones();
-  //  initializeTimeZones();
-  final String timeZoneName = await FlutterTimezone.getLocalTimezone();
-  // final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+  
+  // flutter_timezone.getLocalTimezone() may return a String or a TimezoneInfo-like
+  // object depending on the package/platform. Normalize to a canonical tz name
+  // (for example: 'Africa/Cairo') and fall back to UTC if lookup fails.
+  final dynamic tzResult = await FlutterTimezone.getLocalTimezone();
 
-  tz.setLocalLocation(tz.getLocation(timeZoneName));
+  String normalizeTzName(dynamic r) {
+    if (r == null) return 'UTC';
+    if (r is String && r.isNotEmpty) {
+      // If it's already a canonical TZ id like 'Region/City', use it.
+      if (RegExp(r'^[A-Za-z]+\/[A-Za-z_\-]+$').hasMatch(r)) return r;
+      // Otherwise attempt to parse stringified TimezoneInfo or other wrappers.
+      final s = r;
+      final m1 = RegExp(r'TimezoneInfo\(([^,\)]+)').firstMatch(s);
+      if (m1 != null && m1.groupCount >= 1) return m1.group(1)!.trim();
+      final slashMatch = RegExp(r'([A-Za-z]+\/[A-Za-z_]+)').firstMatch(s);
+      if (slashMatch != null) return slashMatch.group(1)!.trim();
+      // Fall through to final fallback returning the raw string.
+      return s;
+    }
+    // Try common properties
+    try {
+      final name = (r as dynamic).name;
+      if (name is String && name.isNotEmpty) return name;
+    } catch (_) {}
+    try {
+      final tzn = (r as dynamic).timeZoneName;
+      if (tzn is String && tzn.isNotEmpty) return tzn;
+    } catch (_) {}
+    // Fallback: parse known toString() shapes like
+    // "TimezoneInfo(Africa/Cairo, (...))" -> extract 'Africa/Cairo'
+    final s = r.toString();
+    final m = RegExp(r'TimezoneInfo\(([^,\)]+)').firstMatch(s);
+    if (m != null && m.groupCount >= 1) return m.group(1)!.trim();
+    // Fallback: find a token like Region/City
+    final slashMatch = RegExp(r'([A-Za-z]+\/[A-Za-z_]+)').firstMatch(s);
+    if (slashMatch != null) return slashMatch.group(1)!.trim();
+    // Last resort: return the string form
+    return s;
+  }
+
+  final String timeZoneName = normalizeTzName(tzResult);
+  try {
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
+  } catch (e) {
+    // If lookup fails, fall back to UTC and log for diagnostics
+    print('Timezone lookup failed for "$timeZoneName": $e. Falling back to UTC.');
+    tz.setLocalLocation(tz.getLocation('UTC'));
+  }
+  
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Initialize Google Sign-In (required by google_sign_in >=7.x)
+  try {
+    await GoogleSignIn.instance.initialize();
+    print('GoogleSignIn initialized');
+  } catch (e) {
+    // If initialize is called elsewhere or not required on a platform, ignore errors
+    print('GoogleSignIn.initialize skipped or failed: $e');
+  }
+  
   // NOTE ABOUT PERSISTENCE ISSUE (important):
   //
   // Many users report that after a successful login the released APK
@@ -724,6 +801,7 @@ Future<void> main() async {
   } catch (e) {
     print('Error while attempting restore login: $e');
   }
+  
   // Log current FirebaseAuth state for diagnostics on release builds
   try {
     final user = FirebaseAuth.instance.currentUser;
@@ -731,7 +809,9 @@ Future<void> main() async {
   } catch (e) {
     print('Error reading FirebaseAuth.currentUser: $e');
   }
+  
   await LookupService().initialize();
+  
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
@@ -739,12 +819,12 @@ Future<void> main() async {
     ),
     onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
   );
+  
   // Check for a pending notification from a terminated state
   final NotificationAppLaunchDetails? notificationAppLaunchDetails =
       await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
 
-   payload = notificationAppLaunchDetails?.notificationResponse?.payload;
-
+  payload = notificationAppLaunchDetails?.notificationResponse?.payload;
 
   // Create notification channel for Android
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -759,26 +839,52 @@ Future<void> main() async {
         AndroidFlutterLocalNotificationsPlugin
       >()
       ?.createNotificationChannel(channel);
+      
   await _rescheduleRepeatingReminders();
+  
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await Upgrader.clearSavedSettings();
+  
   // Initialize and fetch Remote Config values
   final remoteConfig = FirebaseRemoteConfig.instance;
   await remoteConfig.setConfigSettings(RemoteConfigSettings(
     fetchTimeout: const Duration(minutes: 1),
-    minimumFetchInterval: const Duration(minutes: 30),
+    minimumFetchInterval: const Duration(minutes: 2),
   ));
+  
   await remoteConfig.fetchAndActivate();
-  final String minVersion = remoteConfig.getString('min_version');
-    print('minVersion yp in build: $minVersion');
-  //  typedef WillDisplayUpgradeCallback = Future<UpgraderDisplay> Function(UpgraderDisplay display);
+  minVersion = remoteConfig.getString('min_version');
+  
+  // Debug logging for Remote Config
+  print('=== REMOTE CONFIG DEBUG ===');
+  print('Raw minVersion: "$minVersion"');
+  print('Is empty: ${minVersion.isEmpty}');
+  print('Length: ${minVersion.length}');
+  
+  // Fallback if empty
+  if (minVersion.isEmpty) {
+    print('⚠️ WARNING: minVersion is empty from Remote Config!');
+    print('⚠️ Upgrader will not work without a valid minVersion.');
+    minVersion = '1.0.0'; // Minimal fallback to prevent errors
+  }
+  
+  print('Final minVersion: $minVersion');
+  print('========================');
+  
+  // Load saved language preference before starting the app
+  final prefs = await SharedPreferences.getInstance();
+  initialLanguage = prefs.getString('selected_language') ?? 'en';
+  print('💬 Initial language from preferences: $initialLanguage');
+  
+  // REMOVED: await Upgrader.clearSavedSettings(); 
+  // ☝️ This was clearing the "Later" button timer!
+  // Only use this during testing to reset the dialog
+  
   runApp(const MyApp());
 }
 
 const bool isTesting = true;
 
 class MyApp extends StatefulWidget {
-  
   const MyApp({super.key});
 
   @override
@@ -786,33 +892,145 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  
-  Locale _locale = const Locale('en');
+  Locale _locale = Locale(initialLanguage ?? 'en'); // Use saved language
   String? _fcmToken;
   Timer? _reminderTopUpTimer;
-  //String timeOfReminder='Time of Reminder';
+  late Upgrader _upgrader; // Upgrader instance
 
   void setLocale(Locale locale) async {
+    // Log language change event
+    try {
+      await analytics.logEvent(
+        name: 'language_changed',
+        parameters: <String, Object>{
+          'from_language': _locale.languageCode,
+          'to_language': locale.languageCode,
+        },
+      );
+      print('✅ Analytics: language_changed event logged');
+    } catch (e) {
+      print('❌ Analytics Error: $e');
+    }
+    
     setState(() {
       _locale = locale;
+      // Recreate upgrader with new language settings
+      _upgrader = Upgrader(
+        // debugDisplayAlways: true, // REMOVED - Only for testing
+        debugLogging: true, // Keep logging for debugging
+        minAppVersion: minVersion, // Use Remote Config value directly
+        durationUntilAlertAgain: const Duration(days: 3), // Show again after 3 days if dismissed
+        languageCode: locale.languageCode,
+        messages: locale.languageCode == 'ar'
+            ? UpgraderMessages(code: 'ar')
+            : UpgraderMessages(code: 'en'),
+      );
     });
     // Save selected language
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selected_language', locale.languageCode);
-    //   timeOfReminder=AppLocalizations.of(context)!.timeOfReminder;
+  }
+
+  // Helper method to test and log analytics events
+  Future<void> _logAnalyticsEvent(String eventName, [Map<String, Object>? parameters]) async {
+    try {
+      await analytics.logEvent(
+        name: eventName,
+        parameters: parameters,
+      );
+      print('✅ Analytics: $eventName logged successfully');
+      if (parameters != null) {
+        print('   Parameters: $parameters');
+      }
+    } catch (e) {
+      print('❌ Analytics Error: Failed to log $eventName - $e');
+    }
+  }
+
+  // Verify all Firebase services are working
+  Future<void> _verifyFirebaseServices() async {
+    print('🔍 ========== VERIFYING FIREBASE SERVICES ==========');
+    
+    try {
+      await analytics.logEvent(
+        name: 'app_opened',
+        parameters: <String, Object>{
+          'app_version': '1.1.11',
+          'language': _locale.languageCode,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+      print('✅ Firebase Analytics: Working & app_opened event logged');
+    } catch (e) {
+      print('❌ Firebase Analytics: Failed - $e');
+    }
+    
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      print('✅ Firebase Auth: Working (User: ${user?.uid ?? "Not logged in"})');
+    } catch (e) {
+      print('❌ Firebase Auth: Failed - $e');
+    }
+    
+    try {
+      await FirebaseFirestore.instance.collection('test').limit(1).get();
+      print('✅ Firebase Firestore: Working');
+    } catch (e) {
+      print('❌ Firebase Firestore: Failed - $e');
+    }
+    
+    try {
+      final remoteConfig = FirebaseRemoteConfig.instance;
+      print('✅ Firebase Remote Config: Working (minVersion: $minVersion)');
+    } catch (e) {
+      print('❌ Firebase Remote Config: Failed - $e');
+    }
+    
+    try {
+      final messaging = FirebaseMessaging.instance;
+      final token = await messaging.getToken();
+      print('✅ Firebase Messaging: Working (Token: ${token?.substring(0, 20)}...)');
+    } catch (e) {
+      print('❌ Firebase Messaging: Failed - $e');
+    }
+    
+    print('🔍 ================================================');
   }
 
   @override
   void initState() {
     super.initState();
-    _restoreLocale();
+    
+    // Verify Firebase services are working (including Analytics)
+    _verifyFirebaseServices();
+    
+    // Initialize upgrader with the correct language from the start
+    _upgrader = Upgrader(
+      // debugDisplayAlways: true, // REMOVED - Only for testing, causes dialog to show always
+      debugLogging: true, // Keep logging for production debugging
+      minAppVersion: minVersion, // Use Remote Config value directly
+      durationUntilAlertAgain: const Duration(days: 3), // Show again after 3 days if user dismisses
+      languageCode: _locale.languageCode, // Set initial language
+      messages: _locale.languageCode == 'ar'
+          ? UpgraderMessages(code: 'ar')
+          : UpgraderMessages(code: 'en'),
+    );
+    
+    print('=== UPGRADER INITIALIZED ===');
+    print('Upgrader language: ${_locale.languageCode}');
+    print('Upgrader minAppVersion: ${_upgrader.minAppVersion}');
+    print('Current app store version: ${_upgrader.currentAppStoreVersion}');
+    print('Current installed version: ${_upgrader.currentInstalledVersion}');
+    print('Should display: ${_upgrader.shouldDisplayUpgrade()}');
+    print('===========================');
+    
     _initFCM();
     _writeTasksWidgetSummary();
     _writeRemindersWidgetSummary();
     _writeOccasionWidgetSummary();
-      _loadMinRequiredVersion();
-     print('MinVersion: $minRequiredVersion');
+    
     WidgetsBinding.instance.addObserver(this);
+    
     _reminderTopUpTimer = Timer.periodic(const Duration(hours: 2), (_) {
       print("Top-up rescheduler running Every 2 hours");
       _rescheduleRepeatingReminders();
@@ -895,8 +1113,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void _initFCM() async {
-    await _loadMinRequiredVersion();
-
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     // Request permissions on iOS
@@ -906,6 +1122,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Always get a fresh token on app start
     final token = await messaging.getToken();
     print("FCM Token: $token");
+    
     // Update the UI only if the State is still mounted
     if (mounted) {
       setState(() {
@@ -956,6 +1173,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         print('FCM token updated in Firestore and local storage');
       }
     });
+    
     // Handle foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Got a message whilst in the foreground!');
@@ -983,19 +1201,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         'App opened from terminated state with message: ${initialMessage.data}',
       );
       _handleMessageAction(initialMessage.data);
-      // TODO: Handle navigation or data based on the initial message
     }
 
     // Handle interaction when the app is opened from a background state
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('App opened from background state with message: ${message.data}');
       _handleMessageAction(message.data);
-      // TODO: Handle navigation or data based on the message
     });
-    // New method to handle message-based navigation
-
-    // // Subscribe to topic for all users
-    // await messaging.subscribeToTopic('all_users');
   }
 
   void _handleMessageAction(Map<String, dynamic> data) {
@@ -1009,8 +1221,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             MaterialPageRoute(builder: (context) => const TasksPage()),
           );
         } catch (e) {
-          print('Error navigating to RemindersPage: $e');
-          print(e);
+          print('Error navigating to TasksPage: $e');
         }
       } else if (action == 'Send_specific_Notification') {
         print('here in Home');
@@ -1029,8 +1240,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ),
           );
         } catch (e) {
-          print('Error navigating to RemindersPage: $e');
-          print(e);
+          print('Error navigating to HomePage: $e');
         }
       } else {
         print('here in Home');
@@ -1048,8 +1258,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ),
           );
         } catch (e) {
-          print('Error navigating to RemindersPage: $e');
-          print(e);
+          print('Error navigating to HomePage: $e');
         }
       }
     } else {
@@ -1068,108 +1277,74 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
         );
       } catch (e) {
-        print('Error navigating to RemindersPage: $e');
-        print(e);
+        print('Error navigating to HomePage: $e');
       }
     }
   }
-  // Future<bool> _willDisplayUpgrade({
-  //   required bool display,
-  //   String? installedVersion,
-  //   UpgraderVersionInfo? versionInfo,
-  // }) async {
-  //   if (versionInfo?.appStoreVersion == null) {
-  //     // versionInfo?.appStoreVersion = '1.2.3';
-  //     versionInfo = UpgraderVersionInfo(
-  //     appStoreVersion: Version.parse('1.2.3'),
-  //     );
-  //   }
-  //   // If the installed version is less than 1.0.9, force the upgrade
-  //   if (installedVersion != null && installedVersion.compareTo('1.0.9') < 0) {
-  //     return true; // Force the upgrade
-  //   }
-
-  //   // If the installed version is between 1.0.9 and 1.2.3, show the upgrade alert
-  //   if (installedVersion != null && installedVersion.compareTo('1.0.9') >= 0 && installedVersion.compareTo('1.2.3') < 0) {
-  //     return true; // Show the upgrade alert
-  //   }
-  //   return false;
-  //   // ...
-  // }
-
-  // The function signature MUST match the required type.
-  // It receives an UpgraderDisplay object and returns a Future of it.
 
   @override
   Widget build(BuildContext context) {
-    final remoteConfig = FirebaseRemoteConfig.instance;
-    final String minVersion = remoteConfig.getString('min_version');
     print('minVersion in build: $minVersion');
-    return UpgradeAlert(
-      dialogStyle: UpgradeDialogStyle.cupertino,
-      upgrader: Upgrader(
-        // debugDisplayAlways: true,
-        // debugLogging: true,
-        languageCode: _locale.languageCode,
-        minAppVersion: minVersion,
-        messages:
-            _locale.languageCode == 'ar'
-                ? UpgraderMessages(code: 'ar')
-                : UpgraderMessages(code: 'en'),
-      ),
-      child: MaterialApp(
-        navigatorKey: navigatorKey, // Assign the key here
-        title: 'Mohtm',
-        locale: _locale,
-        supportedLocales: const [Locale('en'), Locale('ar')],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
 
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          AppLocalizations.delegate,
-        ],
-        navigatorObservers: [FirebaseAnalyticsObserver(analytics: analytics)],
-        home:payload=='reminder_channel_alarm' ? const  RemindersPage(): StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasData) {
-              // User is logged in
-              // _initFCM();
-              return HomePage(
-                key: ValueKey('home_${_locale.languageCode}'),
-                onLanguageChanged: (lang) {
-                  setLocale(Locale(lang));
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      title: 'Mohtm',
+      locale: _locale,
+      supportedLocales: const [Locale('en'), Locale('ar')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
+      navigatorObservers: [FirebaseAnalyticsObserver(analytics: analytics)],
+      
+      // Wrap the home widget with UpgradeAlert
+      home: UpgradeAlert(
+        upgrader: _upgrader,
+        child: payload == 'reminder_channel_alarm'
+            ? const RemindersPage()
+            : StreamBuilder(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasData) {
+                    // User is logged in
+                    return HomePage(
+                      key: ValueKey('home_${_locale.languageCode}'),
+                      onLanguageChanged: (lang) {
+                        setLocale(Locale(lang));
+                      },
+                      currentLanguage: _locale.languageCode,
+                    );
+                  }
+                  // User is not logged in
+                  return LoginPage(
+                    key: ValueKey('login_${_locale.languageCode}'),
+                    onLanguageChanged: (lang) {
+                      setLocale(Locale(lang));
+                    },
+                    currentLanguage: _locale.languageCode,
+                  );
                 },
-                currentLanguage: _locale.languageCode,
-              );
-            }
-            // User is not logged in
-            return LoginPage(
-              key: ValueKey('login_${_locale.languageCode}'),
-              onLanguageChanged: (lang) {
-                setLocale(Locale(lang));
-              },
-              currentLanguage: _locale.languageCode,
-            );
-          },
-        ),
-        routes: <String, WidgetBuilder>{
-          '/forget_password': (context) => const ForgetPasswordPage(),
-          '/change_password': (context) => const ChangePasswordPage(),
-          '/anniversary_info':
-              (context) => const AnniversaryInfoPage(anniversaryId: ''),
-          '/profile': (context) => ProfilePage(),
-          '/register': (context) => const RegisterPage(),
-          '/add_anniversary': (context) => const AddAnniversaryPage(),
-          '/reminders': (context) => const RemindersPage(),
-          '/tasks': (context) => const TasksPage(),
-          '/add_task': (context) => const AddTaskPage(),
-        },
+              ),
       ),
+            
+      // Your original 'routes' logic remains the same
+      routes: <String, WidgetBuilder>{
+        '/forget_password': (context) => const ForgetPasswordPage(),
+        '/change_password': (context) => const ChangePasswordPage(),
+        '/anniversary_info':
+            (context) => const AnniversaryInfoPage(anniversaryId: ''),
+        '/profile': (context) => ProfilePage(),
+        '/register': (context) => const RegisterPage(),
+        '/add_anniversary': (context) => const AddAnniversaryPage(),
+        '/reminders': (context) => const RemindersPage(),
+        '/tasks': (context) => const TasksPage(),
+        '/add_task': (context) => const AddTaskPage(),
+      },
     );
   }
 

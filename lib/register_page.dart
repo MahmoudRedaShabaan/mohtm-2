@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart';
 import 'login_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -59,14 +60,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> signInWithGoogle() async {
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+  final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.signOut(); // Force account picker every time
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return; // User cancelled
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      late final GoogleSignInAccount googleUser;
+      try {
+        googleUser = await googleSignIn.authenticate();
+      } catch (e) {
+        print('GoogleSignIn.authenticate failed or cancelled: $e');
+        return; // user cancelled or failure
+      }
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      // New google_sign_in provides idToken only via GoogleSignInAuthentication
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
       UserCredential userCredential = await FirebaseAuth.instance
@@ -100,6 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         );
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.soticalUseNotFound),
@@ -108,9 +114,8 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (e) {
       print('Google sign-in failed: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
     }
   }
 
@@ -118,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> signInWithFacebook() async {
     try {
       final LoginResult result = await FacebookAuth.instance.login();
-      if (result.status == LoginStatus.success) {
+  if (result.status == LoginStatus.success) {
         final OAuthCredential facebookAuthCredential =
             FacebookAuthProvider.credential(result.accessToken!.tokenString);
         final userCredential = await FirebaseAuth.instance.signInWithCredential(
@@ -156,16 +161,16 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           );
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Facebook sign-in failed: ${result.message}')),
-        );
-      }
+        } else {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Facebook sign-in failed: ${result.message}')),
+          );
+        }
     } catch (e) {
       print('Facebook sign-in failed: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Facebook sign-in failed: $e')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook sign-in failed: $e')));
     }
   }
 

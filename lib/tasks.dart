@@ -9,7 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'add_task.dart';
 import 'update_task.dart';
 import 'constants.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 
 class TasksPage extends StatefulWidget {
   const TasksPage({super.key});
@@ -42,10 +44,8 @@ class _TasksPageState extends State<TasksPage> {
     print('initState called');
     print('_scrollController: $_scrollController');
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController != null) {
-        _scrollController.addListener(_onScroll);
-      }
-    });
+      _scrollController.addListener(_onScroll);
+        });
   }
 
   /*************  ✨ Windsurf Command ⭐  *************/
@@ -54,7 +54,7 @@ class _TasksPageState extends State<TasksPage> {
   /// prevents the ListView from updating when the user scrolls to the bottom.
   ///
   /// See https://github.com/flutter/flutter/issues/101432 for more details.
-  /*******  12e5014c-40ff-40da-93ce-dcf4722e8b64  *******/
+  /// *****  12e5014c-40ff-40da-93ce-dcf4722e8b64  ******
   void _onScroll() {
     print('Scroll position: ${_scrollController.offset}');
     print(
@@ -86,7 +86,7 @@ class _TasksPageState extends State<TasksPage> {
       final QuerySnapshot querySnapshot = await query.get();
       final docs = querySnapshot.docs;
       // Build a compact JSON payload with items (up to 5) and total count
-      final int totalCount = await docs.length;
+      final int totalCount = docs.length;
       final List<Map<String, dynamic>> items =
           docs.take(5).map((doc) {
             final date = (doc['duedate'] as Timestamp?)?.toDate();
@@ -134,7 +134,7 @@ class _TasksPageState extends State<TasksPage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     try {
-      Query qs = await FirebaseFirestore.instance
+      Query qs = FirebaseFirestore.instance
           .collection('userTaskCategory')
           .where('userId', isEqualTo: user.uid)
           .where('name', isEqualTo: 'default');
@@ -507,7 +507,7 @@ class _TasksPageState extends State<TasksPage> {
                         child: DropdownButtonFormField<String?>(
                           isDense: true,
                           isExpanded: true,
-                          value: _selectedCategoryId,
+                          initialValue: _selectedCategoryId,
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.category,
                             border: OutlineInputBorder(),
@@ -561,7 +561,7 @@ class _TasksPageState extends State<TasksPage> {
                       // Status Filter
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: _selectedStatus,
+                          initialValue: _selectedStatus,
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.status,
                             border: OutlineInputBorder(),

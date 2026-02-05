@@ -8,7 +8,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:myapp/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
@@ -16,7 +15,9 @@ import 'constants.dart';
 import 'add_reminder.dart';
 import 'update_reminder.dart';
 import 'main.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 import 'package:intl/intl.dart';
 
 class RemindersPage extends StatelessWidget {
@@ -103,7 +104,7 @@ class RemindersPage extends StatelessWidget {
         }
       }
       // Build a compact JSON payload with items (up to 5) and total count
-      final int totalCount = await nonOutdatedDocs.length;
+      final int totalCount = nonOutdatedDocs.length;
       final List<Map<String, dynamic>> items =
           nonOutdatedDocs.take(5).map((doc) {
             final date = (doc['dateTime'] as Timestamp?)?.toDate();
@@ -128,7 +129,7 @@ class RemindersPage extends StatelessWidget {
   //   print('Device timezone: ' + timeZone);
   // }
 
-  const RemindersPage({Key? key}) : super(key: key);
+  const RemindersPage({super.key});
 
   Stream<QuerySnapshot> getRemindersStream() {
     final user = FirebaseAuth.instance.currentUser;
@@ -450,8 +451,8 @@ class RemindersPage extends StatelessWidget {
             heroTag: 'fix_alarm_perm',
             backgroundColor: secondaryColor,
             onPressed: _openExactAlarmSettings,
-            child: const Icon(Icons.settings, color: Colors.white),
             tooltip: 'Fix Notification Permission',
+            child: const Icon(Icons.settings, color: Colors.white),
           ),
           // const SizedBox(height: 12),
           // FloatingActionButton(

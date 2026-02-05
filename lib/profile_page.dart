@@ -2,12 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:myapp/lookup.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
+
 
 class User {
   String firstName;
@@ -63,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
   DateTime? _selectedBirthDate;
   User? _user;
   File? _pickedImage;
-  bool _isUploadingImage = false;
+  final bool _isUploadingImage = false;
 
   @override
   void initState() {
@@ -453,7 +454,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _selectedGenderId,
+                      initialValue: _selectedGenderId,
                       items:
                           (() {
                             final locale =

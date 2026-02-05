@@ -5,7 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'constants.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'add_reminder.dart';
 
@@ -22,10 +23,10 @@ class UpdateReminderPage extends StatefulWidget {
   final Map<String, dynamic> reminderData;
 
   const UpdateReminderPage({
-    Key? key,
+    super.key,
     required this.reminderId,
     required this.reminderData,
-  }) : super(key: key);
+  });
 
   @override
   State<UpdateReminderPage> createState() => _UpdateReminderPageState();
@@ -330,10 +331,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                           }
                           Navigator.pop(context, {
                             'repeat':
-                                'Every ' +
-                                intervalController.text +
-                                ' ' +
-                                tempUnit,
+                                'Every ${intervalController.text} $tempUnit',
                             'interval': tempInterval,
                             'unit': tempUnit,
                             if (tempUnit == 'week')
@@ -374,7 +372,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 12),
-        Text(AppLocalizations.of(context)!.duration + ':'),
+        Text('${AppLocalizations.of(context)!.duration}:'),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -438,11 +436,13 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
               initialValue: _repeatCount?.toString(),
               validator: (value) {
                 if (_isEditing) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return AppLocalizations.of(context)!.repeatCountRequired;
+                  }
                   final n = int.tryParse(value);
-                  if (n == null || n < 1)
+                  if (n == null || n < 1) {
                     return AppLocalizations.of(context)!.repeatCountvalidation;
+                  }
                 }
                 return null;
               },
@@ -461,7 +461,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
             padding: const EdgeInsets.only(top: 8.0),
             child: Row(
               children: [
-                Text(AppLocalizations.of(context)!.untilDate2 + ': '),
+                Text('${AppLocalizations.of(context)!.untilDate2}: '),
                 Text(
                   _untilDate == null
                       ? AppLocalizations.of(context)!.notSet
@@ -927,11 +927,9 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                 child: ListTile(
                   leading: const Icon(Icons.repeat, color: Colors.deepPurple),
                   title: Text(
-                    AppLocalizations.of(context)!.repeat +
-                        ': ' +
-                        (_repeat == 'Every x unit'
+                    '${AppLocalizations.of(context)!.repeat}: ${_repeat == 'Every x unit'
                             ? 'Every $_repeatInterval $_selectedRepeatUnit'
-                            : _repeat),
+                            : _repeat}',
                   ),
                   onTap: _showRepeatOptions,
                 ),
