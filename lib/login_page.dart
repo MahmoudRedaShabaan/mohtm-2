@@ -136,12 +136,33 @@ class _LoginPageState extends State<LoginPage> {
         );
         _initFCM();
       } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.soticalUseNotFound),
+        // User doesn't exist in Firestore, create account and login
+        UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithCredential(credential);
+        final userEmail = userCredential.user?.email;
+        if (userEmail != null) {
+          // Add user to Firestore with basic values
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({'email': userEmail, 'gender': '1', 'fcmToken': _fcmToken});
+          // Update FCM token
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .update({'fcmToken': _fcmToken});
+          if (!mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => HomePage(
+                    onLanguageChanged: widget.onLanguageChanged ?? (_) {},
+                    currentLanguage: widget.currentLanguage ?? 'en',
+                  ),
             ),
           );
+          _initFCM();
         }
       }
     } catch (e) {

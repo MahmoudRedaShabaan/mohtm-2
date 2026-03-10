@@ -179,7 +179,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addAnniversaryTitle => 'إضافة مناسبة جديدة';
 
   @override
-  String get selectDateLabel => 'اختر التاريخ';
+  String get selectDateLabel => ' تاريخ المناسبة، مثال:الميلاد 01-04-1990';
 
   @override
   String get anniversaryNameLabel => 'اسم المناسبة';
@@ -593,6 +593,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notifiedOccasions => 'القادمه .. ';
 
   @override
+  String get occasions => 'المناسبات';
+
+  @override
   String get noNotifiedOccasions => 'لا توجد مناسبات مذكرة';
 
   @override
@@ -603,6 +606,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noImportantOccasionsMessage => 'ليس لديك أي مناسبات ذات أولوية عالية بعد. أضف بعض المناسبات وحددها كأولوية عالية لتراها هنا.';
+
+  @override
+  String get feedback => 'ملاحظات';
 
   @override
   String get addYourFirstRemnederToGetStarted => 'أضف تذكيرك الأول للبدء!';
@@ -687,4 +693,181 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tasksavedSuccessfully => 'تم حفظ المهمة بنجاح';
+
+  @override
+  String get dailyDeed => 'العمل اليومي';
+
+  @override
+  String get prayers => 'الصلوات';
+
+  @override
+  String get fajr => 'الفجر';
+
+  @override
+  String get dhur => 'الظهر';
+
+  @override
+  String get asr => 'العصر';
+
+  @override
+  String get maghrib => 'المغرب';
+
+  @override
+  String get isa => 'العشاء';
+
+  @override
+  String get tahajjud => 'التهجد';
+
+  @override
+  String get witr => 'الوتر';
+
+  @override
+  String get taraweeh => 'التراويح';
+
+  @override
+  String get learning => 'التعلم';
+
+  @override
+  String get readQuran => 'قراءة القرآن';
+
+  @override
+  String get fasting => 'الصيام';
+
+  @override
+  String get ramadanFasting => 'صيام';
+
+  @override
+  String get notPrayed => 'لم يصل';
+
+  @override
+  String get late => 'متأخر';
+
+  @override
+  String get onTime => 'في الوقت';
+
+  @override
+  String get inJamaah => 'جماعة';
+
+  @override
+  String get missed => 'فائت';
+
+  @override
+  String get completed => 'تم';
+
+  @override
+  String get chapters => 'أجزاء';
+
+  @override
+  String get selectChapters => 'اختر السور';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get sunnahPrayers => 'السنن';
+
+  @override
+  String get sunnah => 'السنن';
+
+  @override
+  String get fajrSunnah => 'سنه الفجر';
+
+  @override
+  String get doha => 'الضحى';
+
+  @override
+  String get dhurSunnah => 'سنه الظهر';
+
+  @override
+  String get maghribSunnah => 'سنه المغرب';
+
+  @override
+  String get isaSunnah => 'سنه العشاء';
+
+  @override
+  String get morningSupplications => 'أذكار الصباح';
+
+  @override
+  String get eveningSupplications => 'أذكار المساء';
+
+  @override
+  String get supplications => 'الأذكار';
+
+  @override
+  String get surahAlKahf => 'سورة الكهف';
+
+  @override
+  String get connectionIssue => 'مشكلة في الاتصال';
+
+  @override
+  String get choose => 'اختر';
+
+  @override
+  String get totalChaptersRead => 'إجمالي الأجزاء المقروءة';
+
+  @override
+  String get daysWithReading => 'أيام القراءة';
+
+  @override
+  String get distribution => 'التوزيع';
+
+  @override
+  String get parts => 'أجزاء';
+
+  @override
+  String get statistics => 'إحصائيات الأعمال اليومية';
+
+  @override
+  String get selectMonth => 'اختر الشهر';
+
+  @override
+  String get currentMonth => 'الشهر الحالي';
+
+  @override
+  String get nextMonth => 'الشهر القادم';
+
+  @override
+  String get notSelected => 'لم يتم الاختيار';
+
+  @override
+  String get prayerStatistics => 'إحصائيات الصلوات';
+
+  @override
+  String get naflPrayers => 'الصلوات النافلة';
+
+  @override
+  String get sunnahStatistics => 'إحصائيات السنن';
+
+  @override
+  String get learningStatistics => 'إحصائيات التعلم';
+
+  @override
+  String get fastingStatistics => 'إحصائيات الصيام';
+
+  @override
+  String monthStatistics(Object month) {
+    return 'إحصائيات $month';
+  }
+
+  @override
+  String get totalDays => 'إجمالي الأيام';
+
+  @override
+  String get daysInMonth => 'أيام الشهر';
+
+  @override
+  String statValueCount(Object count, Object value) {
+    return '$count $value';
+  }
+
+  @override
+  String percentage(Object percentage) {
+    return '$percentage%';
+  }
+
+  @override
+  String get graph => 'الرسم البياني';
+
+  @override
+  String get eidPrayer => 'صلاة العيد';
 }

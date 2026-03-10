@@ -16,6 +16,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:myapp/daily_deed/daily_deed_page.dart';
+import 'package:myapp/daily_deed/daily_deed_statistics_page.dart';
+import 'anniversary_streams.dart';
 class Anniversary {
   final DateTime date;
   final String name;
@@ -52,6 +55,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _appVersion = '';
   late int _currentIndex;
+  int _currentTabIndex = 0; // Track main tab index for FAB visibility
   static const MethodChannel _widgetChannel = MethodChannel('com.reda.mohtm2/widget');
 
   @override
@@ -60,6 +64,7 @@ class _HomePageState extends State<HomePage> {
     filteredAnniversaries = widget.todayAnniversaries;
     _loadAppVersion();
     _currentIndex = widget.initialTabIndex;
+    _currentTabIndex = 1; // Default to Daily Deeds tab
   }
 
   void _loadAppVersion() async {
@@ -160,6 +165,128 @@ Future<void> rateApp() async {
           }).toList();
     });
   }
+void filterAnniversariesByMonthDay() async {
+    if (filterStartDate == null || filterEndDate == null) return;
+    if (!mounted) return;
+    setState(() {
+      isFiltering = true;
+    });
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('anniversaries')
+            .where('createdBy', isEqualTo: user.uid)
+            .get();
+
+    final start = filterStartDate!;
+    final end = filterEndDate!;
+
+    List<QueryDocumentSnapshot> docs =
+        snapshot.docs.where((doc) {
+          final Timestamp? ts = doc['date'];
+          if (ts == null) return false;
+          final date = ts.toDate();
+          // Convert all dates to year 2000 for comparison
+          final normalized = DateTime(2000, date.month, date.day);
+          if (start.isBefore(end) || start.isAtSameMomentAs(end)) {
+            return (normalized.isAfter(start) ||
+                    normalized.isAtSameMomentAs(start)) &&
+                (normalized.isBefore(end) || normalized.isAtSameMomentAs(end));
+          } else {
+            // If range wraps around the year (e.g., Nov to Feb)
+            return (normalized.isAfter(start) ||
+                    normalized.isAtSameMomentAs(start)) ||
+                (normalized.isBefore(end) || normalized.isAtSameMomentAs(end));
+          }
+        }).toList();
+
+    if (!mounted) return;
+    setState(() {
+      filteredDocs = docs;
+      isFiltering = false;
+    });
+  }
+  // void filterAnniversariesByMonthDay() {
+  //   if (filterStartDate == null || filterEndDate == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Please select both start and end dates'),
+  //       ),
+  //     );
+  //     return;
+  //   }
+
+  //   final userId = FirebaseAuth.instance.currentUser?.uid;
+  //   print('Current user ID: $userId');
+    
+  //   if (userId == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Please login first'),
+  //       ),
+  //     );
+  //     return;
+  //   }
+
+  //   setState(() {
+  //     isFiltering = true;
+  //   });
+
+  //   FirebaseFirestore.instance
+  //       .collection('anniversaries')
+  //       .where('userId', isEqualTo: userId)
+  //       .get()
+  //       .then((querySnapshot) {
+  //     if (!mounted) return;
+
+  //     print('Found ${querySnapshot.docs.length} total anniversaries for user $userId');
+      
+  //     final filtered = querySnapshot.docs.where((doc) {
+  //       final Timestamp dateTimestamp = doc['date'] as Timestamp;
+  //       final DateTime date = dateTimestamp.toDate();
+  //       final int month = date.month;
+  //       final int day = date.day;
+
+  //       final int startMonth = filterStartDate!.month;
+  //       final int startDay = filterStartDate!.day;
+  //       final int endMonth = filterEndDate!.month;
+  //       final int endDay = filterEndDate!.day;
+
+  //       // Create comparable integers for month-day pairs
+  //       final int currentMd = month * 100 + day;
+  //       final int startMd = startMonth * 100 + startDay;
+  //       final int endMd = endMonth * 100 + endDay;
+
+  //       print('Anniversary: ${date.day}/${date.month}, Start: ${filterStartDate!.day}/${filterStartDate!.month}, End: ${filterEndDate!.day}/${filterEndDate!.month}');
+        
+  //       if (startMd <= endMd) {
+  //         // Normal range (e.g., 3/1 to 5/1)
+  //         return currentMd >= startMd && currentMd <= endMd;
+  //       } else {
+  //         // Wrap-around range (e.g., 12/1 to 2/1)
+  //         return currentMd >= startMd || currentMd <= endMd;
+  //       }
+  //     }).toList();
+
+  //     print('Filtered to ${filtered.length} anniversaries');
+
+  //     if (!mounted) return;
+
+  //     setState(() {
+  //       filteredDocs = filtered;
+  //       isFiltering = false;
+  //     });
+  //   }).catchError((error) {
+  //     if (!mounted) return;
+  //     setState(() {
+  //       isFiltering = false;
+  //     });
+  //     print('Error filtering anniversaries: $error');
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -169,8 +296,8 @@ Future<void> rateApp() async {
               ? TextDirection.rtl
               : TextDirection.ltr,
       child: DefaultTabController(
-        length: 3, // Number of tabs
-        initialIndex:_currentIndex,
+        length: 3, // Number of tabs: Occasions, Daily Deeds, Filter
+        initialIndex: 1, // Default to Daily Deeds tab
         child: Scaffold(
           appBar: AppBar(
             leading: Builder(
@@ -277,17 +404,23 @@ Future<void> rateApp() async {
                 onPressed: () {
                   Navigator.pushNamed(context, "/profile");
                 },
+
               ),
             ],
             bottom: TabBar(
+              onTap: (index) {
+                setState(() {
+                  _currentTabIndex = index;
+                });
+              },
               tabs: [
                 Tab(
-                  icon: Icon(Icons.calendar_today),
-                  text: AppLocalizations.of(context)!.todaysOccasions,
+                  icon: Icon(Icons.event),
+                  text: AppLocalizations.of(context)!.occasions,
                 ),
                 Tab(
-                  icon: Icon(Icons.notifications_active),
-                  text: AppLocalizations.of(context)!.notifiedOccasions,
+                  icon: Icon(Icons.self_improvement),
+                  text: AppLocalizations.of(context)!.dailyDeed,
                 ),
                 Tab(
                   icon: Icon(Icons.filter_list),
@@ -344,6 +477,38 @@ Future<void> rateApp() async {
                         },
                       ),
                       ListTile(
+                        leading: const Icon(Icons.self_improvement),
+                        title: Text(AppLocalizations.of(context)!.dailyDeed),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final user = FirebaseAuth.instance.currentUser;
+                          if (user != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DailyDeedPage(userId: user.uid),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.bar_chart),
+                        title: Text(AppLocalizations.of(context)!.statistics),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final user = FirebaseAuth.instance.currentUser;
+                          if (user != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DailyDeedStatisticsPage(userId: user.uid),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      ListTile(
                         leading: const Icon(Icons.priority_high),
                         title: Text(
                           AppLocalizations.of(context)!.importantOccasions,
@@ -382,719 +547,105 @@ Future<void> rateApp() async {
                               AppLocalizations.of(context)!.changePassword,
                             ),
                             onTap: () {
-                              Navigator.pop(context); // Close the drawer first
+                              Navigator.pop(context);
                               Navigator.pushNamed(context, '/change_password');
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.feedback),
+                            title: Text(AppLocalizations.of(context)!.feedback),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AppFeedbackPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.logout),
+                            title: Text(AppLocalizations.of(context)!.logout),
+                            onTap: () async {
+                              await FirebaseAuth.instance.signOut();
+                              if (!mounted) return;
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                                (Route<dynamic> route) => false,
+                              );
                             },
                           ),
                         ],
                       ),
-                      ListTile(
-                        leading: const Icon(Icons.contact_mail),
-                        title: Text(AppLocalizations.of(context)!.contactUs),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AppFeedbackPage(),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.logout),
-                        title: Text(AppLocalizations.of(context)!.logout),
-                        onTap: () {
-                          signOut(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: Center(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        _appVersion.isNotEmpty ? 'Version: $_appVersion' : '',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF888888),
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1.1,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            child: Text(
+                              _appVersion.isNotEmpty ? 'Version: $_appVersion' : '',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Color(0xFF888888),
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.1,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
 
-          body: SafeArea(
-            child: TabBarView(
-              
-              children: [
-                // Tab 1: Today's Occasions
-                StreamBuilder<List<QueryDocumentSnapshot>>(
-                  stream: getTodaysAnniversariesStream(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+          body: TabBarView(
+            children: [
+              // Tab 1: Occasions with nested tabs (Today, Coming)
+              DefaultTabController(
+                length: 2,
+                child: Column(
+                  children: [
+                    TabBar(
+                      tabs: [
+                        Tab(text: AppLocalizations.of(context)!.todaysOccasions),
+                        Tab(text: AppLocalizations.of(context)!.notifiedOccasions),
+                      ],
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          // Sub-tab 1: Today's Occasions
+                          StreamBuilder<List<QueryDocumentSnapshot>>(
+                            stream: getTodaysAnniversariesStream(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(child: CircularProgressIndicator());
+                              }
 
-                    final List<QueryDocumentSnapshot> todayAnniversaries =
-                        snapshot.hasData ? snapshot.data! : <QueryDocumentSnapshot>[];
+                              final List<QueryDocumentSnapshot> todayAnniversaries =
+                                  snapshot.hasData ? snapshot.data! : <QueryDocumentSnapshot>[];
 
-                    // Always update the widget, even if empty
-                    _writeOccasionWidgetSummary(todayAnniversaries);
+                              _writeOccasionWidgetSummary(todayAnniversaries);
 
-                    if (todayAnniversaries.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.noAnniversariesToday,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: todayAnniversaries.length,
-                      itemBuilder: (context, index) {
-                        final doc = todayAnniversaries[index];
-                        final date = (doc['date'] as Timestamp).toDate();
-                        final title = doc['title'] ?? '';
-                        final typeId = doc['type']?.toString() ?? '';
-                        final locale =
-                            Localizations.localeOf(context).languageCode;
-                        final eventTypes = LookupService().eventTypes;
-                        String typeName = typeId;
-                        if (typeId.isNotEmpty) {
-                          if (typeId == "4") {
-                            typeName = doc['addType']?.toString() ?? '';
-                          } else {
-                            final typeObj = eventTypes.firstWhere(
-                              (type) => type['id'].toString() == typeId,
-                              orElse: () => <String, dynamic>{},
-                            );
-                            typeName =
-                                locale == 'ar'
-                                    ? (typeObj['arabicName'] ?? typeId)
-                                    : (typeObj['englishName'] ?? typeId);
-                          }
-                        }
-                        final priorityId = doc['priority']?.toString() ?? '';
-                        final annPriorities = LookupService().annPriorities;
-                        String priorityName = priorityId;
-                        if (priorityId.isNotEmpty) {
-                          final priorityObj = annPriorities.firstWhere(
-                            (p) => p['id'].toString() == priorityId,
-                            orElse: () => <String, dynamic>{},
-                          );
-                          priorityName =
-                              locale == 'ar'
-                                  ? (priorityObj['priorityAr'] ?? priorityId)
-                                  : (priorityObj['priorityEn'] ?? priorityId);
-                        }
-                        Color priorityColor;
-                        switch (priorityId) {
-                          case '1':
-                            priorityColor = Colors.red;
-                            break;
-                          case '2':
-                            priorityColor = Colors.orange;
-                            break;
-                          case '3':
-                            priorityColor = Colors.yellow[700]!;
-                            break;
-                          default:
-                            priorityColor = Colors.grey;
-                        }
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => AnniversaryInfoPage(
-                                        anniversaryId: doc.id,
-                                      ),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 28,
-                                    backgroundColor: priorityColor.withOpacity(
-                                      0.15,
-                                    ),
-                                    child: Text(
-                                      '${date.day}/${date.month}\n${date.year}',
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              typeName == 'Birthday' ||
-                                                      typeName == 'عيد ميلاد'
-                                                  ? Icons.cake
-                                                  : typeName == 'Wedding' ||
-                                                      typeName == 'زواج'
-                                                  ? Icons.favorite
-                                                  : typeName == 'Death' ||
-                                                      typeName == 'وفاة'
-                                                  ? Icons
-                                                      .sentiment_very_dissatisfied
-                                                  : Icons.event,
-                                              color: Colors.deepPurple,
-                                              size: 20,
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Expanded(
-                                              child: Text(
-                                                title,
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.typeLabel(typeName),
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        if (doc['relationship'] != null &&
-                                            doc['relationship']
-                                                .toString()
-                                                .isNotEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 2.0,
-                                            ),
-                                            child: Text(
-                                              doc['relationship'],
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 13,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Chip(
-                                    label: Text(
-                                      priorityName,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    backgroundColor: priorityColor,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                // Tab 2: Notified Occasions
-                StreamBuilder<List<QueryDocumentSnapshot>>(
-                  stream: getNotifiedOccasionsStream(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.notifications_active,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              AppLocalizations.of(context)!.noNotifiedOccasions,
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    final notifiedOccasions = snapshot.data!;
-                    return ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: notifiedOccasions.length,
-                      itemBuilder: (context, index) {
-                        final doc = notifiedOccasions[index];
-                        final date = (doc['date'] as Timestamp).toDate();
-                        final title = doc['title'] ?? '';
-                        final typeId = doc['type']?.toString() ?? '';
-                        final locale =
-                            Localizations.localeOf(context).languageCode;
-                        final eventTypes = LookupService().eventTypes;
-                        String typeName = typeId;
-                        if (typeId.isNotEmpty) {
-                          if (typeId == "4") {
-                            typeName = doc['addType']?.toString() ?? '';
-                          } else {
-                            final typeObj = eventTypes.firstWhere(
-                              (type) => type['id'].toString() == typeId,
-                              orElse: () => <String, dynamic>{},
-                            );
-                            typeName =
-                                locale == 'ar'
-                                    ? (typeObj['arabicName'] ?? typeId)
-                                    : (typeObj['englishName'] ?? typeId);
-                          }
-                        }
-                        final priorityId = doc['priority']?.toString() ?? '';
-                        final annPriorities = LookupService().annPriorities;
-                        String priorityName = priorityId;
-                        if (priorityId.isNotEmpty) {
-                          final priorityObj = annPriorities.firstWhere(
-                            (p) => p['id'].toString() == priorityId,
-                            orElse: () => <String, dynamic>{},
-                          );
-                          priorityName =
-                              locale == 'ar'
-                                  ? (priorityObj['priorityAr'] ?? priorityId)
-                                  : (priorityObj['priorityEn'] ?? priorityId);
-                        }
-                        Color priorityColor;
-                        switch (priorityId) {
-                          case '1':
-                            priorityColor = Colors.red;
-                            break;
-                          case '2':
-                            priorityColor = Colors.orange;
-                            break;
-                          case '3':
-                            priorityColor = Colors.yellow[700]!;
-                            break;
-                          default:
-                            priorityColor = Colors.grey;
-                        }
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => AnniversaryInfoPage(
-                                        anniversaryId: doc.id,
-                                      ),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 28,
-                                    backgroundColor: priorityColor.withOpacity(
-                                      0.15,
-                                    ),
-                                    child: Text(
-                                      '${date.day}/${date.month}\n${date.year}',
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              typeName == 'Birthday' ||
-                                                      typeName == 'عيد ميلاد'
-                                                  ? Icons.cake
-                                                  : typeName == 'Wedding' ||
-                                                      typeName == 'زواج'
-                                                  ? Icons.favorite
-                                                  : typeName == 'Death' ||
-                                                      typeName == 'وفاة'
-                                                  ? Icons
-                                                      .sentiment_very_dissatisfied
-                                                  : Icons.event,
-                                              color: Colors.deepPurple,
-                                              size: 20,
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Expanded(
-                                              child: Text(
-                                                title,
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.typeLabel(typeName),
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        if (doc['relationship'] != null &&
-                                            doc['relationship']
-                                                .toString()
-                                                .isNotEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 2.0,
-                                            ),
-                                            child: Text(
-                                              doc['relationship'],
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 13,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Chip(
-                                    label: Text(
-                                      priorityName,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    backgroundColor: priorityColor,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                // Content for Filter Anniversaries tab
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 16.0),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.4,
-                                    child: OutlinedButton.icon(
-                                      icon: const Icon(Icons.date_range),
-                                      label: Text(
-                                        filterStartDate == null
-                                            ? AppLocalizations.of(
-                                              context,
-                                            )!.startDate
-                                            : 'Start: ${filterStartDate!.day}/${filterStartDate!.month}',
-                                      ),
-                                      onPressed: () async {
-                                        final currentYear = DateTime.now().year;
-                                        final initialDate =
-                                            filterStartDate != null
-                                                ? DateTime(
-                                                  currentYear,
-                                                  filterStartDate!.month,
-                                                  filterStartDate!.day,
-                                                )
-                                                : DateTime(currentYear, 1, 1);
-
-                                        final pickedDate = await showDatePicker(
-                                          context: context,
-                                          initialDate: initialDate,
-                                          firstDate: DateTime(
-                                            currentYear,
-                                            1,
-                                            1,
-                                          ),
-                                          lastDate: DateTime(
-                                            currentYear,
-                                            12,
-                                            31,
-                                          ),
-                                          helpText:
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.startDate,
-                                          fieldHintText: "MM/DD",
-                                        );
-                                        if (pickedDate != null) {
-                                          setState(() {
-                                            filterStartDate = DateTime(
-                                              2000,
-                                              pickedDate.month,
-                                              pickedDate.day,
-                                            );
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.4,
-                                    child: OutlinedButton.icon(
-                                      icon: const Icon(Icons.date_range),
-                                      label: Text(
-                                        filterEndDate == null
-                                            ? AppLocalizations.of(
-                                              context,
-                                            )!.endDate
-                                            : 'End: ${filterEndDate!.day}/${filterEndDate!.month}',
-                                      ),
-                                      onPressed: () async {
-                                        final currentYear = DateTime.now().year;
-                                        final initialDate =
-                                            filterEndDate != null
-                                                ? DateTime(
-                                                  currentYear,
-                                                  filterEndDate!.month,
-                                                  filterEndDate!.day,
-                                                )
-                                                : DateTime(currentYear, 12, 31);
-
-                                        final pickedDate = await showDatePicker(
-                                          context: context,
-                                          initialDate: initialDate,
-                                          firstDate: DateTime(
-                                            currentYear,
-                                            1,
-                                            1,
-                                          ),
-                                          lastDate: DateTime(
-                                            currentYear,
-                                            12,
-                                            31,
-                                          ),
-                                          helpText:
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.endDate,
-                                          fieldHintText: "MM/DD",
-                                        );
-                                        if (pickedDate != null) {
-                                          setState(() {
-                                            filterEndDate = DateTime(
-                                              2000,
-                                              pickedDate.month,
-                                              pickedDate.day,
-                                            );
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.6,
-                                    child: ElevatedButton.icon(
-                                      onPressed: filterAnniversariesByMonthDay,
-                                      icon: const Icon(Icons.filter_alt),
-                                      label: Text(
-                                        AppLocalizations.of(context)!.filter,
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                          255,
-                                          156,
-                                          217,
-                                          115,
-                                        ),
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.2,
-                                    child: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          filterStartDate = null;
-                                          filterEndDate = null;
-                                          filteredDocs = [];
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Color.fromARGB(
-                                          255,
-                                          172,
-                                          171,
-                                          170,
-                                        ),
-                                      ),
-                                      tooltip:
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.clearFilter,
-                                      iconSize: 28,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-
-                      Expanded(
-                        child:
-                            isFiltering
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : filteredDocs.isEmpty
-                                ? Center(
+                              if (todayAnniversaries.isEmpty) {
+                                return Center(
                                   child: Column(
-                                    mainAxisSize:
-                                        MainAxisSize
-                                            .min, // Prevents the column from taking up all available vertical space
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
                                         Icons.calendar_today,
@@ -1103,9 +654,499 @@ Future<void> rateApp() async {
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
-                                        AppLocalizations.of(
+                                        AppLocalizations.of(context)!.noAnniversariesToday,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+
+                              return ListView.builder(
+                                padding: const EdgeInsets.all(16),
+                                itemCount: todayAnniversaries.length,
+                                itemBuilder: (context, index) {
+                                  final doc = todayAnniversaries[index];
+                                  final date = (doc['date'] as Timestamp).toDate();
+                                  final title = doc['title'] ?? '';
+                                  final typeId = doc['type']?.toString() ?? '';
+                                  final locale = Localizations.localeOf(context).languageCode;
+                                  final eventTypes = LookupService().eventTypes;
+                                  String typeName = typeId;
+                                  if (typeId.isNotEmpty) {
+                                    if (typeId == "4") {
+                                      typeName = doc['addType']?.toString() ?? '';
+                                    } else {
+                                      final typeObj = eventTypes.firstWhere(
+                                        (type) => type['id'].toString() == typeId,
+                                        orElse: () => <String, dynamic>{},
+                                      );
+                                      typeName = locale == 'ar'
+                                          ? (typeObj['arabicName'] ?? typeId)
+                                          : (typeObj['englishName'] ?? typeId);
+                                    }
+                                  }
+                                  final priorityId = doc['priority']?.toString() ?? '';
+                                  final annPriorities = LookupService().annPriorities;
+                                  String priorityName = priorityId;
+                                  if (priorityId.isNotEmpty) {
+                                    final priorityObj = annPriorities.firstWhere(
+                                      (p) => p['id'].toString() == priorityId,
+                                      orElse: () => <String, dynamic>{},
+                                    );
+                                    priorityName = locale == 'ar'
+                                        ? (priorityObj['priorityAr'] ?? priorityId)
+                                        : (priorityObj['priorityEn'] ?? priorityId);
+                                  }
+                                  Color priorityColor;
+                                  switch (priorityId) {
+                                    case '1':
+                                      priorityColor = Colors.red;
+                                      break;
+                                    case '2':
+                                      priorityColor = Colors.orange;
+                                      break;
+                                    case '3':
+                                      priorityColor = Colors.yellow[700]!;
+                                      break;
+                                    default:
+                                      priorityColor = Colors.grey;
+                                  }
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: () {
+                                        Navigator.push(
                                           context,
-                                        )!.noAnniversariesFound,
+                                          MaterialPageRoute(
+                                            builder: (context) => AnniversaryInfoPage(
+                                              anniversaryId: doc.id,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 28,
+                                              backgroundColor: priorityColor.withValues(alpha: 0.15),
+                                              child: Text(
+                                                '${date.day}/${date.month}\n${date.year}',
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        typeName == 'Birthday' || typeName == 'عيد ميلاد'
+                                                            ? Icons.cake
+                                                            : typeName == 'Wedding' || typeName == 'زواج'
+                                                                ? Icons.favorite
+                                                                : typeName == 'Death' || typeName == 'وفاة'
+                                                                    ? Icons.sentiment_very_dissatisfied
+                                                                    : Icons.event,
+                                                        color: Colors.deepPurple,
+                                                        size: 20,
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Expanded(
+                                                        child: Text(
+                                                          title,
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    AppLocalizations.of(context)!.typeLabel(typeName),
+                                                    style: TextStyle(
+                                                      color: Colors.grey[700],
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  if (doc['relationship'] != null &&
+                                                      doc['relationship'].toString().isNotEmpty)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(top: 2.0),
+                                                      child: Text(
+                                                        doc['relationship'],
+                                                        style: TextStyle(
+                                                          color: Colors.grey[600],
+                                                          fontSize: 13,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Chip(
+                                              label: Text(
+                                                priorityName,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              backgroundColor: priorityColor,
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          // Sub-tab 2: Coming Occasions
+                          StreamBuilder<List<QueryDocumentSnapshot>>(
+                            stream: getNotifiedOccasionsStream(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(child: CircularProgressIndicator());
+                              }
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.notifications_active,
+                                        size: 64,
+                                        color: Colors.grey[400],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        AppLocalizations.of(context)!.noNotifiedOccasions,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+
+                              final notifiedOccasions = snapshot.data!;
+                              return ListView.builder(
+                                padding: const EdgeInsets.all(16),
+                                itemCount: notifiedOccasions.length,
+                                itemBuilder: (context, index) {
+                                  final doc = notifiedOccasions[index];
+                                  final date = (doc['date'] as Timestamp).toDate();
+                                  final title = doc['title'] ?? '';
+                                  final typeId = doc['type']?.toString() ?? '';
+                                  final locale = Localizations.localeOf(context).languageCode;
+                                  final eventTypes = LookupService().eventTypes;
+                                  String typeName = typeId;
+                                  if (typeId.isNotEmpty) {
+                                    if (typeId == "4") {
+                                      typeName = doc['addType']?.toString() ?? '';
+                                    } else {
+                                      final typeObj = eventTypes.firstWhere(
+                                        (type) => type['id'].toString() == typeId,
+                                        orElse: () => <String, dynamic>{},
+                                      );
+                                      typeName = locale == 'ar'
+                                          ? (typeObj['arabicName'] ?? typeId)
+                                          : (typeObj['englishName'] ?? typeId);
+                                    }
+                                  }
+                                  final priorityId = doc['priority']?.toString() ?? '';
+                                  final annPriorities = LookupService().annPriorities;
+                                  String priorityName = priorityId;
+                                  if (priorityId.isNotEmpty) {
+                                    final priorityObj = annPriorities.firstWhere(
+                                      (p) => p['id'].toString() == priorityId,
+                                      orElse: () => <String, dynamic>{},
+                                    );
+                                    priorityName = locale == 'ar'
+                                        ? (priorityObj['priorityAr'] ?? priorityId)
+                                        : (priorityObj['priorityEn'] ?? priorityId);
+                                  }
+                                  Color priorityColor;
+                                  switch (priorityId) {
+                                    case '1':
+                                      priorityColor = Colors.red;
+                                      break;
+                                    case '2':
+                                      priorityColor = Colors.orange;
+                                      break;
+                                    case '3':
+                                      priorityColor = Colors.yellow[700]!;
+                                      break;
+                                    default:
+                                      priorityColor = Colors.grey;
+                                  }
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AnniversaryInfoPage(anniversaryId: doc.id),
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 28,
+                                              backgroundColor: priorityColor.withValues(alpha: 0.15),
+                                              child: Text(
+                                                '${date.day}/${date.month}\n${date.year}',
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        typeName == 'Birthday' || typeName == 'عيد ميلاد'
+                                                            ? Icons.cake
+                                                            : typeName == 'Wedding' || typeName == 'زواج'
+                                                                ? Icons.favorite
+                                                                : typeName == 'Death' || typeName == 'وفاة'
+                                                                    ? Icons.sentiment_very_dissatisfied
+                                                                    : Icons.event,
+                                                        color: Colors.deepPurple,
+                                                        size: 20,
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Expanded(
+                                                        child: Text(
+                                                          title,
+                                                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    AppLocalizations.of(context)!.typeLabel(typeName),
+                                                    style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                                  ),
+                                                  if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(top: 2.0),
+                                                      child: Text(
+                                                        doc['relationship'],
+                                                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Chip(
+                                              label: Text(
+                                                priorityName,
+                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                              ),
+                                              backgroundColor: priorityColor,
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Tab 2: Daily Deeds
+              DailyDeedPage(userId: FirebaseAuth.instance.currentUser?.uid ?? '', showAppBar: false),
+              // Tab 3: Filter
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 16.0),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.4,
+                                  child: OutlinedButton.icon(
+                                    icon: const Icon(Icons.date_range),
+                                    label: Text(
+                                      filterStartDate == null
+                                          ? AppLocalizations.of(context)!.startDate
+                                          : 'Start: ${filterStartDate!.day}/${filterStartDate!.month}',
+                                    ),
+                                    onPressed: () async {
+                                      final currentYear = DateTime.now().year;
+                                      final initialDate = filterStartDate != null
+                                          ? DateTime(currentYear, filterStartDate!.month, filterStartDate!.day)
+                                          : DateTime(currentYear, 1, 1);
+
+                                      final pickedDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: initialDate,
+                                        firstDate: DateTime(currentYear, 1, 1),
+                                        lastDate: DateTime(currentYear, 12, 31),
+                                        helpText: AppLocalizations.of(context)!.startDate,
+                                        fieldHintText: "MM/DD",
+                                      );
+                                      if (pickedDate != null) {
+                                        setState(() {
+                                          filterStartDate = DateTime(2000, pickedDate.month, pickedDate.day);
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.4,
+                                  child: OutlinedButton.icon(
+                                    icon: const Icon(Icons.date_range),
+                                    label: Text(
+                                      filterEndDate == null
+                                          ? AppLocalizations.of(context)!.endDate
+                                          : 'End: ${filterEndDate!.day}/${filterEndDate!.month}',
+                                    ),
+                                    onPressed: () async {
+                                      final currentYear = DateTime.now().year;
+                                      final initialDate = filterEndDate != null
+                                          ? DateTime(currentYear, filterEndDate!.month, filterEndDate!.day)
+                                          : DateTime(currentYear, 12, 31);
+
+                                      final pickedDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: initialDate,
+                                        firstDate: DateTime(currentYear, 1, 1),
+                                        lastDate: DateTime(currentYear, 12, 31),
+                                        helpText: AppLocalizations.of(context)!.endDate,
+                                        fieldHintText: "MM/DD",
+                                      );
+                                      if (pickedDate != null) {
+                                        setState(() {
+                                          filterEndDate = DateTime(2000, pickedDate.month, pickedDate.day);
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.6,
+                                  child: ElevatedButton.icon(
+                                    onPressed: filterAnniversariesByMonthDay,
+                                    icon: const Icon(Icons.filter_alt),
+                                    label: Text(AppLocalizations.of(context)!.filter),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(255, 156, 217, 115),
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.2,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        filterStartDate = null;
+                                        filterEndDate = null;
+                                        filteredDocs = [];
+                                      });
+                                    },
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Color.fromARGB(255, 172, 171, 170),
+                                    ),
+                                    tooltip: AppLocalizations.of(context)!.clearFilter,
+                                    iconSize: 28,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Expanded(
+                      child: isFiltering
+                          ? const Center(child: CircularProgressIndicator())
+                          : filteredDocs.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.calendar_today, size: 64, color: Colors.grey[400]),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        AppLocalizations.of(context)!.noAnniversariesFound,
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.grey[600],
@@ -1115,59 +1156,40 @@ Future<void> rateApp() async {
                                     ],
                                   ),
                                 )
-                                : ListView.builder(
+                              : ListView.builder(
                                   itemCount: filteredDocs.length,
                                   itemBuilder: (context, index) {
                                     final doc = filteredDocs[index];
-                                    final date =
-                                        (doc['date'] as Timestamp).toDate();
+                                    final date = (doc['date'] as Timestamp).toDate();
                                     final title = doc['title'] ?? '';
-                                    final String typeId =
-                                        doc['type']?.toString() ?? '';
-                                    final locale =
-                                        Localizations.localeOf(
-                                          context,
-                                        ).languageCode;
-                                    final eventTypes =
-                                        LookupService().eventTypes;
+                                    final String typeId = doc['type']?.toString() ?? '';
+                                    final locale = Localizations.localeOf(context).languageCode;
+                                    final eventTypes = LookupService().eventTypes;
                                     String typeName = typeId;
                                     if (typeId.isNotEmpty) {
                                       if (typeId == "4") {
-                                        typeName =
-                                            doc['addType']?.toString() ?? '';
+                                        typeName = doc['addType']?.toString() ?? '';
                                       } else {
                                         final typeObj = eventTypes.firstWhere(
-                                          (type) =>
-                                              type['id'].toString() == typeId,
+                                          (type) => type['id'].toString() == typeId,
                                           orElse: () => <String, dynamic>{},
                                         );
-                                        typeName =
-                                            locale == 'ar'
-                                                ? (typeObj['arabicName'] ??
-                                                    typeId)
-                                                : (typeObj['englishName'] ??
-                                                    typeId);
+                                        typeName = locale == 'ar'
+                                            ? (typeObj['arabicName'] ?? typeId)
+                                            : (typeObj['englishName'] ?? typeId);
                                       }
                                     }
-                                    final priorityId =
-                                        doc['priority']?.toString() ?? '';
-                                    final annPriorities =
-                                        LookupService().annPriorities;
+                                    final priorityId = doc['priority']?.toString() ?? '';
+                                    final annPriorities = LookupService().annPriorities;
                                     String priorityName = priorityId;
                                     if (priorityId.isNotEmpty) {
-                                      final priorityObj = annPriorities
-                                          .firstWhere(
-                                            (p) =>
-                                                p['id'].toString() ==
-                                                priorityId,
-                                            orElse: () => <String, dynamic>{},
-                                          );
-                                      priorityName =
-                                          locale == 'ar'
-                                              ? (priorityObj['priorityAr'] ??
-                                                  priorityId)
-                                              : (priorityObj['priorityEn'] ??
-                                                  priorityId);
+                                      final priorityObj = annPriorities.firstWhere(
+                                        (p) => p['id'].toString() == priorityId,
+                                        orElse: () => <String, dynamic>{},
+                                      );
+                                      priorityName = locale == 'ar'
+                                          ? (priorityObj['priorityAr'] ?? priorityId)
+                                          : (priorityObj['priorityEn'] ?? priorityId);
                                     }
                                     Color priorityColor;
                                     switch (priorityId) {
@@ -1184,129 +1206,72 @@ Future<void> rateApp() async {
                                         priorityColor = Colors.grey;
                                     }
                                     return Card(
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 8,
-                                      ),
+                                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                       elevation: 4,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(16),
                                         onTap: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      AnniversaryInfoPage(
-                                                        anniversaryId: doc.id,
-                                                      ),
+                                              builder: (context) => AnniversaryInfoPage(anniversaryId: doc.id),
                                             ),
                                           );
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 12,
-                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                           child: Row(
                                             children: [
                                               CircleAvatar(
                                                 radius: 28,
-                                                backgroundColor: priorityColor
-                                                    .withOpacity(0.15),
+                                                backgroundColor: priorityColor.withValues(alpha: 0.15),
                                                 child: Text(
-                                                  '${date.day}/${date.month}\n${date.year}',
+                                                  '${date.day}/${date.month}/${date.year}',
                                                   textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                                                 ),
                                               ),
                                               const SizedBox(width: 16),
                                               Expanded(
                                                 child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Row(
                                                       children: [
                                                         Icon(
-                                                          typeName ==
-                                                                      'Birthday' ||
-                                                                  typeName ==
-                                                                      'عيد ميلاد'
+                                                          typeName == 'Birthday' || typeName == 'عيد ميلاد'
                                                               ? Icons.cake
-                                                              : typeName ==
-                                                                      'Wedding' ||
-                                                                  typeName ==
-                                                                      'زواج'
-                                                              ? Icons.favorite
-                                                              : typeName ==
-                                                                      'Death' ||
-                                                                  typeName ==
-                                                                      'وفاة'
-                                                              ? Icons
-                                                                  .sentiment_very_dissatisfied
-                                                              : Icons.event,
-                                                          color:
-                                                              Colors.deepPurple,
+                                                              : typeName == 'Wedding' || typeName == 'زواج'
+                                                                  ? Icons.favorite
+                                                                  : typeName == 'Death' || typeName == 'وفاة'
+                                                                      ? Icons.sentiment_very_dissatisfied
+                                                                      : Icons.event,
+                                                          color: Colors.deepPurple,
                                                           size: 20,
                                                         ),
-                                                        const SizedBox(
-                                                          width: 6,
-                                                        ),
+                                                        const SizedBox(width: 6),
                                                         Expanded(
                                                           child: Text(
                                                             title,
-                                                            style:
-                                                                const TextStyle(
-                                                                  fontSize: 18,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
+                                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                            overflow: TextOverflow.ellipsis,
                                                           ),
                                                         ),
                                                       ],
                                                     ),
                                                     const SizedBox(height: 4),
                                                     Text(
-                                                      AppLocalizations.of(
-                                                        context,
-                                                      )!.typeLabel(typeName),
-                                                      style: TextStyle(
-                                                        color: Colors.grey[700],
-                                                        fontSize: 14,
-                                                      ),
+                                                      AppLocalizations.of(context)!.typeLabel(typeName),
+                                                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
                                                     ),
-                                                    if (doc['relationship'] !=
-                                                            null &&
-                                                        doc['relationship']
-                                                            .toString()
-                                                            .isNotEmpty)
+                                                    if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
                                                       Padding(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                              top: 2.0,
-                                                            ),
+                                                        padding: const EdgeInsets.only(top: 2.0),
                                                         child: Text(
                                                           doc['relationship'],
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors
-                                                                    .grey[600],
-                                                            fontSize: 13,
-                                                          ),
-                                                          overflow:
-                                                              TextOverflow
-                                                                  .ellipsis,
+                                                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                                          overflow: TextOverflow.ellipsis,
                                                         ),
                                                       ),
                                                   ],
@@ -1316,17 +1281,10 @@ Future<void> rateApp() async {
                                               Chip(
                                                 label: Text(
                                                   priorityName,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                                 ),
                                                 backgroundColor: priorityColor,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 0,
-                                                    ),
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                                               ),
                                             ],
                                           ),
@@ -1335,224 +1293,24 @@ Future<void> rateApp() async {
                                     );
                                   },
                                 ),
-                      ),
-                    ],
-                  ),
-                ), // Tab 3: Filter Anniversaries
-              ],
-            ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.pushNamed(context, "/add_anniversary");
-            },
-            child: const Icon(Icons.add),
-          ),
+          floatingActionButton: _currentTabIndex == 0
+              ? FloatingActionButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, "/add_anniversary");
+                  },
+                  child: const Icon(Icons.add),
+                  backgroundColor: const Color.fromARGB(255, 150, 100, 200),
+                )
+              : null,
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         ),
       ),
     );
-  }
-
-  // Future<void> signOut(BuildContext context) async {
-  //   try {
-  //     await FirebaseAuth.instance.signOut().then((value) {
-  //       // Optional: Navigate the user to the login screen or any other desired screen
-  //       WidgetsBinding.instance.addPostFrameCallback((_) {
-  //         Navigator.pushReplacement(
-  //           context,
-  //           MaterialPageRoute(
-  //             builder: (context) => const LoginPage(),
-  //           ), // Replace LoginPage with your actual login screen
-  //         );
-  //       });
-  //     });
-  //   } catch (e) {
-  //     // Handle any errors that might occur during sign-out
-  //     print("Error signing out: $e");
-  //     // Optionally show an error message to the user
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('Error signing out: $e')));
-  //   }
-  // }
-  Future<void> signOut(BuildContext context) async {
-    try {
-      print('Signing out...');
-      await FirebaseAuth.instance.signOut();
-      print('Signing out end...');
-      // Force navigation to login page after sign out
-      if (context.mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => LoginPage(
-                  onLanguageChanged: widget.onLanguageChanged,
-                  currentLanguage: widget.currentLanguage,
-                ),
-          ),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      print("Error signing out: $e");
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error signing out: $e')));
-      }
-    }
-  }
-
-  Stream<List<QueryDocumentSnapshot>> getTodaysAnniversariesStream() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      // Return an empty stream if not logged in
-      return Stream.value([]);
-    }
-    final today = DateTime.now();
-    return FirebaseFirestore.instance
-        .collection('anniversaries')
-        .where('createdBy', isEqualTo: user.uid)
-        .snapshots()
-        .map(
-          (snapshot) =>
-              snapshot.docs.where((doc) {
-                final Timestamp? ts = doc['date'];
-                if (ts == null) return false;
-                final date = ts.toDate();
-                return date.month == today.month && date.day == today.day;
-              }).toList(),
-        );
-  }
-
-  Stream<List<QueryDocumentSnapshot>> getNotifiedOccasionsStream() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return Stream.value([]);
-    }
-
-    final today = DateTime.now();
-    print('🔍 DEBUG: Current date: ${today.day}/${today.month}/${today.year}');
-
-    return FirebaseFirestore.instance
-        .collection('anniversaries')
-        .where('createdBy', isEqualTo: user.uid)
-        .snapshots()
-        .map((snapshot) {
-          print('🔍 DEBUG: Found ${snapshot.docs.length} total documents');
-
-          final filteredDocs =
-              snapshot.docs.where((doc) {
-                print('🔍 DEBUG: Document ${doc.id}:');
-                print('🔍 DEBUG: date ${doc['date']}:');
-                print('🔍 DEBUG: rememberBefore ${doc['rememberBeforeDate']}:');
-                final Timestamp? eventDateTs = doc['date'];
-                final Timestamp? rememberBeforeTs = doc['rememberBeforeDate'];
-
-                print('🔍 DEBUG: Document ${doc.id}:');
-                print('  - Title: ${doc['title']}');
-                print('  - Event Date: $eventDateTs');
-                print('  - Remember Before Date: $rememberBeforeTs');
-
-                if (eventDateTs == null || rememberBeforeTs == null) {
-                  print(
-                    '  - ❌ Skipped: Missing event date or remember before date',
-                  );
-                  return false;
-                }
-
-                final eventDate = eventDateTs.toDate();
-                final rememberBeforeDate = rememberBeforeTs.toDate();
-                final currentDate = DateTime(2000, today.month, today.day);
-                final eventDateNormalized = DateTime(
-                  2000,
-                  eventDate.month,
-                  eventDate.day,
-                );
-                final rememberBeforeDateNormalized = DateTime(
-                  2000,
-                  rememberBeforeDate.month,
-                  rememberBeforeDate.day,
-                );
-
-                print(
-                  '  - Event Date: ${eventDate.day}/${eventDate.month}/${eventDate.year}',
-                );
-                print(
-                  '  - Remember Before Date: ${rememberBeforeDate.day}/${rememberBeforeDate.month}/${rememberBeforeDate.year}',
-                );
-                print(
-                  '  - Current Date: ${currentDate.day}/${currentDate.month}',
-                );
-
-                // Validation: current date >= remember before date AND current date < event date
-                // (comparing only day and month, ignoring year)
-                final condition1 =
-                    currentDate.isAtSameMomentAs(
-                      rememberBeforeDateNormalized,
-                    ) ||
-                    currentDate.isAfter(rememberBeforeDateNormalized);
-                final condition2 = currentDate.isBefore(eventDateNormalized);
-
-                print(
-                  '  - Condition 1 (current >= remember before): $condition1',
-                );
-                print('  - Condition 2 (current < event): $condition2');
-                print('  - Final result: ${condition1 && condition2}');
-                print('  ---');
-
-                return condition1 && condition2;
-              }).toList();
-
-          print('🔍 DEBUG: Filtered to ${filteredDocs.length} documents');
-          return filteredDocs;
-        });
-  }
-
-  void filterAnniversariesByMonthDay() async {
-    if (filterStartDate == null || filterEndDate == null) return;
-    if (!mounted) return;
-    setState(() {
-      isFiltering = true;
-    });
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('anniversaries')
-            .where('createdBy', isEqualTo: user.uid)
-            .get();
-
-    final start = filterStartDate!;
-    final end = filterEndDate!;
-
-    List<QueryDocumentSnapshot> docs =
-        snapshot.docs.where((doc) {
-          final Timestamp? ts = doc['date'];
-          if (ts == null) return false;
-          final date = ts.toDate();
-          // Convert all dates to year 2000 for comparison
-          final normalized = DateTime(2000, date.month, date.day);
-          if (start.isBefore(end) || start.isAtSameMomentAs(end)) {
-            return (normalized.isAfter(start) ||
-                    normalized.isAtSameMomentAs(start)) &&
-                (normalized.isBefore(end) || normalized.isAtSameMomentAs(end));
-          } else {
-            // If range wraps around the year (e.g., Nov to Feb)
-            return (normalized.isAfter(start) ||
-                    normalized.isAtSameMomentAs(start)) ||
-                (normalized.isBefore(end) || normalized.isAtSameMomentAs(end));
-          }
-        }).toList();
-
-    if (!mounted) return;
-    setState(() {
-      filteredDocs = docs;
-      isFiltering = false;
-    });
   }
 }

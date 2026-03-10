@@ -521,16 +521,22 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               rememberBeforeDate = _selectedDate!.subtract(
                 const Duration(days: 30),
               );
+              print('DEBUG: Selected date: $_selectedDate');
+              print('DEBUG: Remember before date (30 days before): $rememberBeforeDate');
               break;
             case '2': // Week
               rememberBeforeDate = _selectedDate!.subtract(
                 const Duration(days: 7),
               );
+              print('DEBUG: Selected date: $_selectedDate');
+              print('DEBUG: Remember before date (7 days before): $rememberBeforeDate');
               break;
             case '3': // Day
               rememberBeforeDate = _selectedDate!.subtract(
                 const Duration(days: 1),
               );
+              print('DEBUG: Selected date: $_selectedDate');
+              print('DEBUG: Remember before date (1 day before): $rememberBeforeDate');
               break;
             case '4': // At time of event
             default:

@@ -434,7 +434,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectDateLabel.
   ///
   /// In en, this message translates to:
-  /// **'Select date'**
+  /// **'date of occasion ,ex:birthday 01-04-1990'**
   String get selectDateLabel;
 
   /// No description provided for @anniversaryNameLabel.
@@ -1244,8 +1244,14 @@ abstract class AppLocalizations {
   /// No description provided for @notifiedOccasions.
   ///
   /// In en, this message translates to:
-  /// **'Comming..'**
+  /// **'Coming..'**
   String get notifiedOccasions;
+
+  /// No description provided for @occasions.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasions'**
+  String get occasions;
 
   /// No description provided for @noNotifiedOccasions.
   ///
@@ -1270,6 +1276,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You don\'t have any high priority occasions yet. Add some occasions and mark them as high priority to see them here.'**
   String get noImportantOccasionsMessage;
+
+  /// No description provided for @feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get feedback;
 
   /// No description provided for @addYourFirstRemnederToGetStarted.
   ///
@@ -1438,6 +1450,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Task added successfully'**
   String get tasksavedSuccessfully;
+
+  /// No description provided for @dailyDeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Deed'**
+  String get dailyDeed;
+
+  /// No description provided for @prayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayers'**
+  String get prayers;
+
+  /// No description provided for @fajr.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr'**
+  String get fajr;
+
+  /// No description provided for @dhur.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhur'**
+  String get dhur;
+
+  /// No description provided for @asr.
+  ///
+  /// In en, this message translates to:
+  /// **'Asr'**
+  String get asr;
+
+  /// No description provided for @maghrib.
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib'**
+  String get maghrib;
+
+  /// No description provided for @isa.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha'**
+  String get isa;
+
+  /// No description provided for @tahajjud.
+  ///
+  /// In en, this message translates to:
+  /// **'Tahajjud'**
+  String get tahajjud;
+
+  /// No description provided for @witr.
+  ///
+  /// In en, this message translates to:
+  /// **'Witr'**
+  String get witr;
+
+  /// No description provided for @taraweeh.
+  ///
+  /// In en, this message translates to:
+  /// **'Taraweeh'**
+  String get taraweeh;
+
+  /// No description provided for @learning.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get learning;
+
+  /// No description provided for @readQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Quran'**
+  String get readQuran;
+
+  /// No description provided for @fasting.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting'**
+  String get fasting;
+
+  /// No description provided for @ramadanFasting.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting'**
+  String get ramadanFasting;
+
+  /// No description provided for @notPrayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Prayed'**
+  String get notPrayed;
+
+  /// No description provided for @late.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get late;
+
+  /// No description provided for @onTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On Time'**
+  String get onTime;
+
+  /// No description provided for @inJamaah.
+  ///
+  /// In en, this message translates to:
+  /// **'In Jamaah'**
+  String get inJamaah;
+
+  /// No description provided for @missed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get missed;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @chapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get chapters;
+
+  /// No description provided for @selectChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Select chapters'**
+  String get selectChapters;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @sunnahPrayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnah'**
+  String get sunnahPrayers;
+
+  /// No description provided for @sunnah.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnah'**
+  String get sunnah;
+
+  /// No description provided for @fajrSunnah.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr Sunnah'**
+  String get fajrSunnah;
+
+  /// No description provided for @doha.
+  ///
+  /// In en, this message translates to:
+  /// **'Doha'**
+  String get doha;
+
+  /// No description provided for @dhurSunnah.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhur Sunnah'**
+  String get dhurSunnah;
+
+  /// No description provided for @maghribSunnah.
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib Sunnah'**
+  String get maghribSunnah;
+
+  /// No description provided for @isaSunnah.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha Sunnah'**
+  String get isaSunnah;
+
+  /// No description provided for @morningSupplications.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning Supplications'**
+  String get morningSupplications;
+
+  /// No description provided for @eveningSupplications.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening Supplications'**
+  String get eveningSupplications;
+
+  /// No description provided for @supplications.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplications'**
+  String get supplications;
+
+  /// No description provided for @surahAlKahf.
+  ///
+  /// In en, this message translates to:
+  /// **'Surah Al-Kahf'**
+  String get surahAlKahf;
+
+  /// No description provided for @connectionIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Issue'**
+  String get connectionIssue;
+
+  /// No description provided for @choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get choose;
+
+  /// No description provided for @totalChaptersRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Total chapters read'**
+  String get totalChaptersRead;
+
+  /// No description provided for @daysWithReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Days with reading'**
+  String get daysWithReading;
+
+  /// No description provided for @distribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Distribution'**
+  String get distribution;
+
+  /// No description provided for @parts.
+  ///
+  /// In en, this message translates to:
+  /// **'parts'**
+  String get parts;
+
+  /// No description provided for @statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Deeds Statistics'**
+  String get statistics;
+
+  /// No description provided for @selectMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Month'**
+  String get selectMonth;
+
+  /// No description provided for @currentMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Month'**
+  String get currentMonth;
+
+  /// No description provided for @nextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Month'**
+  String get nextMonth;
+
+  /// No description provided for @notSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Selected'**
+  String get notSelected;
+
+  /// No description provided for @prayerStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer Statistics'**
+  String get prayerStatistics;
+
+  /// No description provided for @naflPrayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Nafl Prayers'**
+  String get naflPrayers;
+
+  /// No description provided for @sunnahStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnah Statistics'**
+  String get sunnahStatistics;
+
+  /// No description provided for @learningStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Statistics'**
+  String get learningStatistics;
+
+  /// No description provided for @fastingStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting Statistics'**
+  String get fastingStatistics;
+
+  /// No description provided for @monthStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} Statistics'**
+  String monthStatistics(Object month);
+
+  /// No description provided for @totalDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Days'**
+  String get totalDays;
+
+  /// No description provided for @daysInMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Days in Month'**
+  String get daysInMonth;
+
+  /// No description provided for @statValueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {value}'**
+  String statValueCount(Object count, Object value);
+
+  /// No description provided for @percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{percentage}%'**
+  String percentage(Object percentage);
+
+  /// No description provided for @graph.
+  ///
+  /// In en, this message translates to:
+  /// **'Graph'**
+  String get graph;
+
+  /// No description provided for @eidPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Eid Prayer'**
+  String get eidPrayer;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

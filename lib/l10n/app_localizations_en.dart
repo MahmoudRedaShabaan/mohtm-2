@@ -179,7 +179,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addAnniversaryTitle => 'Add new occasion';
 
   @override
-  String get selectDateLabel => 'Select date';
+  String get selectDateLabel => 'date of occasion ,ex:birthday 01-04-1990';
 
   @override
   String get anniversaryNameLabel => 'occasion name';
@@ -590,7 +590,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todaysOccasions => 'Today';
 
   @override
-  String get notifiedOccasions => 'Comming..';
+  String get notifiedOccasions => 'Coming..';
+
+  @override
+  String get occasions => 'Occasions';
 
   @override
   String get noNotifiedOccasions => 'No notified occasions';
@@ -603,6 +606,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noImportantOccasionsMessage => 'You don\'t have any high priority occasions yet. Add some occasions and mark them as high priority to see them here.';
+
+  @override
+  String get feedback => 'Feedback';
 
   @override
   String get addYourFirstRemnederToGetStarted => 'Add your first reminder to get started!';
@@ -687,4 +693,181 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasksavedSuccessfully => 'Task added successfully';
+
+  @override
+  String get dailyDeed => 'Daily Deed';
+
+  @override
+  String get prayers => 'Prayers';
+
+  @override
+  String get fajr => 'Fajr';
+
+  @override
+  String get dhur => 'Dhur';
+
+  @override
+  String get asr => 'Asr';
+
+  @override
+  String get maghrib => 'Maghrib';
+
+  @override
+  String get isa => 'Isha';
+
+  @override
+  String get tahajjud => 'Tahajjud';
+
+  @override
+  String get witr => 'Witr';
+
+  @override
+  String get taraweeh => 'Taraweeh';
+
+  @override
+  String get learning => 'Learning';
+
+  @override
+  String get readQuran => 'Read Quran';
+
+  @override
+  String get fasting => 'Fasting';
+
+  @override
+  String get ramadanFasting => 'Fasting';
+
+  @override
+  String get notPrayed => 'Not Prayed';
+
+  @override
+  String get late => 'Late';
+
+  @override
+  String get onTime => 'On Time';
+
+  @override
+  String get inJamaah => 'In Jamaah';
+
+  @override
+  String get missed => 'Missed';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get chapters => 'Chapters';
+
+  @override
+  String get selectChapters => 'Select chapters';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get sunnahPrayers => 'Sunnah';
+
+  @override
+  String get sunnah => 'Sunnah';
+
+  @override
+  String get fajrSunnah => 'Fajr Sunnah';
+
+  @override
+  String get doha => 'Doha';
+
+  @override
+  String get dhurSunnah => 'Dhur Sunnah';
+
+  @override
+  String get maghribSunnah => 'Maghrib Sunnah';
+
+  @override
+  String get isaSunnah => 'Isha Sunnah';
+
+  @override
+  String get morningSupplications => 'Morning Supplications';
+
+  @override
+  String get eveningSupplications => 'Evening Supplications';
+
+  @override
+  String get supplications => 'Supplications';
+
+  @override
+  String get surahAlKahf => 'Surah Al-Kahf';
+
+  @override
+  String get connectionIssue => 'Connection Issue';
+
+  @override
+  String get choose => 'Choose';
+
+  @override
+  String get totalChaptersRead => 'Total chapters read';
+
+  @override
+  String get daysWithReading => 'Days with reading';
+
+  @override
+  String get distribution => 'Distribution';
+
+  @override
+  String get parts => 'parts';
+
+  @override
+  String get statistics => 'Daily Deeds Statistics';
+
+  @override
+  String get selectMonth => 'Select Month';
+
+  @override
+  String get currentMonth => 'Current Month';
+
+  @override
+  String get nextMonth => 'Next Month';
+
+  @override
+  String get notSelected => 'Not Selected';
+
+  @override
+  String get prayerStatistics => 'Prayer Statistics';
+
+  @override
+  String get naflPrayers => 'Nafl Prayers';
+
+  @override
+  String get sunnahStatistics => 'Sunnah Statistics';
+
+  @override
+  String get learningStatistics => 'Learning Statistics';
+
+  @override
+  String get fastingStatistics => 'Fasting Statistics';
+
+  @override
+  String monthStatistics(Object month) {
+    return '$month Statistics';
+  }
+
+  @override
+  String get totalDays => 'Total Days';
+
+  @override
+  String get daysInMonth => 'Days in Month';
+
+  @override
+  String statValueCount(Object count, Object value) {
+    return '$count $value';
+  }
+
+  @override
+  String percentage(Object percentage) {
+    return '$percentage%';
+  }
+
+  @override
+  String get graph => 'Graph';
+
+  @override
+  String get eidPrayer => 'Eid Prayer';
 }
