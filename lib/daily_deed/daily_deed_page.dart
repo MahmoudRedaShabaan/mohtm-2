@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../l10n/app_localizations.dart';
 import 'daily_deed_model.dart';
 import 'daily_deed_service.dart';
+import 'custom_daily_deed_service.dart';
+import 'custom_daily_deed_model.dart';
 import 'daily_deed_statistics_page.dart';
 import 'hijri_date_util.dart';
 import 'components/date_header.dart';
@@ -10,6 +12,8 @@ import 'components/prayer_section.dart';
 import 'components/learning_section.dart';
 import 'components/fasting_section.dart';
 import 'components/sunnah_section.dart';
+import 'components/custom_deeds_section.dart';
+import '../../add_custom_daily_deed_page.dart';
 import 'constants.dart';
 
 /// Main Daily Deed page displaying user's daily religious activities
@@ -202,6 +206,44 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     }
   }
 
+  Future<void> _updateCustomDeedStatus(String deedId, String status) async {
+    try {
+      await CustomDailyDeedService.updateCustomDeedStatus(
+        userId: widget.userId,
+        date: _currentDate,
+        deedId: deedId,
+        status: status,
+      );
+      setState(() {}); // Refresh to update the UI
+    } catch (e) {
+      _showErrorDialog(e.toString());
+    }
+  }
+
+  Future<void> _navigateToAddCustomDeed() async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddCustomDailyDeedPage(),
+      ),
+    );
+    if (result == true) {
+      setState(() {}); // Refresh to show new deed
+    }
+  }
+
+  Future<void> _navigateToEditCustomDeed(CustomDailyDeed deed) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddCustomDailyDeedPage(deed: deed),
+      ),
+    );
+    if (result == true) {
+      setState(() {}); // Refresh to show updated deed
+    }
+  }
+
   void _showErrorDialog(String message) {
     final localization = AppLocalizations.of(context)!;
     final isConnectionError = message == 'firebase_exception';
@@ -344,6 +386,17 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
                           onFastingStatusChanged: _updateFastingStatus,
                         ),
                       ],
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Custom Daily Deeds section
+                      CustomDeedsSection(
+                        userId: widget.userId,
+                        currentDate: _currentDate,
+                        onStatusChanged: _updateCustomDeedStatus,
+                        onAddPressed: _navigateToAddCustomDeed,
+                        onEditPressed: _navigateToEditCustomDeed,
+                      ),
                       
                       const SizedBox(height: 32),
                     ],

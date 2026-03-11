@@ -845,30 +845,53 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
   // Initialize and fetch Remote Config values
-  final remoteConfig = FirebaseRemoteConfig.instance;
-  await remoteConfig.setConfigSettings(RemoteConfigSettings(
-    fetchTimeout: const Duration(minutes: 1),
-    minimumFetchInterval: const Duration(minutes: 2),
-  ));
-  
-  await remoteConfig.fetchAndActivate();
-  minVersion = remoteConfig.getString('min_version');
-  
-  // Debug logging for Remote Config
-  print('=== REMOTE CONFIG DEBUG ===');
-  print('Raw minVersion: "$minVersion"');
-  print('Is empty: ${minVersion.isEmpty}');
-  print('Length: ${minVersion.length}');
-  
-  // Fallback if empty
-  if (minVersion.isEmpty) {
-    print('⚠️ WARNING: minVersion is empty from Remote Config!');
-    print('⚠️ Upgrader will not work without a valid minVersion.');
-    minVersion = '1.0.0'; // Minimal fallback to prevent errors
+  try {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 1),
+      minimumFetchInterval: const Duration(minutes: 2),
+    ));
+    
+    await remoteConfig.fetchAndActivate();
+    minVersion = remoteConfig.getString('min_version');
+    
+    // Debug logging for Remote Config
+    print('=== REMOTE CONFIG DEBUG ===');
+    print('Raw minVersion: "$minVersion"');
+    print('Is empty: ${minVersion.isEmpty}');
+    print('Length: ${minVersion.length}');
+    
+    // Fallback if empty
+    if (minVersion.isEmpty) {
+      print('⚠️ WARNING: minVersion is empty from Remote Config!');
+      print('⚠️ Upgrader will not work without a valid minVersion.');
+      minVersion = '1.0.0'; // Minimal fallback to prevent errors
+    }
+    
+    print('Final minVersion: $minVersion');
+    print('========================');
+  } catch (e, stackTrace) {
+    // Detailed error logging to diagnose the root cause
+    print('❌ Firebase Remote Config ERROR: $e');
+    print('❌ Error type: ${e.runtimeType}');
+    
+    // Check for specific error types
+    if (e.toString().contains('firebase_remote_config/internal')) {
+      print('🔍 DIAGNOSIS: Internal Remote Config error');
+      print('🔍 Possible causes:');
+      print('   1. Network connectivity issue');
+      print('   2. Remote Config not enabled in Firebase console');
+      print('   3. Invalid project configuration');
+      print('   4. API key missing or invalid');
+    }
+    
+    // Log the full stack trace for debugging
+    print('❌ Stack trace: $stackTrace');
+    
+    // Fallback to default version so app doesn't crash
+    minVersion = '1.0.0';
+    print('⚠️ Using fallback minVersion: $minVersion');
   }
-  
-  print('Final minVersion: $minVersion');
-  print('========================');
   
   // Load saved language preference before starting the app
   final prefs = await SharedPreferences.getInstance();

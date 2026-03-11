@@ -170,13 +170,13 @@ abstract class AppLocalizations {
   /// No description provided for @startDate.
   ///
   /// In en, this message translates to:
-  /// **'start Date'**
+  /// **'Start Date'**
   String get startDate;
 
   /// No description provided for @endDate.
   ///
   /// In en, this message translates to:
-  /// **'end Date'**
+  /// **'End Date'**
   String get endDate;
 
   /// No description provided for @filter.
@@ -1750,6 +1750,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fasting Statistics'**
   String get fastingStatistics;
+
+  /// No description provided for @customDailyDeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Daily Deeds'**
+  String get customDailyDeeds;
+
+  /// No description provided for @addCustomDeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom Deed'**
+  String get addCustomDeed;
+
+  /// No description provided for @editCustomDeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Custom Deed'**
+  String get editCustomDeed;
+
+  /// No description provided for @deedName.
+  ///
+  /// In en, this message translates to:
+  /// **'Deed Name'**
+  String get deedName;
+
+  /// No description provided for @enterDeedName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter deed name'**
+  String get enterDeedName;
+
+  /// No description provided for @selectStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select start date'**
+  String get selectStartDate;
+
+  /// No description provided for @selectEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select end date'**
+  String get selectEndDate;
+
+  /// No description provided for @deleteDeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Deed'**
+  String get deleteDeed;
+
+  /// No description provided for @deleteDeedConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this deed?'**
+  String get deleteDeedConfirm;
+
+  /// No description provided for @noCustomDeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom deeds yet'**
+  String get noCustomDeeds;
+
+  /// No description provided for @tapToAddDeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add your first custom deed'**
+  String get tapToAddDeed;
 
   /// No description provided for @monthStatistics.
   ///

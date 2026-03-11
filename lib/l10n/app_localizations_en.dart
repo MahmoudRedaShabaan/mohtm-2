@@ -47,10 +47,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get startDate => 'start Date';
+  String get startDate => 'Start Date';
 
   @override
-  String get endDate => 'end Date';
+  String get endDate => 'End Date';
 
   @override
   String get filter => 'Filter';
@@ -843,6 +843,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fastingStatistics => 'Fasting Statistics';
+
+  @override
+  String get customDailyDeeds => 'Custom Daily Deeds';
+
+  @override
+  String get addCustomDeed => 'Add Custom Deed';
+
+  @override
+  String get editCustomDeed => 'Edit Custom Deed';
+
+  @override
+  String get deedName => 'Deed Name';
+
+  @override
+  String get enterDeedName => 'Please enter deed name';
+
+  @override
+  String get selectStartDate => 'Please select start date';
+
+  @override
+  String get selectEndDate => 'Please select end date';
+
+  @override
+  String get deleteDeed => 'Delete Deed';
+
+  @override
+  String get deleteDeedConfirm => 'Are you sure you want to delete this deed?';
+
+  @override
+  String get noCustomDeeds => 'No custom deeds yet';
+
+  @override
+  String get tapToAddDeed => 'Tap + to add your first custom deed';
 
   @override
   String monthStatistics(Object month) {

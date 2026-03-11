@@ -402,7 +402,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get duration => 'المدة';
 
   @override
-  String get forever => 'إلى الأبد';
+  String get forever => 'للابد';
 
   @override
   String get count => 'عدد محدد من المرات';
@@ -843,6 +843,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fastingStatistics => 'إحصائيات الصيام';
+
+  @override
+  String get customDailyDeeds => 'الأعمال اليومية المخصصة';
+
+  @override
+  String get addCustomDeed => 'إضافة عمل مخصص';
+
+  @override
+  String get editCustomDeed => 'تعديل عمل مخصص';
+
+  @override
+  String get deedName => 'اسم العمل';
+
+  @override
+  String get enterDeedName => 'يرجى إدخال اسم العمل';
+
+  @override
+  String get selectStartDate => 'يرجى اختيار تاريخ البدء';
+
+  @override
+  String get selectEndDate => 'يرجى اختيار تاريخ الانتهاء';
+
+  @override
+  String get deleteDeed => 'حذف العمل';
+
+  @override
+  String get deleteDeedConfirm => 'هل أنت متأكد من حذف هذا العمل؟';
+
+  @override
+  String get noCustomDeeds => 'لا توجد أعمال مخصصة بعد';
+
+  @override
+  String get tapToAddDeed => 'اضغط + لإضافة أول عمل مخصص';
 
   @override
   String monthStatistics(Object month) {
