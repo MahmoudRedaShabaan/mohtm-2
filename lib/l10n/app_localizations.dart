@@ -1694,7 +1694,7 @@ abstract class AppLocalizations {
   /// No description provided for @statistics.
   ///
   /// In en, this message translates to:
-  /// **'Daily Deeds Statistics'**
+  /// **'Statistics'**
   String get statistics;
 
   /// No description provided for @selectMonth.
@@ -1784,13 +1784,13 @@ abstract class AppLocalizations {
   /// No description provided for @selectStartDate.
   ///
   /// In en, this message translates to:
-  /// **'Please select start date'**
+  /// **'Select Start Date'**
   String get selectStartDate;
 
   /// No description provided for @selectEndDate.
   ///
   /// In en, this message translates to:
-  /// **'Please select end date'**
+  /// **'Select End Date'**
   String get selectEndDate;
 
   /// No description provided for @deleteDeed.
@@ -1858,6 +1858,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Eid Prayer'**
   String get eidPrayer;
+
+  /// No description provided for @health.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get health;
+
+  /// No description provided for @bloodPressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Pressure'**
+  String get bloodPressure;
+
+  /// No description provided for @bloodSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Sugar'**
+  String get bloodSugar;
+
+  /// No description provided for @healthInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Info'**
+  String get healthInfo;
+
+  /// No description provided for @track.
+  ///
+  /// In en, this message translates to:
+  /// **'Track'**
+  String get track;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @addMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Measurement'**
+  String get addMeasurement;
+
+  /// No description provided for @editMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Measurement'**
+  String get editMeasurement;
+
+  /// No description provided for @measurementName.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement Name'**
+  String get measurementName;
+
+  /// No description provided for @enterMeasurementName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter measurement name'**
+  String get enterMeasurementName;
+
+  /// No description provided for @measurementNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement name is required'**
+  String get measurementNameRequired;
+
+  /// No description provided for @enterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter description (optional)'**
+  String get enterDescription;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get selectDate;
+
+  /// No description provided for @systolic.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic'**
+  String get systolic;
+
+  /// No description provided for @diastolic.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic'**
+  String get diastolic;
+
+  /// No description provided for @pulse.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse'**
+  String get pulse;
+
+  /// No description provided for @enterSystolic.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter systolic value'**
+  String get enterSystolic;
+
+  /// No description provided for @enterDiastolic.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter diastolic value'**
+  String get enterDiastolic;
+
+  /// No description provided for @enterPulse.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter pulse value'**
+  String get enterPulse;
+
+  /// No description provided for @mmHg.
+  ///
+  /// In en, this message translates to:
+  /// **'mmHg'**
+  String get mmHg;
+
+  /// No description provided for @bpm.
+  ///
+  /// In en, this message translates to:
+  /// **'bpm'**
+  String get bpm;
+
+  /// No description provided for @arm.
+  ///
+  /// In en, this message translates to:
+  /// **'Arm'**
+  String get arm;
+
+  /// No description provided for @leftArm.
+  ///
+  /// In en, this message translates to:
+  /// **'Left Arm'**
+  String get leftArm;
+
+  /// No description provided for @rightArm.
+  ///
+  /// In en, this message translates to:
+  /// **'Right Arm'**
+  String get rightArm;
+
+  /// No description provided for @position.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get position;
+
+  /// No description provided for @sitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Sitting'**
+  String get sitting;
+
+  /// No description provided for @standing.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing'**
+  String get standing;
+
+  /// No description provided for @lyingDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Lying Down'**
+  String get lyingDown;
+
+  /// No description provided for @condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get condition;
+
+  /// No description provided for @atRest.
+  ///
+  /// In en, this message translates to:
+  /// **'At Rest'**
+  String get atRest;
+
+  /// No description provided for @afterExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'After Exercise'**
+  String get afterExercise;
+
+  /// No description provided for @afterMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'After Meal'**
+  String get afterMeal;
+
+  /// No description provided for @stressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Stressed'**
+  String get stressed;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @noMeasurementsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No measurements today'**
+  String get noMeasurementsToday;
+
+  /// No description provided for @tapToAddMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add your first measurement'**
+  String get tapToAddMeasurement;
+
+  /// No description provided for @todayMeasurements.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Measurements'**
+  String get todayMeasurements;
+
+  /// No description provided for @average.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get average;
+
+  /// No description provided for @min.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get min;
+
+  /// No description provided for @max.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get max;
+
+  /// No description provided for @totalMeasurements.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Measurements'**
+  String get totalMeasurements;
+
+  /// No description provided for @normal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get normal;
+
+  /// No description provided for @elevated.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevated'**
+  String get elevated;
+
+  /// No description provided for @highStage1.
+  ///
+  /// In en, this message translates to:
+  /// **'High (Stage 1)'**
+  String get highStage1;
+
+  /// No description provided for @highStage2.
+  ///
+  /// In en, this message translates to:
+  /// **'High (Stage 2)'**
+  String get highStage2;
+
+  /// No description provided for @hypertensiveCrisis.
+  ///
+  /// In en, this message translates to:
+  /// **'Hypertensive Crisis'**
+  String get hypertensiveCrisis;
+
+  /// No description provided for @week.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get week;
+
+  /// No description provided for @month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get month;
+
+  /// No description provided for @year.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get year;
+
+  /// No description provided for @noHistoryData.
+  ///
+  /// In en, this message translates to:
+  /// **'No history data available'**
+  String get noHistoryData;
+
+  /// No description provided for @exportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get exportData;
+
+  /// No description provided for @exportAsCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as CSV'**
+  String get exportAsCsv;
+
+  /// No description provided for @exportAsPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as PDF'**
+  String get exportAsPdf;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @sharePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF'**
+  String get sharePdf;
+
+  /// No description provided for @shareCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Share CSV'**
+  String get shareCsv;
+
+  /// No description provided for @downloadPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as PDF'**
+  String get downloadPdf;
+
+  /// No description provided for @downloadCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Download CSV'**
+  String get downloadCsv;
+
+  /// No description provided for @exportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Data exported successfully'**
+  String get exportSuccess;
+
+  /// No description provided for @exportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error exporting data'**
+  String get exportError;
+
+  /// No description provided for @measurementAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement added successfully'**
+  String get measurementAdded;
+
+  /// No description provided for @measurementUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement updated successfully'**
+  String get measurementUpdated;
+
+  /// No description provided for @measurementDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement deleted successfully'**
+  String get measurementDeleted;
+
+  /// No description provided for @errorAddingMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Error adding measurement'**
+  String get errorAddingMeasurement;
+
+  /// No description provided for @errorUpdatingMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating measurement'**
+  String get errorUpdatingMeasurement;
+
+  /// No description provided for @errorDeletingMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting measurement'**
+  String get errorDeletingMeasurement;
+
+  /// No description provided for @deleteMeasurementConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this measurement?'**
+  String get deleteMeasurementConfirm;
+
+  /// No description provided for @measurementDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement Details'**
+  String get measurementDetails;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

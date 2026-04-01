@@ -815,7 +815,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get parts => 'parts';
 
   @override
-  String get statistics => 'Daily Deeds Statistics';
+  String get statistics => 'Statistics';
 
   @override
   String get selectMonth => 'Select Month';
@@ -860,10 +860,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterDeedName => 'Please enter deed name';
 
   @override
-  String get selectStartDate => 'Please select start date';
+  String get selectStartDate => 'Select Start Date';
 
   @override
-  String get selectEndDate => 'Please select end date';
+  String get selectEndDate => 'Select End Date';
 
   @override
   String get deleteDeed => 'Delete Deed';
@@ -903,4 +903,217 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eidPrayer => 'Eid Prayer';
+
+  @override
+  String get health => 'Health';
+
+  @override
+  String get bloodPressure => 'Blood Pressure';
+
+  @override
+  String get bloodSugar => 'Blood Sugar';
+
+  @override
+  String get healthInfo => 'Health Info';
+
+  @override
+  String get track => 'Track';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get addMeasurement => 'Add Measurement';
+
+  @override
+  String get editMeasurement => 'Edit Measurement';
+
+  @override
+  String get measurementName => 'Measurement Name';
+
+  @override
+  String get enterMeasurementName => 'Enter measurement name';
+
+  @override
+  String get measurementNameRequired => 'Measurement name is required';
+
+  @override
+  String get enterDescription => 'Enter description (optional)';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get systolic => 'Systolic';
+
+  @override
+  String get diastolic => 'Diastolic';
+
+  @override
+  String get pulse => 'Pulse';
+
+  @override
+  String get enterSystolic => 'Enter systolic value';
+
+  @override
+  String get enterDiastolic => 'Enter diastolic value';
+
+  @override
+  String get enterPulse => 'Enter pulse value';
+
+  @override
+  String get mmHg => 'mmHg';
+
+  @override
+  String get bpm => 'bpm';
+
+  @override
+  String get arm => 'Arm';
+
+  @override
+  String get leftArm => 'Left Arm';
+
+  @override
+  String get rightArm => 'Right Arm';
+
+  @override
+  String get position => 'Position';
+
+  @override
+  String get sitting => 'Sitting';
+
+  @override
+  String get standing => 'Standing';
+
+  @override
+  String get lyingDown => 'Lying Down';
+
+  @override
+  String get condition => 'Condition';
+
+  @override
+  String get atRest => 'At Rest';
+
+  @override
+  String get afterExercise => 'After Exercise';
+
+  @override
+  String get afterMeal => 'After Meal';
+
+  @override
+  String get stressed => 'Stressed';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get noMeasurementsToday => 'No measurements today';
+
+  @override
+  String get tapToAddMeasurement => 'Tap + to add your first measurement';
+
+  @override
+  String get todayMeasurements => 'Today\'s Measurements';
+
+  @override
+  String get average => 'Average';
+
+  @override
+  String get min => 'Min';
+
+  @override
+  String get max => 'Max';
+
+  @override
+  String get totalMeasurements => 'Total Measurements';
+
+  @override
+  String get normal => 'Normal';
+
+  @override
+  String get elevated => 'Elevated';
+
+  @override
+  String get highStage1 => 'High (Stage 1)';
+
+  @override
+  String get highStage2 => 'High (Stage 2)';
+
+  @override
+  String get hypertensiveCrisis => 'Hypertensive Crisis';
+
+  @override
+  String get week => 'Week';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get year => 'Year';
+
+  @override
+  String get noHistoryData => 'No history data available';
+
+  @override
+  String get exportData => 'Export Data';
+
+  @override
+  String get exportAsCsv => 'Export as CSV';
+
+  @override
+  String get exportAsPdf => 'Export as PDF';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get sharePdf => 'Share PDF';
+
+  @override
+  String get shareCsv => 'Share CSV';
+
+  @override
+  String get downloadPdf => 'Save as PDF';
+
+  @override
+  String get downloadCsv => 'Download CSV';
+
+  @override
+  String get exportSuccess => 'Data exported successfully';
+
+  @override
+  String get exportError => 'Error exporting data';
+
+  @override
+  String get measurementAdded => 'Measurement added successfully';
+
+  @override
+  String get measurementUpdated => 'Measurement updated successfully';
+
+  @override
+  String get measurementDeleted => 'Measurement deleted successfully';
+
+  @override
+  String get errorAddingMeasurement => 'Error adding measurement';
+
+  @override
+  String get errorUpdatingMeasurement => 'Error updating measurement';
+
+  @override
+  String get errorDeletingMeasurement => 'Error deleting measurement';
+
+  @override
+  String get deleteMeasurementConfirm => 'Are you sure you want to delete this measurement?';
+
+  @override
+  String get measurementDetails => 'Measurement Details';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
 }

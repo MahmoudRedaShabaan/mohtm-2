@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:myapp/daily_deed/daily_deed_page.dart';
 import 'package:myapp/daily_deed/daily_deed_statistics_page.dart';
+import 'package:myapp/health/blood_pressure_page.dart';
 import 'anniversary_streams.dart';
 class Anniversary {
   final DateTime date;
@@ -507,6 +508,53 @@ void filterAnniversariesByMonthDay() async {
                             );
                           }
                         },
+                      ),
+                      ExpansionTile(
+                        leading: const Icon(Icons.favorite),
+                        title: Text(AppLocalizations.of(context)!.health),
+                        children: <Widget>[  
+                          ListTile(
+                            leading: const Icon(Icons.monitor_heart),
+                            title: Text(AppLocalizations.of(context)!.bloodPressure),
+                            onTap: () {
+                              Navigator.pop(context);
+                              final user = FirebaseAuth.instance.currentUser;
+                              if (user != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const BloodPressurePage(),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.water_drop),
+                            title: Text(AppLocalizations.of(context)!.bloodSugar),
+                            onTap: () {
+                              Navigator.pop(context);
+                              // Blood sugar page - navigate to health info or placeholder
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.bloodSugar),
+                                ),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.info_outline),
+                            title: Text(AppLocalizations.of(context)!.healthInfo),
+                            onTap: () {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.healthInfo),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                       ListTile(
                         leading: const Icon(Icons.priority_high),

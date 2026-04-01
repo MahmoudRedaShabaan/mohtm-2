@@ -57,6 +57,9 @@ dependencies:
   firebase_analytics: ^12.0.3
   firebase_remote_config: ^6.1.0
   share_plus: ^7.2.2
+  printing: ^5.13.0
+  pdf: ^3.11.1
+  http: ^1.2.0
   
 
   timezone: any
@@ -89,6 +92,11 @@ flutter:
     - family: Pacifico
       fonts:
         - asset: assets/fonts/Pacifico-Regular.ttf
+    - family: NotoNaskhArabic
+      fonts:
+        - asset: assets/fonts/NotoNaskhArabic-Regular.ttf
+        - asset: assets/fonts/NotoNaskhArabic-Bold.ttf
+          weight: 700
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -100,6 +108,8 @@ flutter:
     - assets/images/icon.png
     - assets/images/title.png
     - assets/images/iconremovebg.png
+    - assets/fonts/NotoNaskhArabic-Regular.ttf
+    - assets/fonts/NotoNaskhArabic-Bold.ttf
     - packages/timezone/data/latest_all.tzf
   #   - images/a_dot_ham.jpeg
 

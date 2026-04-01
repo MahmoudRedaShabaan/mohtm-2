@@ -47,10 +47,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get startDate => 'تاريخ البدء';
+  String get startDate => 'تاريخ البداية';
 
   @override
-  String get endDate => 'تاريخ الانتهاء';
+  String get endDate => 'تاريخ النهاية';
 
   @override
   String get filter => 'تصفية';
@@ -140,7 +140,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get changePasswordButtonText => 'تغيير كلمة المرور';
 
   @override
-  String get description => ' وصف المناسبه';
+  String get description => 'الوصف';
 
   @override
   String get date => 'التاريخ';
@@ -815,7 +815,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get parts => 'أجزاء';
 
   @override
-  String get statistics => 'إحصائيات الأعمال اليومية';
+  String get statistics => 'الإحصائيات';
 
   @override
   String get selectMonth => 'اختر الشهر';
@@ -860,10 +860,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enterDeedName => 'يرجى إدخال اسم العمل';
 
   @override
-  String get selectStartDate => 'يرجى اختيار تاريخ البدء';
+  String get selectStartDate => 'اختر تاريخ البداية';
 
   @override
-  String get selectEndDate => 'يرجى اختيار تاريخ الانتهاء';
+  String get selectEndDate => 'اختر تاريخ النهاية';
 
   @override
   String get deleteDeed => 'حذف العمل';
@@ -903,4 +903,217 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get eidPrayer => 'صلاة العيد';
+
+  @override
+  String get health => 'الصحة';
+
+  @override
+  String get bloodPressure => 'ضغط الدم';
+
+  @override
+  String get bloodSugar => 'السكر';
+
+  @override
+  String get healthInfo => 'معلومات صحية';
+
+  @override
+  String get track => 'التتبع';
+
+  @override
+  String get history => 'السجل';
+
+  @override
+  String get addMeasurement => 'إضافة قياس';
+
+  @override
+  String get editMeasurement => 'تعديل القياس';
+
+  @override
+  String get measurementName => 'اسم القياس';
+
+  @override
+  String get enterMeasurementName => 'أدخل اسم القياس';
+
+  @override
+  String get measurementNameRequired => 'اسم القياس مطلوب';
+
+  @override
+  String get enterDescription => 'أدخل الوصف (اختياري)';
+
+  @override
+  String get selectDate => 'اختر التاريخ';
+
+  @override
+  String get systolic => 'الانقباضي';
+
+  @override
+  String get diastolic => 'الانبساطي';
+
+  @override
+  String get pulse => 'النبض';
+
+  @override
+  String get enterSystolic => 'أدخل قيمة الانقباضي';
+
+  @override
+  String get enterDiastolic => 'أدخل قيمة الانبساطي';
+
+  @override
+  String get enterPulse => 'أدخل قيمة النبض';
+
+  @override
+  String get mmHg => 'مم زئبق';
+
+  @override
+  String get bpm => 'نبضة/دقيقة';
+
+  @override
+  String get arm => 'الذراع';
+
+  @override
+  String get leftArm => 'الذراع اليسرى';
+
+  @override
+  String get rightArm => 'الذراع اليمنى';
+
+  @override
+  String get position => 'الوضع';
+
+  @override
+  String get sitting => 'جالس';
+
+  @override
+  String get standing => 'واقف';
+
+  @override
+  String get lyingDown => 'مستلقٍ';
+
+  @override
+  String get condition => 'الحالة';
+
+  @override
+  String get atRest => 'في الراحة';
+
+  @override
+  String get afterExercise => 'بعد التمرين';
+
+  @override
+  String get afterMeal => 'بعد الأكل';
+
+  @override
+  String get stressed => 'تحت ضغط';
+
+  @override
+  String get update => 'تحديث';
+
+  @override
+  String get noMeasurementsToday => 'لا توجد قياسات اليوم';
+
+  @override
+  String get tapToAddMeasurement => 'اضغط + لإضافة أول قياس';
+
+  @override
+  String get todayMeasurements => 'قياسات اليوم';
+
+  @override
+  String get average => 'المتوسط';
+
+  @override
+  String get min => 'الأدنى';
+
+  @override
+  String get max => 'الأقصى';
+
+  @override
+  String get totalMeasurements => 'إجمالي القياسات';
+
+  @override
+  String get normal => 'طبيعي';
+
+  @override
+  String get elevated => 'مرتفع';
+
+  @override
+  String get highStage1 => 'مرتفع (المرحلة 1)';
+
+  @override
+  String get highStage2 => 'مرتفع (المرحلة 2)';
+
+  @override
+  String get hypertensiveCrisis => 'أزمة ارتفاع ضغط الدم';
+
+  @override
+  String get week => 'أسبوع';
+
+  @override
+  String get month => 'شهر';
+
+  @override
+  String get year => 'سنة';
+
+  @override
+  String get noHistoryData => 'لا توجد بيانات سجل';
+
+  @override
+  String get exportData => 'تصدير البيانات';
+
+  @override
+  String get exportAsCsv => 'تصدير كـ CSV';
+
+  @override
+  String get exportAsPdf => 'تصدير كـ PDF';
+
+  @override
+  String get download => 'تحميل';
+
+  @override
+  String get share => 'مشاركة';
+
+  @override
+  String get sharePdf => 'مشاركة PDF';
+
+  @override
+  String get shareCsv => 'مشاركة CSV';
+
+  @override
+  String get downloadPdf => 'حفظ كـ PDF';
+
+  @override
+  String get downloadCsv => 'تحميل CSV';
+
+  @override
+  String get exportSuccess => 'تم تصدير البيانات بنجاح';
+
+  @override
+  String get exportError => 'خطأ في تصدير البيانات';
+
+  @override
+  String get measurementAdded => 'تمت إضافة القياس بنجاح';
+
+  @override
+  String get measurementUpdated => 'تم تحديث القياس بنجاح';
+
+  @override
+  String get measurementDeleted => 'تم حذف القياس بنجاح';
+
+  @override
+  String get errorAddingMeasurement => 'خطأ في إضافة القياس';
+
+  @override
+  String get errorUpdatingMeasurement => 'خطأ في تحديث القياس';
+
+  @override
+  String get errorDeletingMeasurement => 'خطأ في حذف القياس';
+
+  @override
+  String get deleteMeasurementConfirm => 'هل أنت متأكد من حذف هذا القياس؟';
+
+  @override
+  String get measurementDetails => 'تفاصيل القياس';
+
+  @override
+  String get today => 'اليوم';
+
+  @override
+  String get yesterday => 'أمس';
 }
