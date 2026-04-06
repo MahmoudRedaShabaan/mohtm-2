@@ -1877,6 +1877,120 @@ abstract class AppLocalizations {
   /// **'Blood Sugar'**
   String get bloodSugar;
 
+  /// No description provided for @unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get unit;
+
+  /// No description provided for @bloodSugarValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Sugar Value'**
+  String get bloodSugarValue;
+
+  /// No description provided for @enterBloodSugarValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter blood sugar value'**
+  String get enterBloodSugarValue;
+
+  /// No description provided for @invalidBloodSugarValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid blood sugar value'**
+  String get invalidBloodSugarValue;
+
+  /// No description provided for @lowBloodSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get lowBloodSugar;
+
+  /// No description provided for @normalBloodSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get normalBloodSugar;
+
+  /// No description provided for @preDiabetesBloodSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-Diabetes'**
+  String get preDiabetesBloodSugar;
+
+  /// No description provided for @diabetesBloodSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Diabetes'**
+  String get diabetesBloodSugar;
+
+  /// No description provided for @beforeMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Before a Meal'**
+  String get beforeMeal;
+
+  /// No description provided for @afterMeal1h.
+  ///
+  /// In en, this message translates to:
+  /// **'After a Meal (1h)'**
+  String get afterMeal1h;
+
+  /// No description provided for @afterMeal2h.
+  ///
+  /// In en, this message translates to:
+  /// **'After a Meal (2h)'**
+  String get afterMeal2h;
+
+  /// No description provided for @sleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get sleep;
+
+  /// No description provided for @beforeExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Before Exercise'**
+  String get beforeExercise;
+
+  /// No description provided for @afterExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'After Exercise'**
+  String get afterExercise;
+
+  /// No description provided for @defaultCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get defaultCondition;
+
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get export;
+
+  /// No description provided for @noDataToExport.
+  ///
+  /// In en, this message translates to:
+  /// **'No data to export'**
+  String get noDataToExport;
+
+  /// No description provided for @noDataToShare.
+  ///
+  /// In en, this message translates to:
+  /// **'No data to share'**
+  String get noDataToShare;
+
+  /// No description provided for @shareError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sharing data'**
+  String get shareError;
+
   /// No description provided for @healthInfo.
   ///
   /// In en, this message translates to:
@@ -2039,12 +2153,6 @@ abstract class AppLocalizations {
   /// **'At Rest'**
   String get atRest;
 
-  /// No description provided for @afterExercise.
-  ///
-  /// In en, this message translates to:
-  /// **'After Exercise'**
-  String get afterExercise;
-
   /// No description provided for @afterMeal.
   ///
   /// In en, this message translates to:
@@ -2080,6 +2188,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today\'s Measurements'**
   String get todayMeasurements;
+
+  /// No description provided for @dailyBloodSugarStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Blood Sugar Statistics'**
+  String get dailyBloodSugarStatistics;
+
+  /// No description provided for @dailyBloodPressureStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Blood Pressure Statistics'**
+  String get dailyBloodPressureStatistics;
 
   /// No description provided for @average.
   ///
@@ -2284,6 +2404,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yesterday'**
   String get yesterday;
+
+  /// No description provided for @targetRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Ranges'**
+  String get targetRanges;
+
+  /// No description provided for @editTargetRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Target Ranges'**
+  String get editTargetRanges;
+
+  /// No description provided for @customRangesActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom ranges are active'**
+  String get customRangesActive;
+
+  /// No description provided for @defaultRangesInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Using default medical ranges'**
+  String get defaultRangesInfo;
+
+  /// No description provided for @editRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Ranges'**
+  String get editRanges;
+
+  /// No description provided for @resetToDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Default'**
+  String get resetToDefault;
+
+  /// No description provided for @low.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get low;
+
+  /// No description provided for @preDiabetes.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-Diabetes'**
+  String get preDiabetes;
+
+  /// No description provided for @diabetes.
+  ///
+  /// In en, this message translates to:
+  /// **'Diabetes'**
+  String get diabetes;
+
+  /// No description provided for @saveRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Ranges'**
+  String get saveRanges;
+
+  /// No description provided for @rangesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranges saved successfully'**
+  String get rangesSaved;
+
+  /// No description provided for @greaterThan.
+  ///
+  /// In en, this message translates to:
+  /// **'Greater than'**
+  String get greaterThan;
+
+  /// No description provided for @lessThan.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than'**
+  String get lessThan;
+
+  /// No description provided for @lowRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Range'**
+  String get lowRange;
+
+  /// No description provided for @normalRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal Range'**
+  String get normalRange;
+
+  /// No description provided for @preDiabetesRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-Diabetes Range'**
+  String get preDiabetesRange;
+
+  /// No description provided for @diabetesRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Diabetes Range'**
+  String get diabetesRange;
+
+  /// No description provided for @and.
+  ///
+  /// In en, this message translates to:
+  /// **'and'**
+  String get and;
+
+  /// No description provided for @bloodPressureRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Pressure Ranges'**
+  String get bloodPressureRanges;
+
+  /// No description provided for @editBloodPressureRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Blood Pressure Ranges'**
+  String get editBloodPressureRanges;
+
+  /// No description provided for @systolicMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic Min'**
+  String get systolicMin;
+
+  /// No description provided for @systolicMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic Max'**
+  String get systolicMax;
+
+  /// No description provided for @diastolicMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic Min'**
+  String get diastolicMin;
+
+  /// No description provided for @diastolicMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic Max'**
+  String get diastolicMax;
+
+  /// No description provided for @normalBP.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get normalBP;
+
+  /// No description provided for @elevatedBP.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevated'**
+  String get elevatedBP;
+
+  /// No description provided for @highStage1BP.
+  ///
+  /// In en, this message translates to:
+  /// **'High (Stage 1)'**
+  String get highStage1BP;
+
+  /// No description provided for @highStage2BP.
+  ///
+  /// In en, this message translates to:
+  /// **'High (Stage 2)'**
+  String get highStage2BP;
+
+  /// No description provided for @crisisBP.
+  ///
+  /// In en, this message translates to:
+  /// **'Crisis'**
+  String get crisisBP;
+
+  /// No description provided for @rangesSettingsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize target ranges based on doctor recommendations'**
+  String get rangesSettingsNote;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

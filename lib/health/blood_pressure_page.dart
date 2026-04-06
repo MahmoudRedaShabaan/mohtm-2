@@ -29,6 +29,7 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
   bool _isLoading = true;
   List<BloodPressureMeasurement> _todayMeasurements = [];
   BloodPressureStatistics _todayStats = BloodPressureStatistics.empty();
+  List<BloodPressureRange>? _customRanges;
 
   @override
   void initState() {
@@ -50,9 +51,12 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
       try {
         final measurements = await _service.getTodayMeasurements(_userId!);
         final stats = await _service.getTodayStatistics(_userId!);
+        // Load custom ranges if available
+        final customRanges = await _service.getUserSettings(_userId!);
         setState(() {
           _todayMeasurements = measurements;
           _todayStats = stats;
+          _customRanges = customRanges;
           _isLoading = false;
         });
       } catch (e) {
@@ -61,6 +65,15 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
         });
       }
     }
+  }
+
+  /// Refresh custom ranges (called after saving ranges)
+  Future<void> _refreshRanges() async {
+    if (_userId == null) return;
+    final customRanges = await _service.getUserSettings(_userId!);
+    setState(() {
+      _customRanges = customRanges;
+    });
   }
 
   @override
@@ -165,12 +178,15 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
               children: [
                 const Icon(Icons.analytics, color: Colors.white, size: 28),
                 const SizedBox(width: 8),
-                Text(
-                  l10n.statistics,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    l10n.dailyBloodPressureStatistics,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    softWrap: true,
                   ),
                 ),
               ],
@@ -250,20 +266,50 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
   }
 
   Widget _buildCategoryChips(AppLocalizations l10n) {
+    // Calculate category counts using custom ranges if available
+    int normalCount = 0;
+    int elevatedCount = 0;
+    int highStage1Count = 0;
+    int highStage2Count = 0;
+    int crisisCount = 0;
+    
+    for (final m in _todayMeasurements) {
+      final category = _customRanges != null 
+          ? m.getCategory(_customRanges) 
+          : m.category;
+      switch (category) {
+        case 'normal':
+          normalCount++;
+          break;
+        case 'elevated':
+          elevatedCount++;
+          break;
+        case 'high_stage1':
+          highStage1Count++;
+          break;
+        case 'high_stage2':
+          highStage2Count++;
+          break;
+        case 'crisis':
+          crisisCount++;
+          break;
+      }
+    }
+    
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        if (_todayStats.normalCount > 0)
-          _buildCategoryChip(l10n.normal, _todayStats.normalCount, Colors.green),
-        if (_todayStats.elevatedCount > 0)
-          _buildCategoryChip(l10n.elevated, _todayStats.elevatedCount, Colors.orange),
-        if (_todayStats.highStage1Count > 0)
-          _buildCategoryChip(l10n.highStage1, _todayStats.highStage1Count, Colors.deepOrange),
-        if (_todayStats.highStage2Count > 0)
-          _buildCategoryChip(l10n.highStage2, _todayStats.highStage2Count, Colors.red),
-        if (_todayStats.crisisCount > 0)
-          _buildCategoryChip(l10n.hypertensiveCrisis, _todayStats.crisisCount, Colors.purple),
+        if (normalCount > 0)
+          _buildCategoryChip(l10n.normal, normalCount, Colors.green),
+        if (elevatedCount > 0)
+          _buildCategoryChip(l10n.elevated, elevatedCount, Colors.blue),
+        if (highStage1Count > 0)
+          _buildCategoryChip(l10n.highStage1, highStage1Count, Colors.orange),
+        if (highStage2Count > 0)
+          _buildCategoryChip(l10n.highStage2, highStage2Count, Colors.red),
+        if (crisisCount > 0)
+          _buildCategoryChip(l10n.hypertensiveCrisis, crisisCount, Colors.purple),
       ],
     );
   }
@@ -322,16 +368,21 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
       itemCount: _todayMeasurements.length,
       itemBuilder: (context, index) {
         final measurement = _todayMeasurements[index];
-        return _buildMeasurementCard(measurement, l10n, isArabic);
+        return _buildMeasurementCard(measurement, l10n, isArabic, customRanges: _customRanges);
       },
     );
   }
 
-  Widget _buildMeasurementCard(BloodPressureMeasurement measurement, AppLocalizations l10n, bool isArabic) {
+  Widget _buildMeasurementCard(BloodPressureMeasurement measurement, AppLocalizations l10n, bool isArabic, {List<BloodPressureRange>? customRanges}) {
     Color categoryColor;
     String categoryLabel;
     
-    switch (measurement.category) {
+    // Use custom ranges if available, otherwise use default
+    final category = customRanges != null 
+        ? measurement.getCategory(customRanges) 
+        : measurement.category;
+    
+    switch (category) {
       case 'normal':
         categoryColor = Colors.green;
         categoryLabel = l10n.normal;
@@ -486,11 +537,20 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
   }
 
   Widget _buildHistoryTab(AppLocalizations l10n, bool isArabic) {
-    return BloodPressureHistoryTab(userId: _userId!, service: _service);
+    return BloodPressureHistoryTab(
+      userId: _userId!, 
+      service: _service,
+      customRanges: _customRanges,
+    );
   }
 
   Widget _buildSettingsTab(AppLocalizations l10n, bool isArabic) {
-    return BloodPressureSettingsTab(userId: _userId!, service: _service);
+    return BloodPressureSettingsTab(
+      userId: _userId!, 
+      service: _service,
+      onRangesSaved: _refreshRanges,
+      customRanges: _customRanges,
+    );
   }
 
   void _navigateToAddMeasurement(BuildContext context) async {
@@ -662,11 +722,13 @@ class _BloodPressurePageState extends State<BloodPressurePage> with SingleTicker
 class BloodPressureHistoryTab extends StatefulWidget {
   final String userId;
   final BloodPressureService service;
+  final List<BloodPressureRange>? customRanges;
 
   const BloodPressureHistoryTab({
     super.key,
     required this.userId,
     required this.service,
+    this.customRanges,
   });
 
   @override
@@ -695,7 +757,7 @@ class _BloodPressureHistoryTabState extends State<BloodPressureHistoryTab> with 
   }
 
   void _onTabChanged() {
-    if (!_historyTabController.indexIsChanging) {
+    if (!_historyTabController.indexIsChanging && mounted) {
       setState(() {
         switch (_historyTabController.index) {
           case 0:
@@ -714,6 +776,7 @@ class _BloodPressureHistoryTabState extends State<BloodPressureHistoryTab> with 
   }
 
   Future<void> _loadHistoryData() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       int days;
@@ -753,11 +816,13 @@ class _BloodPressureHistoryTabState extends State<BloodPressureHistoryTab> with 
         }
       }
       
+      if (!mounted) return;
       setState(() {
         _groupedMeasurements = grouped;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -884,36 +949,45 @@ class _BloodPressureHistoryTabState extends State<BloodPressureHistoryTab> with 
   }
 
   /// Get average category color from a list of measurements
+  /// Uses custom ranges if available
   Color _getAverageCategoryColor(List<BloodPressureMeasurement> measurements) {
     if (measurements.isEmpty) return Colors.grey;
     
-    // Find the highest severity category
-    bool hasCrisis = measurements.any((m) => m.category == 'crisis');
-    bool hasHighStage2 = measurements.any((m) => m.category == 'high_stage2');
-    bool hasHighStage1 = measurements.any((m) => m.category == 'high_stage1');
-    bool hasElevated = measurements.any((m) => m.category == 'elevated');
+    // Use custom ranges if available
+    final customRanges = widget.customRanges;
+    
+    // Find the highest severity category using custom ranges
+    bool hasCrisis = measurements.any((m) => m.getCategory(customRanges) == 'crisis');
+    bool hasHighStage2 = measurements.any((m) => m.getCategory(customRanges) == 'high_stage2');
+    bool hasHighStage1 = measurements.any((m) => m.getCategory(customRanges) == 'high_stage1');
+    bool hasElevated = measurements.any((m) => m.getCategory(customRanges) == 'elevated');
     
     if (hasCrisis) return Colors.purple;
     if (hasHighStage2) return Colors.red;
-    if (hasHighStage1) return Colors.deepOrange;
-    if (hasElevated) return Colors.orange;
+    if (hasHighStage1) return Colors.orange;
+    if (hasElevated) return Colors.blue;
     return Colors.green;
   }
 
   Widget _buildMeasurementItem(BloodPressureMeasurement measurement, AppLocalizations l10n) {
-    final color = _getCategoryColor(measurement);
+    // Use custom ranges if available
+    final category = widget.customRanges != null 
+        ? measurement.getCategory(widget.customRanges) 
+        : measurement.category;
+    final categoryColor = _getColorForCategory(category);
+    
     return ListTile(
       leading: Container(
         width: 4,
         height: 40,
         decoration: BoxDecoration(
-          color: color,
+          color: categoryColor,
           borderRadius: BorderRadius.circular(2),
         ),
       ),
       title: Text(
         '${measurement.systolic}/${measurement.diastolic} ${l10n.mmHg}',
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+        style: TextStyle(color: categoryColor, fontWeight: FontWeight.bold),
       ),
       subtitle: Text(
         measurement.pulse != null 
@@ -922,17 +996,38 @@ class _BloodPressureHistoryTabState extends State<BloodPressureHistoryTab> with 
       ),
     );
   }
+  
+  Color _getColorForCategory(String category) {
+    switch (category) {
+      case 'normal':
+        return Colors.green;
+      case 'elevated':
+        return Colors.blue;
+      case 'high_stage1':
+        return Colors.orange;
+      case 'high_stage2':
+        return Colors.red;
+      case 'crisis':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
 }
 
 /// Settings Tab Widget
 class BloodPressureSettingsTab extends StatefulWidget {
   final String userId;
   final BloodPressureService service;
+  final VoidCallback? onRangesSaved;
+  final List<BloodPressureRange>? customRanges;
 
   const BloodPressureSettingsTab({
     super.key,
     required this.userId,
     required this.service,
+    this.onRangesSaved,
+    this.customRanges,
   });
 
   @override
@@ -943,6 +1038,8 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isExporting = false;
+
+  List<BloodPressureRange>? get customRanges => widget.customRanges;
 
   @override
   Widget build(BuildContext context) {
@@ -1096,7 +1193,92 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
               ),
             ),
           ),
+          
+          const SizedBox(height: 16),
+          
+          // Blood Pressure Ranges Edit Card
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.tune, color: Color.fromARGB(255, 182, 142, 190)),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.bloodPressureRanges,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.rangesSettingsNote,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Range info
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, size: 20, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l10n.defaultRangesInfo,
+                            style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Edit Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _showEditRangesDialog(context, l10n, isArabic),
+                      icon: const Icon(Icons.edit, size: 20),
+                      label: Text(l10n.editBloodPressureRanges),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showEditRangesDialog(BuildContext context, AppLocalizations l10n, bool isArabic) {
+    showDialog(
+      context: context,
+      builder: (context) => BloodPressureRangesDialog(
+        userId: widget.userId,
+        service: widget.service,
+        l10n: l10n,
+        isArabic: isArabic,
+        onSaved: widget.onRangesSaved,
       ),
     );
   }
@@ -1178,7 +1360,7 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
       final directory = await getApplicationDocumentsDirectory();
       
       if (format == 'csv') {
-        final csv = widget.service.exportToCsv(measurements, isArabic: isArabic);
+        final csv = widget.service.exportToCsv(measurements, isArabic: isArabic, customRanges: widget.customRanges);
         
         final fileName = isArabic 
             ? 'تقرير_ضغط_الدم_${DateTime.now().millisecondsSinceEpoch}.csv'
@@ -1228,7 +1410,7 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
         }
       } else if (format == 'pdf') {
         // Generate HTML report instead of PDF for better Arabic support
-        final htmlContent = await _generateHtmlReport(measurements, isArabic: isArabic, l10n: l10n);
+        final htmlContent = await _generateHtmlReport(measurements, isArabic: isArabic, l10n: l10n, customRanges: widget.customRanges);
         final fileName = isArabic 
             ? 'تقرير_ضغط_الدم_${DateTime.now().millisecondsSinceEpoch}.html'
             : 'blood_pressure_report_${DateTime.now().millisecondsSinceEpoch}.html';
@@ -1357,7 +1539,8 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
             headerAlignment: isArabic ? pw.Alignment.centerRight : pw.Alignment.centerLeft,
             headers: headers,
             data: measurements.map((m) {
-              final categoryText = isArabic ? _getCategoryArabic(m.category) : _getCategoryEnglish(m.category);
+              final category = customRanges != null ? m.getCategory(customRanges) : m.category;
+              final categoryText = isArabic ? _getCategoryArabic(category) : _getCategoryEnglish(category);
               final armText = isArabic ? (m.arm == 'left' ? 'يسار' : 'يمين') : (m.arm == 'left' ? 'Left' : 'Right');
               final positionText = isArabic ? _getPositionArabic(m.position) : _getPositionEnglish(m.position);
               final conditionText = isArabic ? _getConditionArabic(m.condition) : _getConditionEnglish(m.condition);
@@ -1384,7 +1567,8 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
   }
 
   /// Generate HTML report for blood pressure measurements
-  Future<String> _generateHtmlReport(List<BloodPressureMeasurement> measurements, {bool isArabic = false, AppLocalizations? l10n}) async {
+  /// Accepts optional custom ranges to calculate category
+  Future<String> _generateHtmlReport(List<BloodPressureMeasurement> measurements, {bool isArabic = false, AppLocalizations? l10n, List<BloodPressureRange>? customRanges}) async {
     final direction = isArabic ? 'rtl' : 'ltr';
     
     // Column headers based on language
@@ -1402,7 +1586,8 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
     final rows = StringBuffer();
     for (int i = 0; i < measurements.length; i++) {
       final m = measurements[i];
-      final categoryText = isArabic ? _getCategoryArabic(m.category) : _getCategoryEnglish(m.category);
+      final category = customRanges != null ? m.getCategory(customRanges) : m.category;
+      final categoryText = isArabic ? _getCategoryArabic(category) : _getCategoryEnglish(category);
       final armText = isArabic ? (m.arm == 'left' ? 'يسار' : 'يمين') : (m.arm == 'left' ? 'Left' : 'Right');
       final positionText = isArabic ? _getPositionArabic(m.position) : _getPositionEnglish(m.position);
       final conditionText = isArabic ? _getConditionArabic(m.condition) : _getConditionEnglish(m.condition);
@@ -1582,5 +1767,346 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
       default:
         return condition;
     }
+  }
+}
+
+/// Blood Pressure Ranges Edit Dialog
+class BloodPressureRangesDialog extends StatefulWidget {
+  final String userId;
+  final BloodPressureService service;
+  final AppLocalizations l10n;
+  final bool isArabic;
+  final VoidCallback? onSaved;
+
+  const BloodPressureRangesDialog({
+    super.key,
+    required this.userId,
+    required this.service,
+    required this.l10n,
+    required this.isArabic,
+    this.onSaved,
+  });
+
+  @override
+  State<BloodPressureRangesDialog> createState() => _BloodPressureRangesDialogState();
+}
+
+class _BloodPressureRangesDialogState extends State<BloodPressureRangesDialog> {
+  late List<BloodPressureRange> _ranges;
+  bool _isLoading = true;
+  bool _isSaving = false;
+
+  // Controllers for each range field
+  final Map<String, TextEditingController> _controllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _ranges = List.from(BloodPressureRange.defaultRanges);
+    _loadUserSettings();
+  }
+
+  Future<void> _loadUserSettings() async {
+    final userRanges = await widget.service.getUserSettings(widget.userId);
+    if (userRanges != null && userRanges.isNotEmpty) {
+      setState(() {
+        _ranges = userRanges;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+    
+    // Initialize controllers
+    for (var range in _ranges) {
+      _controllers['${range.category}_systolicMin'] = TextEditingController(text: range.systolicMin.toString());
+      _controllers['${range.category}_systolicMax'] = TextEditingController(text: range.systolicMax == 999 ? '' : range.systolicMax.toString());
+      _controllers['${range.category}_diastolicMin'] = TextEditingController(text: range.diastolicMin.toString());
+      _controllers['${range.category}_diastolicMax'] = TextEditingController(text: range.diastolicMax == 999 ? '' : range.diastolicMax.toString());
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  String _getCategoryLabel(String category) {
+    switch (category) {
+      case 'normal':
+        return widget.l10n.normalBP;
+      case 'elevated':
+        return widget.l10n.elevatedBP;
+      case 'high_stage1':
+        return widget.l10n.highStage1BP;
+      case 'high_stage2':
+        return widget.l10n.highStage2BP;
+      case 'crisis':
+        return widget.l10n.crisisBP;
+      default:
+        return category;
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'normal':
+        return Colors.green;
+      case 'elevated':
+        return Colors.blue;
+      case 'high_stage1':
+        return Colors.orange;
+      case 'high_stage2':
+        return Colors.red;
+      case 'crisis':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Future<void> _saveSettings() async {
+    setState(() => _isSaving = true);
+
+    try {
+      // Update ranges from controllers
+      final updatedRanges = <BloodPressureRange>[];
+      for (var range in _ranges) {
+        final systolicMin = int.tryParse(_controllers['${range.category}_systolicMin']?.text ?? '0') ?? 0;
+        final systolicMaxText = _controllers['${range.category}_systolicMax']?.text ?? '';
+        final systolicMax = systolicMaxText.isEmpty ? 999 : (int.tryParse(systolicMaxText) ?? 999);
+        final diastolicMin = int.tryParse(_controllers['${range.category}_diastolicMin']?.text ?? '0') ?? 0;
+        final diastolicMaxText = _controllers['${range.category}_diastolicMax']?.text ?? '';
+        final diastolicMax = diastolicMaxText.isEmpty ? 999 : (int.tryParse(diastolicMaxText) ?? 999);
+
+        updatedRanges.add(BloodPressureRange(
+          category: range.category,
+          systolicMin: systolicMin,
+          systolicMax: systolicMax,
+          diastolicMin: diastolicMin,
+          diastolicMax: diastolicMax,
+          color: range.color,
+        ));
+      }
+
+      await widget.service.saveUserSettings(widget.userId, updatedRanges);
+
+      if (mounted) {
+        // Call the onSaved callback if provided
+        widget.onSaved?.call();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(widget.l10n.rangesSaved)),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  Future<void> _resetToDefault() async {
+    setState(() {
+      _ranges = List.from(BloodPressureRange.defaultRanges);
+      _controllers.clear();
+      for (var range in _ranges) {
+        _controllers['${range.category}_systolicMin'] = TextEditingController(text: range.systolicMin.toString());
+        _controllers['${range.category}_systolicMax'] = TextEditingController(text: range.systolicMax == 999 ? '' : range.systolicMax.toString());
+        _controllers['${range.category}_diastolicMin'] = TextEditingController(text: range.diastolicMin.toString());
+        _controllers['${range.category}_diastolicMax'] = TextEditingController(text: range.diastolicMax == 999 ? '' : range.diastolicMax.toString());
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        width: double.maxFinite,
+        constraints: const BoxConstraints(maxHeight: 600),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.tune, color: Color.fromARGB(255, 182, 142, 190)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.l10n.editBloodPressureRanges,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _ranges.length,
+                  itemBuilder: (context, index) {
+                    final range = _ranges[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: _getCategoryColor(range.category),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _getCategoryLabel(range.category),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getCategoryColor(range.category),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            
+                            // Systolic Row
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _controllers['${range.category}_systolicMin'],
+                                    decoration: InputDecoration(
+                                      labelText: widget.l10n.systolicMin,
+                                      isDense: true,
+                                      border: const OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text('-'),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _controllers['${range.category}_systolicMax'],
+                                    decoration: InputDecoration(
+                                      labelText: widget.l10n.systolicMax,
+                                      isDense: true,
+                                      border: const OutlineInputBorder(),
+                                      hintText: '∞',
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            
+                            // Diastolic Row
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _controllers['${range.category}_diastolicMin'],
+                                    decoration: InputDecoration(
+                                      labelText: widget.l10n.diastolicMin,
+                                      isDense: true,
+                                      border: const OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text('-'),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _controllers['${range.category}_diastolicMax'],
+                                    decoration: InputDecoration(
+                                      labelText: widget.l10n.diastolicMax,
+                                      isDense: true,
+                                      border: const OutlineInputBorder(),
+                                      hintText: '∞',
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            
+            const SizedBox(height: 16),
+            
+            // Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _resetToDefault,
+                    child: Text(widget.l10n.resetToDefault),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isSaving ? null : _saveSettings,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                      foregroundColor: Colors.white,
+                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : Text(widget.l10n.saveRanges),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

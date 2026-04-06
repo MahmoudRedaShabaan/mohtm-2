@@ -101,29 +101,52 @@ class BloodPressureMeasurement {
 
   /// Get blood pressure category based on values
   /// Based on American Heart Association guidelines
-  String get category {
-    // Crisis - Check this FIRST (highest priority)
-    if (systolic > 180 || diastolic > 120) {
-      return 'crisis';
-    }
-    // High Stage 2
-    if (systolic >= 140 || diastolic >= 90) {
-      return 'high_stage2';
-    }
-    // High Stage 1
-    if ((systolic >= 130 && systolic <= 139) || (diastolic >= 80 && diastolic <= 89)) {
-      return 'high_stage1';
-    }
-    // Elevated
-    if (systolic >= 120 && systolic <= 129 && diastolic < 80) {
-      return 'elevated';
-    }
-    // Normal
-    if (systolic < 120 && diastolic < 80) {
-      return 'normal';
+  /// Accepts optional custom ranges from user settings
+  String getCategory(List<BloodPressureRange>? customRanges) {
+    final ranges = customRanges ?? BloodPressureRange.defaultRanges;
+    
+    // Sort ranges by priority (crisis first, then stage2, stage1, elevated, normal)
+    // This ensures correct matching with OR logic for higher categories
+    
+    for (final range in ranges) {
+      // Use OR logic for matching in each range
+      // This matches AHA guidelines: Stage 1 and Stage 2 use OR, not AND
+      bool systolicMatch = systolic >= range.systolicMin && 
+          (range.systolicMax >= 999 || systolic <= range.systolicMax);
+      
+      bool diastolicMatch = diastolic >= range.diastolicMin && 
+          (range.diastolicMax >= 999 || diastolic <= range.diastolicMax);
+      
+      // For Crisis: either systolic OR diastolic can trigger
+      if (range.category == 'crisis') {
+        if (systolicMatch || diastolicMatch) {
+          return range.category;
+        }
+      }
+      // For High Stage 2: either systolic OR diastolic can trigger
+      else if (range.category == 'high_stage2') {
+        if (systolicMatch || diastolicMatch) {
+          return range.category;
+        }
+      }
+      // For High Stage 1: either systolic OR diastolic can trigger
+      else if (range.category == 'high_stage1') {
+        if (systolicMatch || diastolicMatch) {
+          return range.category;
+        }
+      }
+      // For Elevated and Normal: both must match (AND logic)
+      else {
+        if (systolicMatch && diastolicMatch) {
+          return range.category;
+        }
+      }
     }
     return 'unknown';
   }
+
+  /// Get blood pressure category using default ranges
+  String get category => getCategory(null);
 
   /// Get formatted blood pressure string
   String get formattedValue => '$systolic/$diastolic mmHg';
@@ -297,4 +320,107 @@ class BloodPressureStatistics {
       crisisCount: crisisCount,
     );
   }
+}
+
+/// Blood Pressure Range model for user-editable target ranges
+class BloodPressureRange {
+  final String category;
+  final int systolicMin;
+  final int systolicMax;
+  final int diastolicMin;
+  final int diastolicMax;
+  final String color;
+
+  const BloodPressureRange({
+    required this.category,
+    required this.systolicMin,
+    required this.systolicMax,
+    required this.diastolicMin,
+    required this.diastolicMax,
+    required this.color,
+  });
+
+  factory BloodPressureRange.fromMap(Map<String, dynamic> map) {
+    return BloodPressureRange(
+      category: map['category'] as String,
+      systolicMin: map['systolicMin'] as int,
+      systolicMax: map['systolicMax'] as int,
+      diastolicMin: map['diastolicMin'] as int,
+      diastolicMax: map['diastolicMax'] as int,
+      color: map['color'] as String,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'category': category,
+      'systolicMin': systolicMin,
+      'systolicMax': systolicMax,
+      'diastolicMin': diastolicMin,
+      'diastolicMax': diastolicMax,
+      'color': color,
+    };
+  }
+
+  BloodPressureRange copyWith({
+    String? category,
+    int? systolicMin,
+    int? systolicMax,
+    int? diastolicMin,
+    int? diastolicMax,
+    String? color,
+  }) {
+    return BloodPressureRange(
+      category: category ?? this.category,
+      systolicMin: systolicMin ?? this.systolicMin,
+      systolicMax: systolicMax ?? this.systolicMax,
+      diastolicMin: diastolicMin ?? this.diastolicMin,
+      diastolicMax: diastolicMax ?? this.diastolicMax,
+      color: color ?? this.color,
+    );
+  }
+
+  /// Default ranges based on American Heart Association guidelines
+  static List<BloodPressureRange> get defaultRanges => [
+    const BloodPressureRange(
+      category: 'normal',
+      systolicMin: 0,
+      systolicMax: 119,
+      diastolicMin: 0,
+      diastolicMax: 79,
+      color: 'green',
+    ),
+    const BloodPressureRange(
+      category: 'elevated',
+      systolicMin: 120,
+      systolicMax: 129,
+      diastolicMin: 0,
+      diastolicMax: 79,
+      color: 'blue',
+    ),
+    const BloodPressureRange(
+      category: 'high_stage1',
+      systolicMin: 130,
+      systolicMax: 139,
+      diastolicMin: 80,
+      diastolicMax: 89,
+      color: 'orange',
+    ),
+    const BloodPressureRange(
+      category: 'high_stage2',
+      systolicMin: 140,
+      systolicMax: 180,
+      diastolicMin: 90,
+      diastolicMax: 120,
+      color: 'red',
+    ),
+    const BloodPressureRange(
+      category: 'crisis',
+      systolicMin: 181,
+      systolicMax: 999,
+      diastolicMin: 121,
+      diastolicMax: 999,
+      color: 'darkred',
+    ),
+  ];
 }

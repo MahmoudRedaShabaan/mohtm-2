@@ -914,6 +914,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bloodSugar => 'Blood Sugar';
 
   @override
+  String get unit => 'Unit';
+
+  @override
+  String get bloodSugarValue => 'Blood Sugar Value';
+
+  @override
+  String get enterBloodSugarValue => 'Enter blood sugar value';
+
+  @override
+  String get invalidBloodSugarValue => 'Please enter a valid blood sugar value';
+
+  @override
+  String get lowBloodSugar => 'Low';
+
+  @override
+  String get normalBloodSugar => 'Normal';
+
+  @override
+  String get preDiabetesBloodSugar => 'Pre-Diabetes';
+
+  @override
+  String get diabetesBloodSugar => 'Diabetes';
+
+  @override
+  String get beforeMeal => 'Before a Meal';
+
+  @override
+  String get afterMeal1h => 'After a Meal (1h)';
+
+  @override
+  String get afterMeal2h => 'After a Meal (2h)';
+
+  @override
+  String get sleep => 'Sleep';
+
+  @override
+  String get beforeExercise => 'Before Exercise';
+
+  @override
+  String get afterExercise => 'After Exercise';
+
+  @override
+  String get defaultCondition => 'Default';
+
+  @override
+  String get export => 'Export';
+
+  @override
+  String get noDataToExport => 'No data to export';
+
+  @override
+  String get noDataToShare => 'No data to share';
+
+  @override
+  String get shareError => 'Error sharing data';
+
+  @override
   String get healthInfo => 'Health Info';
 
   @override
@@ -995,9 +1052,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get atRest => 'At Rest';
 
   @override
-  String get afterExercise => 'After Exercise';
-
-  @override
   String get afterMeal => 'After Meal';
 
   @override
@@ -1014,6 +1068,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayMeasurements => 'Today\'s Measurements';
+
+  @override
+  String get dailyBloodSugarStatistics => 'Daily Blood Sugar Statistics';
+
+  @override
+  String get dailyBloodPressureStatistics => 'Daily Blood Pressure Statistics';
 
   @override
   String get average => 'Average';
@@ -1116,4 +1176,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yesterday => 'Yesterday';
+
+  @override
+  String get targetRanges => 'Target Ranges';
+
+  @override
+  String get editTargetRanges => 'Edit Target Ranges';
+
+  @override
+  String get customRangesActive => 'Custom ranges are active';
+
+  @override
+  String get defaultRangesInfo => 'Using default medical ranges';
+
+  @override
+  String get editRanges => 'Edit Ranges';
+
+  @override
+  String get resetToDefault => 'Reset to Default';
+
+  @override
+  String get low => 'Low';
+
+  @override
+  String get preDiabetes => 'Pre-Diabetes';
+
+  @override
+  String get diabetes => 'Diabetes';
+
+  @override
+  String get saveRanges => 'Save Ranges';
+
+  @override
+  String get rangesSaved => 'Ranges saved successfully';
+
+  @override
+  String get greaterThan => 'Greater than';
+
+  @override
+  String get lessThan => 'Less than';
+
+  @override
+  String get lowRange => 'Low Range';
+
+  @override
+  String get normalRange => 'Normal Range';
+
+  @override
+  String get preDiabetesRange => 'Pre-Diabetes Range';
+
+  @override
+  String get diabetesRange => 'Diabetes Range';
+
+  @override
+  String get and => 'and';
+
+  @override
+  String get bloodPressureRanges => 'Blood Pressure Ranges';
+
+  @override
+  String get editBloodPressureRanges => 'Edit Blood Pressure Ranges';
+
+  @override
+  String get systolicMin => 'Systolic Min';
+
+  @override
+  String get systolicMax => 'Systolic Max';
+
+  @override
+  String get diastolicMin => 'Diastolic Min';
+
+  @override
+  String get diastolicMax => 'Diastolic Max';
+
+  @override
+  String get normalBP => 'Normal';
+
+  @override
+  String get elevatedBP => 'Elevated';
+
+  @override
+  String get highStage1BP => 'High (Stage 1)';
+
+  @override
+  String get highStage2BP => 'High (Stage 2)';
+
+  @override
+  String get crisisBP => 'Crisis';
+
+  @override
+  String get rangesSettingsNote => 'Customize target ranges based on doctor recommendations';
 }

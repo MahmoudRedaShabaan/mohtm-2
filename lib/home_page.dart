@@ -19,6 +19,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:myapp/daily_deed/daily_deed_page.dart';
 import 'package:myapp/daily_deed/daily_deed_statistics_page.dart';
 import 'package:myapp/health/blood_pressure_page.dart';
+import 'package:myapp/health/blood_sugar_page.dart';
 import 'anniversary_streams.dart';
 class Anniversary {
   final DateTime date;
@@ -534,10 +535,10 @@ void filterAnniversariesByMonthDay() async {
                             title: Text(AppLocalizations.of(context)!.bloodSugar),
                             onTap: () {
                               Navigator.pop(context);
-                              // Blood sugar page - navigate to health info or placeholder
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(AppLocalizations.of(context)!.bloodSugar),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const BloodSugarPage(),
                                 ),
                               );
                             },

@@ -731,7 +731,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get readQuran => 'قراءة القرآن';
 
   @override
-  String get fasting => 'الصيام';
+  String get fasting => 'صائم';
 
   @override
   String get ramadanFasting => 'صيام';
@@ -914,6 +914,63 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bloodSugar => 'السكر';
 
   @override
+  String get unit => 'الوحدة';
+
+  @override
+  String get bloodSugarValue => 'قيمة السكر';
+
+  @override
+  String get enterBloodSugarValue => 'أدخل قيمة السكر';
+
+  @override
+  String get invalidBloodSugarValue => 'الرجاء إدخال قيمة صالحة';
+
+  @override
+  String get lowBloodSugar => 'منخفض';
+
+  @override
+  String get normalBloodSugar => 'طبيعي';
+
+  @override
+  String get preDiabetesBloodSugar => 'ما قبل السكري';
+
+  @override
+  String get diabetesBloodSugar => 'سكري';
+
+  @override
+  String get beforeMeal => 'قبل الوجبة';
+
+  @override
+  String get afterMeal1h => 'بعد الوجبة (ساعة)';
+
+  @override
+  String get afterMeal2h => 'بعد الوجبة (ساعتان)';
+
+  @override
+  String get sleep => 'النوم';
+
+  @override
+  String get beforeExercise => 'قبل التمرين';
+
+  @override
+  String get afterExercise => 'بعد التمرين';
+
+  @override
+  String get defaultCondition => 'افتراضي';
+
+  @override
+  String get export => 'تصدير';
+
+  @override
+  String get noDataToExport => 'لا توجد بيانات للتصدير';
+
+  @override
+  String get noDataToShare => 'لا توجد بيانات للمشاركة';
+
+  @override
+  String get shareError => 'خطأ في مشاركة البيانات';
+
+  @override
   String get healthInfo => 'معلومات صحية';
 
   @override
@@ -995,9 +1052,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get atRest => 'في الراحة';
 
   @override
-  String get afterExercise => 'بعد التمرين';
-
-  @override
   String get afterMeal => 'بعد الأكل';
 
   @override
@@ -1014,6 +1068,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get todayMeasurements => 'قياسات اليوم';
+
+  @override
+  String get dailyBloodSugarStatistics => 'إحصائيات السكر اليومية';
+
+  @override
+  String get dailyBloodPressureStatistics => 'إحصائيات ضغط الدم اليومية';
 
   @override
   String get average => 'المتوسط';
@@ -1116,4 +1176,94 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get yesterday => 'أمس';
+
+  @override
+  String get targetRanges => 'نطاقات الهدف';
+
+  @override
+  String get editTargetRanges => 'تعديل نطاقات الهدف';
+
+  @override
+  String get customRangesActive => 'النطاقات المخصصة نشطة';
+
+  @override
+  String get defaultRangesInfo => 'استخدام النطاقات الطبية الافتراضية';
+
+  @override
+  String get editRanges => 'تعديل النطاقات';
+
+  @override
+  String get resetToDefault => 'إعادة تعيين الافتراضي';
+
+  @override
+  String get low => 'منخفض';
+
+  @override
+  String get preDiabetes => 'ما قبل السكري';
+
+  @override
+  String get diabetes => 'سكري';
+
+  @override
+  String get saveRanges => 'حفظ النطاقات';
+
+  @override
+  String get rangesSaved => 'تم حفظ النطاقات بنجاح';
+
+  @override
+  String get greaterThan => 'أكبر من';
+
+  @override
+  String get lessThan => 'أقل من';
+
+  @override
+  String get lowRange => 'نطاق منخفض';
+
+  @override
+  String get normalRange => 'نطاق طبيعي';
+
+  @override
+  String get preDiabetesRange => 'نطاق ما قبل السكري';
+
+  @override
+  String get diabetesRange => 'نطاق السكري';
+
+  @override
+  String get and => 'و';
+
+  @override
+  String get bloodPressureRanges => 'نطاقات ضغط الدم';
+
+  @override
+  String get editBloodPressureRanges => 'تعديل نطاقات ضغط الدم';
+
+  @override
+  String get systolicMin => 'الانقباضي الأدنى';
+
+  @override
+  String get systolicMax => 'الانقباضي الأعلى';
+
+  @override
+  String get diastolicMin => 'الانبساطي الأدنى';
+
+  @override
+  String get diastolicMax => 'الانبساطي الأعلى';
+
+  @override
+  String get normalBP => 'طبيعي';
+
+  @override
+  String get elevatedBP => 'مرتفع';
+
+  @override
+  String get highStage1BP => 'مرتفع (المرحلة 1)';
+
+  @override
+  String get highStage2BP => 'مرتفع (المرحلة 2)';
+
+  @override
+  String get crisisBP => 'أزمة';
+
+  @override
+  String get rangesSettingsNote => 'تخصيص النطاقات المستهدفة بناءً على توصيات الطبيب';
 }
