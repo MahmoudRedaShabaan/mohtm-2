@@ -9,11 +9,7 @@ class AddBloodSugarPage extends StatefulWidget {
   final String userId;
   final BloodSugarMeasurement? measurement;
 
-  const AddBloodSugarPage({
-    super.key,
-    required this.userId,
-    this.measurement,
-  });
+  const AddBloodSugarPage({super.key, required this.userId, this.measurement});
 
   @override
   State<AddBloodSugarPage> createState() => _AddBloodSugarPageState();
@@ -22,16 +18,16 @@ class AddBloodSugarPage extends StatefulWidget {
 class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
   final _formKey = GlobalKey<FormState>();
   final _service = BloodSugarService();
-  
+
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _valueController;
-  
+
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
-  String _selectedCondition = 'default';
+  String _selectedCondition = 'default_condition';
   String _selectedUnit = 'mgdl';
-  
+
   bool _isLoading = false;
 
   bool get _isEditing => widget.measurement != null;
@@ -39,16 +35,23 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.measurement?.name ?? '');
-    _descriptionController = TextEditingController(text: widget.measurement?.description ?? '');
+    _nameController = TextEditingController(
+      text: widget.measurement?.name ?? '',
+    );
+    _descriptionController = TextEditingController(
+      text: widget.measurement?.description ?? '',
+    );
     _valueController = TextEditingController(
       text: widget.measurement?.value.toString() ?? '',
     );
-    
+
     if (widget.measurement != null) {
       _selectedDate = widget.measurement!.date;
       _selectedTime = TimeOfDay.fromDateTime(widget.measurement!.date);
-      _selectedCondition = widget.measurement!.condition;
+      _selectedCondition =
+          widget.measurement!.condition == 'default'
+              ? 'default_condition'
+              : widget.measurement!.condition;
       _selectedUnit = widget.measurement!.unit;
     }
   }
@@ -117,13 +120,9 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
               _buildSectionTitle(l10n.date),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildDateButton(l10n, isArabic),
-                  ),
+                  Expanded(child: _buildDateButton(l10n, isArabic)),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildTimeButton(l10n),
-                  ),
+                  Expanded(child: _buildTimeButton(l10n)),
                 ],
               ),
               const SizedBox(height: 24),
@@ -156,15 +155,16 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          _isEditing ? l10n.update : l10n.save,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                            _isEditing ? l10n.update : l10n.save,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -180,10 +180,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -199,7 +196,10 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today, color: Color.fromARGB(255, 182, 142, 190)),
+            const Icon(
+              Icons.calendar_today,
+              color: Color.fromARGB(255, 182, 142, 190),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -233,7 +233,10 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.access_time, color: Color.fromARGB(255, 182, 142, 190)),
+            const Icon(
+              Icons.access_time,
+              color: Color.fromARGB(255, 182, 142, 190),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -263,45 +266,50 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        children: SugarUnitOption.options.map((unit) {
-          final isSelected = unit.value == _selectedUnit;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedUnit = unit.value;
-                  // Reset value when changing unit
-                  _valueController.clear();
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color.fromARGB(255, 182, 142, 190)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.horizontal(
-                    left: unit == SugarUnitOption.options.first
-                        ? const Radius.circular(11)
-                        : Radius.zero,
-                    right: unit == SugarUnitOption.options.last
-                        ? const Radius.circular(11)
-                        : Radius.zero,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    unit.labelEn,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[700],
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        children:
+            SugarUnitOption.options.map((unit) {
+              final isSelected = unit.value == _selectedUnit;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedUnit = unit.value;
+                      // Reset value when changing unit
+                      _valueController.clear();
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected
+                              ? const Color.fromARGB(255, 182, 142, 190)
+                              : Colors.transparent,
+                      borderRadius: BorderRadius.horizontal(
+                        left:
+                            unit == SugarUnitOption.options.first
+                                ? const Radius.circular(11)
+                                : Radius.zero,
+                        right:
+                            unit == SugarUnitOption.options.last
+                                ? const Radius.circular(11)
+                                : Radius.zero,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        unit.labelEn,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -309,7 +317,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
   Widget _buildValueInput(AppLocalizations l10n) {
     final suffix = _selectedUnit == 'mmoll' ? 'mmol/L' : 'mg/dL';
     final hint = _selectedUnit == 'mmoll' ? 'e.g., 5.5' : 'e.g., 100';
-    
+
     return TextFormField(
       controller: _valueController,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -320,9 +328,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         labelText: l10n.bloodSugarValue,
         hintText: hint,
         suffixText: suffix,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
@@ -365,16 +371,20 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         child: DropdownButton<String>(
           value: _selectedCondition,
           isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down, color: Color.fromARGB(255, 182, 142, 190)),
-          items: SugarConditionOption.options.map((condition) {
-            return DropdownMenuItem<String>(
-              value: condition.value,
-              child: Text(
-                isArabic ? condition.labelAr : condition.labelEn,
-                style: const TextStyle(fontSize: 16),
-              ),
-            );
-          }).toList(),
+          icon: const Icon(
+            Icons.arrow_drop_down,
+            color: Color.fromARGB(255, 182, 142, 190),
+          ),
+          items:
+              SugarConditionOption.options.map((condition) {
+                return DropdownMenuItem<String>(
+                  value: condition.value,
+                  child: Text(
+                    isArabic ? condition.labelAr : condition.labelEn,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                );
+              }).toList(),
           onChanged: (value) {
             if (value != null) {
               setState(() => _selectedCondition = value);
@@ -425,9 +435,10 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         id: widget.measurement?.id,
         userId: widget.userId,
         name: _nameController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
+        description:
+            _descriptionController.text.trim().isEmpty
+                ? null
+                : _descriptionController.text.trim(),
         date: dateTime,
         value: double.parse(_valueController.text),
         unit: _selectedUnit,

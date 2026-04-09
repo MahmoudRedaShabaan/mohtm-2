@@ -9,7 +9,6 @@ import 'package:path/path.dart' as path;
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
 
-
 class User {
   String firstName;
   String lastName;
@@ -89,6 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (docSnapshot.exists) {
         final userData = User.fromFirestore(docSnapshot.data()!);
+        if (!mounted) return;
         setState(() {
           _user = userData;
           _initializeControllers(userData);
@@ -98,9 +98,11 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       print("Error fetching user data: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error fetching user data: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error fetching user data: $e')));
+      }
     }
   }
 

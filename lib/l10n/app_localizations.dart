@@ -2048,7 +2048,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectDate.
   ///
   /// In en, this message translates to:
-  /// **'Select Date'**
+  /// **'Select date'**
   String get selectDate;
 
   /// No description provided for @systolic.
@@ -2584,6 +2584,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Customize target ranges based on doctor recommendations'**
   String get rangesSettingsNote;
+
+  /// No description provided for @basicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Info'**
+  String get basicInfo;
+
+  /// No description provided for @addBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Basic Info'**
+  String get addBasicInfo;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @enterFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterFullName;
+
+  /// No description provided for @bloodType.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Type'**
+  String get bloodType;
+
+  /// No description provided for @selectBloodType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select blood type'**
+  String get selectBloodType;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dateOfBirth;
+
+  /// No description provided for @height.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get height;
+
+  /// No description provided for @enterHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter height'**
+  String get enterHeight;
+
+  /// No description provided for @weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get weight;
+
+  /// No description provided for @enterWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter weight'**
+  String get enterWeight;
+
+  /// No description provided for @allergies.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergies'**
+  String get allergies;
+
+  /// No description provided for @addMedicationAllergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Medication Allergy'**
+  String get addMedicationAllergy;
+
+  /// No description provided for @addFoodAllergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Food Allergy'**
+  String get addFoodAllergy;
+
+  /// No description provided for @noAllergies.
+  ///
+  /// In en, this message translates to:
+  /// **'No allergies recorded'**
+  String get noAllergies;
+
+  /// No description provided for @addAllergyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add an allergy'**
+  String get addAllergyHint;
+
+  /// No description provided for @addCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom'**
+  String get addCustom;
+
+  /// No description provided for @enterCustomAllergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter custom allergy'**
+  String get enterCustomAllergy;
+
+  /// No description provided for @selectFromList.
+  ///
+  /// In en, this message translates to:
+  /// **'Select from list'**
+  String get selectFromList;
+
+  /// No description provided for @saveSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Selected'**
+  String get saveSelected;
+
+  /// No description provided for @custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get custom;
+
+  /// No description provided for @medications.
+  ///
+  /// In en, this message translates to:
+  /// **'Medications'**
+  String get medications;
+
+  /// No description provided for @food.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get food;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @chronicDiseases.
+  ///
+  /// In en, this message translates to:
+  /// **'Chronic Diseases'**
+  String get chronicDiseases;
+
+  /// No description provided for @addChronicDisease.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Chronic Disease'**
+  String get addChronicDisease;
+
+  /// No description provided for @noChronicDiseases.
+  ///
+  /// In en, this message translates to:
+  /// **'No chronic diseases recorded'**
+  String get noChronicDiseases;
+
+  /// No description provided for @addDiseaseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add a disease'**
+  String get addDiseaseHint;
+
+  /// No description provided for @enterCustomDisease.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter custom disease'**
+  String get enterCustomDisease;
+
+  /// No description provided for @medicationName.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Name'**
+  String get medicationName;
+
+  /// No description provided for @enterMedicationName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter medication name'**
+  String get enterMedicationName;
+
+  /// No description provided for @dosage.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosage'**
+  String get dosage;
+
+  /// No description provided for @enterDosage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter dosage'**
+  String get enterDosage;
+
+  /// No description provided for @frequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get frequency;
+
+  /// No description provided for @enterValidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get enterValidNumber;
+
+  /// No description provided for @reminderTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Times'**
+  String get reminderTimes;
+
+  /// No description provided for @addTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Time'**
+  String get addTime;
+
+  /// No description provided for @noMedications.
+  ///
+  /// In en, this message translates to:
+  /// **'No medications recorded'**
+  String get noMedications;
+
+  /// No description provided for @addMedicationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add a medication'**
+  String get addMedicationHint;
+
+  /// No description provided for @editMedication.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Medication'**
+  String get editMedication;
+
+  /// No description provided for @addMedication.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Medication'**
+  String get addMedication;
+
+  /// No description provided for @emergencyInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Info'**
+  String get emergencyInfo;
+
+  /// No description provided for @noEmergencyContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'No emergency contacts'**
+  String get noEmergencyContacts;
+
+  /// No description provided for @addEmergencyContactHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add an emergency contact'**
+  String get addEmergencyContactHint;
+
+  /// No description provided for @addContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Contact'**
+  String get addContact;
+
+  /// No description provided for @editContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Contact'**
+  String get editContact;
+
+  /// No description provided for @enterContactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter contact name'**
+  String get enterContactName;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @enterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number'**
+  String get enterPhoneNumber;
+
+  /// No description provided for @relationshipOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship (Optional)'**
+  String get relationshipOptional;
+
+  /// No description provided for @enterRelationship.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Spouse, Parent'**
+  String get enterRelationship;
+
+  /// No description provided for @call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get call;
+
+  /// No description provided for @medicalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical Notes'**
+  String get medicalNotes;
+
+  /// No description provided for @noMedicalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No medical notes'**
+  String get noMedicalNotes;
+
+  /// No description provided for @addMedicalNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add a note'**
+  String get addMedicalNoteHint;
+
+  /// No description provided for @addMedicalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Medical Note'**
+  String get addMedicalNote;
+
+  /// No description provided for @editMedicalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Medical Note'**
+  String get editMedicalNote;
+
+  /// No description provided for @noteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Note Content'**
+  String get noteContent;
+
+  /// No description provided for @enterNoteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your note here...'**
+  String get enterNoteContent;
+
+  /// No description provided for @dateAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & Time'**
+  String get dateAndTime;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Delete'**
+  String get confirmDelete;
+
+  /// No description provided for @deleteAllergyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this allergy?'**
+  String get deleteAllergyConfirm;
+
+  /// No description provided for @deleteDiseaseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this disease?'**
+  String get deleteDiseaseConfirm;
+
+  /// No description provided for @deleteMedicationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this medication?'**
+  String get deleteMedicationConfirm;
+
+  /// No description provided for @deleteContactConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this contact?'**
+  String get deleteContactConfirm;
+
+  /// No description provided for @deleteNoteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this note?'**
+  String get deleteNoteConfirm;
+
+  /// No description provided for @savedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved successfully'**
+  String get savedSuccessfully;
+
+  /// No description provided for @errorSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving data'**
+  String get errorSaving;
+
+  /// No description provided for @pleaseEnterValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a value'**
+  String get pleaseEnterValue;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -998,7 +998,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterDescription => 'Enter description (optional)';
 
   @override
-  String get selectDate => 'Select Date';
+  String get selectDate => 'Select date';
 
   @override
   String get systolic => 'Systolic';
@@ -1266,4 +1266,217 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rangesSettingsNote => 'Customize target ranges based on doctor recommendations';
+
+  @override
+  String get basicInfo => 'Basic Info';
+
+  @override
+  String get addBasicInfo => 'Add Basic Info';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get enterFullName => 'Enter your full name';
+
+  @override
+  String get bloodType => 'Blood Type';
+
+  @override
+  String get selectBloodType => 'Select blood type';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
+
+  @override
+  String get height => 'Height';
+
+  @override
+  String get enterHeight => 'Enter height';
+
+  @override
+  String get weight => 'Weight';
+
+  @override
+  String get enterWeight => 'Enter weight';
+
+  @override
+  String get allergies => 'Allergies';
+
+  @override
+  String get addMedicationAllergy => 'Add Medication Allergy';
+
+  @override
+  String get addFoodAllergy => 'Add Food Allergy';
+
+  @override
+  String get noAllergies => 'No allergies recorded';
+
+  @override
+  String get addAllergyHint => 'Tap + to add an allergy';
+
+  @override
+  String get addCustom => 'Add Custom';
+
+  @override
+  String get enterCustomAllergy => 'Enter custom allergy';
+
+  @override
+  String get selectFromList => 'Select from list';
+
+  @override
+  String get saveSelected => 'Save Selected';
+
+  @override
+  String get custom => 'Custom';
+
+  @override
+  String get medications => 'Medications';
+
+  @override
+  String get food => 'Food';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get chronicDiseases => 'Chronic Diseases';
+
+  @override
+  String get addChronicDisease => 'Add Chronic Disease';
+
+  @override
+  String get noChronicDiseases => 'No chronic diseases recorded';
+
+  @override
+  String get addDiseaseHint => 'Tap + to add a disease';
+
+  @override
+  String get enterCustomDisease => 'Enter custom disease';
+
+  @override
+  String get medicationName => 'Medication Name';
+
+  @override
+  String get enterMedicationName => 'Enter medication name';
+
+  @override
+  String get dosage => 'Dosage';
+
+  @override
+  String get enterDosage => 'Enter dosage';
+
+  @override
+  String get frequency => 'Frequency';
+
+  @override
+  String get enterValidNumber => 'Enter a valid number';
+
+  @override
+  String get reminderTimes => 'Reminder Times';
+
+  @override
+  String get addTime => 'Add Time';
+
+  @override
+  String get noMedications => 'No medications recorded';
+
+  @override
+  String get addMedicationHint => 'Tap + to add a medication';
+
+  @override
+  String get editMedication => 'Edit Medication';
+
+  @override
+  String get addMedication => 'Add Medication';
+
+  @override
+  String get emergencyInfo => 'Emergency Info';
+
+  @override
+  String get noEmergencyContacts => 'No emergency contacts';
+
+  @override
+  String get addEmergencyContactHint => 'Tap + to add an emergency contact';
+
+  @override
+  String get addContact => 'Add Contact';
+
+  @override
+  String get editContact => 'Edit Contact';
+
+  @override
+  String get enterContactName => 'Enter contact name';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get enterPhoneNumber => 'Enter phone number';
+
+  @override
+  String get relationshipOptional => 'Relationship (Optional)';
+
+  @override
+  String get enterRelationship => 'e.g., Spouse, Parent';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get medicalNotes => 'Medical Notes';
+
+  @override
+  String get noMedicalNotes => 'No medical notes';
+
+  @override
+  String get addMedicalNoteHint => 'Tap + to add a note';
+
+  @override
+  String get addMedicalNote => 'Add Medical Note';
+
+  @override
+  String get editMedicalNote => 'Edit Medical Note';
+
+  @override
+  String get noteContent => 'Note Content';
+
+  @override
+  String get enterNoteContent => 'Enter your note here...';
+
+  @override
+  String get dateAndTime => 'Date & Time';
+
+  @override
+  String get confirmDelete => 'Confirm Delete';
+
+  @override
+  String get deleteAllergyConfirm => 'Are you sure you want to delete this allergy?';
+
+  @override
+  String get deleteDiseaseConfirm => 'Are you sure you want to delete this disease?';
+
+  @override
+  String get deleteMedicationConfirm => 'Are you sure you want to delete this medication?';
+
+  @override
+  String get deleteContactConfirm => 'Are you sure you want to delete this contact?';
+
+  @override
+  String get deleteNoteConfirm => 'Are you sure you want to delete this note?';
+
+  @override
+  String get savedSuccessfully => 'Saved successfully';
+
+  @override
+  String get errorSaving => 'Error saving data';
+
+  @override
+  String get pleaseEnterValue => 'Please enter a value';
+
+  @override
+  String get edit => 'Edit';
 }

@@ -20,6 +20,7 @@ import 'package:myapp/daily_deed/daily_deed_page.dart';
 import 'package:myapp/daily_deed/daily_deed_statistics_page.dart';
 import 'package:myapp/health/blood_pressure_page.dart';
 import 'package:myapp/health/blood_sugar_page.dart';
+import 'package:myapp/health/health_info_page.dart';
 import 'anniversary_streams.dart';
 class Anniversary {
   final DateTime date;
@@ -548,9 +549,10 @@ void filterAnniversariesByMonthDay() async {
                             title: Text(AppLocalizations.of(context)!.healthInfo),
                             onTap: () {
                               Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(AppLocalizations.of(context)!.healthInfo),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HealthInfoPage(),
                                 ),
                               );
                             },

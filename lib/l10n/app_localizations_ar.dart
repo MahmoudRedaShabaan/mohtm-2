@@ -1266,4 +1266,217 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rangesSettingsNote => 'تخصيص النطاقات المستهدفة بناءً على توصيات الطبيب';
+
+  @override
+  String get basicInfo => 'المعلومات الأساسية';
+
+  @override
+  String get addBasicInfo => 'إضافة معلومات أساسية';
+
+  @override
+  String get fullName => 'الاسم الكامل';
+
+  @override
+  String get enterFullName => 'أدخل اسمك الكامل';
+
+  @override
+  String get bloodType => 'فصيلة الدم';
+
+  @override
+  String get selectBloodType => 'اختر فصيلة الدم';
+
+  @override
+  String get dateOfBirth => 'تاريخ الميلاد';
+
+  @override
+  String get height => 'الطول';
+
+  @override
+  String get enterHeight => 'أدخل الطول';
+
+  @override
+  String get weight => 'الوزن';
+
+  @override
+  String get enterWeight => 'أدخل الوزن';
+
+  @override
+  String get allergies => 'الحساسية';
+
+  @override
+  String get addMedicationAllergy => 'إضافة حساسية دوائية';
+
+  @override
+  String get addFoodAllergy => 'إضافة حساسية غذائية';
+
+  @override
+  String get noAllergies => 'لا توجد حساسية مسجلة';
+
+  @override
+  String get addAllergyHint => 'اضغط + لإضافة حساسية';
+
+  @override
+  String get addCustom => 'إضافة مخصصة';
+
+  @override
+  String get enterCustomAllergy => 'أدخل الحساسية المخصصة';
+
+  @override
+  String get selectFromList => 'اختر من القائمة';
+
+  @override
+  String get saveSelected => 'حفظ المحدد';
+
+  @override
+  String get custom => 'مخصص';
+
+  @override
+  String get medications => 'الأدوية';
+
+  @override
+  String get food => 'طعام';
+
+  @override
+  String get active => 'نشط';
+
+  @override
+  String get noData => 'لا توجد بيانات';
+
+  @override
+  String get chronicDiseases => 'الأمراض المزمنة';
+
+  @override
+  String get addChronicDisease => 'إضافة مرض مزمن';
+
+  @override
+  String get noChronicDiseases => 'لا توجد أمراض مزمنة';
+
+  @override
+  String get addDiseaseHint => 'اضغط + لإضافة مرض';
+
+  @override
+  String get enterCustomDisease => 'أدخل المرض المخصص';
+
+  @override
+  String get medicationName => 'اسم الدواء';
+
+  @override
+  String get enterMedicationName => 'أدخل اسم الدواء';
+
+  @override
+  String get dosage => 'الجرعة';
+
+  @override
+  String get enterDosage => 'أدخل الجرعة';
+
+  @override
+  String get frequency => 'التكرار';
+
+  @override
+  String get enterValidNumber => 'أدخل رقماً صحيحاً';
+
+  @override
+  String get reminderTimes => 'أوقات التذكير';
+
+  @override
+  String get addTime => 'إضافة وقت';
+
+  @override
+  String get noMedications => 'لا توجد أدوية مسجلة';
+
+  @override
+  String get addMedicationHint => 'اضغط + لإضافة دواء';
+
+  @override
+  String get editMedication => 'تعديل الدواء';
+
+  @override
+  String get addMedication => 'إضافة دواء';
+
+  @override
+  String get emergencyInfo => 'معلومات الطوارئ';
+
+  @override
+  String get noEmergencyContacts => 'لا توجد جهات طوارئ';
+
+  @override
+  String get addEmergencyContactHint => 'اضغط + لإضافة جهة طوارئ';
+
+  @override
+  String get addContact => 'إضافة جهة اتصال';
+
+  @override
+  String get editContact => 'تعديل جهة الاتصال';
+
+  @override
+  String get enterContactName => 'أدخل اسم جهة الاتصال';
+
+  @override
+  String get phoneNumber => 'رقم الهاتف';
+
+  @override
+  String get enterPhoneNumber => 'أدخل رقم الهاتف';
+
+  @override
+  String get relationshipOptional => 'العلاقة (اختياري)';
+
+  @override
+  String get enterRelationship => 'مثال: زوج/ة، والد';
+
+  @override
+  String get call => 'اتصال';
+
+  @override
+  String get medicalNotes => 'الملاحظات الطبية';
+
+  @override
+  String get noMedicalNotes => 'لا توجد ملاحظات طبية';
+
+  @override
+  String get addMedicalNoteHint => 'اضغط + لإضافة ملاحظة';
+
+  @override
+  String get addMedicalNote => 'إضافة ملاحظة طبية';
+
+  @override
+  String get editMedicalNote => 'تعديل الملاحظة الطبية';
+
+  @override
+  String get noteContent => 'محتوى الملاحظة';
+
+  @override
+  String get enterNoteContent => 'أدخل ملاحظتك هنا...';
+
+  @override
+  String get dateAndTime => 'التاريخ والوقت';
+
+  @override
+  String get confirmDelete => 'تأكيد الحذف';
+
+  @override
+  String get deleteAllergyConfirm => 'هل أنت متأكد من حذف هذه الحساسية؟';
+
+  @override
+  String get deleteDiseaseConfirm => 'هل أنت متأكد من حذف هذا المرض؟';
+
+  @override
+  String get deleteMedicationConfirm => 'هل أنت متأكد من حذف هذا الدواء؟';
+
+  @override
+  String get deleteContactConfirm => 'هل أنت متأكد من حذف جهة الاتصال هذه؟';
+
+  @override
+  String get deleteNoteConfirm => 'هل أنت متأكد من حذف هذه الملاحظة؟';
+
+  @override
+  String get savedSuccessfully => 'تم الحفظ بنجاح';
+
+  @override
+  String get errorSaving => 'خطأ في حفظ البيانات';
+
+  @override
+  String get pleaseEnterValue => 'الرجاء إدخال قيمة';
+
+  @override
+  String get edit => 'تعديل';
 }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
 
-
 import 'constants.dart';
 
 class AddTaskPage extends StatefulWidget {
@@ -45,6 +44,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
               .where('userId', isEqualTo: user.uid)
               .get();
 
+      if (!mounted) return;
       setState(() {
         _categories =
             snapshot.docs
@@ -78,7 +78,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
           title: Text(AppLocalizations.of(context)!.addCategory),
           content: Form(
             key: formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction, // <-- Add this line
+            autovalidateMode:
+                AutovalidateMode.onUserInteraction, // <-- Add this line
             child: TextFormField(
               controller: controller,
               autofocus: true,
@@ -390,7 +391,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
           padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction, // <-- Add this line
+            autovalidateMode:
+                AutovalidateMode.onUserInteraction, // <-- Add this line
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
