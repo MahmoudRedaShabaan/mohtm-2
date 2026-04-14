@@ -104,7 +104,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     return Scaffold(
       appBar: widget.showAppBar
           ? AppBar(
-              title: Text(localization.statistics),
+              title: Text(localization.statisticsreligiousDeed),
               backgroundColor: const Color.fromARGB(255, 117, 92, 142),
             )
           : null,

@@ -21,7 +21,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcome => 'مرحبا';
 
   @override
-  String get noAnniversariesToday => 'لا توجد مناسبات محفوظة لهذا اليوم، \nيمكنك إضافة مناسبة جديدة';
+  String get noAnniversariesToday =>
+      'لا توجد مناسبات محفوظة لهذا اليوم، \nيمكنك إضافة مناسبة جديدة';
 
   @override
   String get title => 'مهتم';
@@ -122,16 +123,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enterNewPassword => 'الرجاء إدخال كلمة المرور الجديدة';
 
   @override
-  String get passwordLengthValidation => 'يجب أن تكون كلمة المرور الجديدة على الأقل 6 أحرف';
+  String get passwordLengthValidation =>
+      'يجب أن تكون كلمة المرور الجديدة على الأقل 6 أحرف';
 
   @override
-  String get passwordMatchValidation => 'يجب أن تتطابق كلمة المرور الجديدة مع تأكيد كلمة المرور الجديدة';
+  String get passwordMatchValidation =>
+      'يجب أن تتطابق كلمة المرور الجديدة مع تأكيد كلمة المرور الجديدة';
 
   @override
-  String get enterConfirmNewPassword => 'الرجاء إدخال تأكيد كلمة المرور الجديدة';
+  String get enterConfirmNewPassword =>
+      'الرجاء إدخال تأكيد كلمة المرور الجديدة';
 
   @override
-  String get passwordsDoNotMatch => 'كلمة المرور الجديدة وتأكيد كلمة المرور الجديدة لا تتطابقان';
+  String get passwordsDoNotMatch =>
+      'كلمة المرور الجديدة وتأكيد كلمة المرور الجديدة لا تتطابقان';
 
   @override
   String get passwordChangedSuccessfully => 'تم تغيير كلمة المرور بنجاح';
@@ -167,7 +172,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteAnniversary => 'حذف المناسبة';
 
   @override
-  String get deleteAnniversaryConfirmation => 'هل أنت متأكد أنك تريد حذف هذه المناسبة؟';
+  String get deleteAnniversaryConfirmation =>
+      'هل أنت متأكد أنك تريد حذف هذه المناسبة؟';
 
   @override
   String get cancel => 'إلغاء';
@@ -266,10 +272,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get registerErrorMessage => 'خطأ في التسجيل';
 
   @override
-  String get registerSuccessMessageWithVerification => 'تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني (و المزعج(Spam /Junk Folder))  لتفعيل الحساب قبل تسجيل الدخول.';
+  String get registerSuccessMessageWithVerification =>
+      'تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني (و المزعج(Spam /Junk Folder))  لتفعيل الحساب قبل تسجيل الدخول.';
 
   @override
-  String get emailNotVerifiedMessage => 'بريدك الإلكتروني غير مفعل. يرجى التحقق من بريدك (و المزعج(Spam /Junk Folder)) وتفعيل الحساب قبل تسجيل الدخول.';
+  String get emailNotVerifiedMessage =>
+      'بريدك الإلكتروني غير مفعل. يرجى التحقق من بريدك (و المزعج(Spam /Junk Folder)) وتفعيل الحساب قبل تسجيل الدخول.';
 
   @override
   String get soticalUseNotFound => ' المستخدم غير موجود، يرجى التسجيل أولاً';
@@ -293,7 +301,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get feedbackrequiredFields => 'العنوان والتعليق مطلوبان.';
 
   @override
-  String get commentTooLong => 'التعليق طويل جدًا. يرجى تقصيره إلى 1000 حرف أو أقل.';
+  String get commentTooLong =>
+      'التعليق طويل جدًا. يرجى تقصيره إلى 1000 حرف أو أقل.';
 
   @override
   String get feedbackSent => 'تم إرسال الملاحظات بنجاح';
@@ -342,7 +351,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get annAddSuccessfully => 'تمت إضافة المناسبة بنجاح';
 
   @override
-  String get failtoAddAnniversary => 'فشل في إضافة المناسبة، يرجى المحاولة مرة أخرى لاحقًا';
+  String get failtoAddAnniversary =>
+      'فشل في إضافة المناسبة، يرجى المحاولة مرة أخرى لاحقًا';
 
   @override
   String get dateValidation => 'يرجى اختيار التاريخ.';
@@ -351,10 +361,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get annUpdateSuccessfully => 'تم تحديث المناسبة بنجاح';
 
   @override
-  String get failtoUpdateAnniversary => 'فشل في تحديث المناسبة، يرجى المحاولة مرة أخرى لاحقًا';
+  String get failtoUpdateAnniversary =>
+      'فشل في تحديث المناسبة، يرجى المحاولة مرة أخرى لاحقًا';
 
   @override
-  String get oldPasswordIncorrect => 'كلمة المرور القديمة غير صحيحة. يرجى المحاولة مرة أخرى.';
+  String get oldPasswordIncorrect =>
+      'كلمة المرور القديمة غير صحيحة. يرجى المحاولة مرة أخرى.';
 
   @override
   String get occasionDetails => 'تفاصيل المناسبة';
@@ -366,7 +378,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get exactAlarmPermissionTitle => 'مطلوب إذن التنبيهات الدقيقة';
 
   @override
-  String get exactAlarmPermissionMessage => 'لضمان عمل التذكيرات بشكل موثوق، تأكد من السماح بإذن \"جدولة التنبيهات الدقيقة\" في إعدادات النظام.';
+  String get exactAlarmPermissionMessage =>
+      'لضمان عمل التذكيرات بشكل موثوق، تأكد من السماح بإذن \"جدولة التنبيهات الدقيقة\" في إعدادات النظام.';
 
   @override
   String get open_sertings => 'فتح الإعدادات';
@@ -390,7 +403,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reminderTitleRequired => 'عنوان التذكير مطلوب';
 
   @override
-  String get reminderTitleTooLong => 'عنوان التذكير  يجب أن يكون بحد أقصى 100 حرف';
+  String get reminderTitleTooLong =>
+      'عنوان التذكير  يجب أن يكون بحد أقصى 100 حرف';
 
   @override
   String get selecydatetime => 'اختر التاريخ والوقت';
@@ -456,7 +470,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reminderDelete => 'حذف التذكير';
 
   @override
-  String get reminderDeleteConfirmation => 'هل أنت متأكد أنك تريد حذف هذا التذكير؟';
+  String get reminderDeleteConfirmation =>
+      'هل أنت متأكد أنك تريد حذف هذا التذكير؟';
 
   @override
   String get tasks => 'المهام';
@@ -513,7 +528,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get removing => 'حذف \'';
 
   @override
-  String get removingcatmessage => ' سيتم حذف جميع المهام تحت هذه الفئة. لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد؟';
+  String get removingcatmessage =>
+      ' سيتم حذف جميع المهام تحت هذه الفئة. لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد؟';
 
   @override
   String get categoryanditstasksremoved => 'تم حذف الفئة وجميع المهام تحتها';
@@ -533,7 +549,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get erroraddingcategory => 'خطأ في إضافة الفئة: ';
 
   @override
-  String get defaultcategorycannotberemoved => 'الفئة الافتراضية لا يمكن حذفها.';
+  String get defaultcategorycannotberemoved =>
+      'الفئة الافتراضية لا يمكن حذفها.';
 
   @override
   String get errorloadingcategories => 'خطأ في تحميل القائمات: ';
@@ -542,7 +559,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get selectDueDate => 'اختر تاريخ الانتهاء';
 
   @override
-  String get pleasefillinallrequiredfields => 'الرجاء إدخال جميع الحقول المطلوبة';
+  String get pleasefillinallrequiredfields =>
+      'الرجاء إدخال جميع الحقول المطلوبة';
 
   @override
   String get pleaseselectacategory => 'الرجاء اختيار الفئة';
@@ -566,13 +584,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tasknameisrequired => 'اسم المهمة مطلوب';
 
   @override
-  String get tasknamemustbe100charactersorless => 'اسم المهمة يجب أن يكون على الأكثر 100 حرف';
+  String get tasknamemustbe100charactersorless =>
+      'اسم المهمة يجب أن يكون على الأكثر 100 حرف';
 
   @override
   String get dueDate => 'تاريخ الانتهاء';
 
   @override
-  String get nonotificationifdatenotset => 'لا توجد إشعارات إذا لم يتم تعيين التاريخ';
+  String get nonotificationifdatenotset =>
+      'لا توجد إشعارات إذا لم يتم تعيين التاريخ';
 
   @override
   String get category1 => ' * الفئة';
@@ -581,7 +601,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get selectcategory => 'اختر الفئة';
 
   @override
-  String get nocategoryfound => 'لم يتم العثور على فئات. يُرجى إنشاء فئة أولاً.';
+  String get nocategoryfound =>
+      'لم يتم العثور على فئات. يُرجى إنشاء فئة أولاً.';
 
   @override
   String get saveTask => 'حفظ المهمة';
@@ -605,7 +626,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noImportantOccasions => 'لا توجد مناسبات مهمة';
 
   @override
-  String get noImportantOccasionsMessage => 'ليس لديك أي مناسبات ذات أولوية عالية بعد. أضف بعض المناسبات وحددها كأولوية عالية لتراها هنا.';
+  String get noImportantOccasionsMessage =>
+      'ليس لديك أي مناسبات ذات أولوية عالية بعد. أضف بعض المناسبات وحددها كأولوية عالية لتراها هنا.';
 
   @override
   String get feedback => 'ملاحظات';
@@ -629,7 +651,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get removeTask => 'حذف المهمة';
 
   @override
-  String get areYouSureYouWantToRemoveThisTask => 'هل أنت متأكد أنك تريد حذف هذه المهمة؟';
+  String get areYouSureYouWantToRemoveThisTask =>
+      'هل أنت متأكد أنك تريد حذف هذه المهمة؟';
 
   @override
   String get yes => 'نعم';
@@ -662,7 +685,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get validNumberbetween => 'الرجاء إدخال رقم بين 1 و 99.';
 
   @override
-  String get pleaseselectAtLeastOneWeekday => 'الرجاء اختيار يوم عمل واحد على الأقل';
+  String get pleaseselectAtLeastOneWeekday =>
+      'الرجاء اختيار يوم عمل واحد على الأقل';
 
   @override
   String get pleaseselecydatetime => 'الرجاء اختيار التاريخ والوقت';
@@ -695,7 +719,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tasksavedSuccessfully => 'تم حفظ المهمة بنجاح';
 
   @override
-  String get dailyDeed => 'العمل اليومي';
+  String get dailyDeed => 'الاعمال اليومية';
+
+  @override
+  String get religiousDeed => 'الاعمال اليومية الدينية';
+
+  @override
+  String get statisticsreligiousDeed => 'إحصائيات الأعمال الدينية';
+
+  @override
+  String get followUs => 'تابعنا';
+
+  @override
+  String get deedName => 'اسم العمل';
+
+  @override
+  String get enterDeedName => 'يرجى إدخال اسم العمل';
 
   @override
   String get prayers => 'الصلوات';
@@ -852,12 +891,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editCustomDeed => 'تعديل عمل مخصص';
-
-  @override
-  String get deedName => 'اسم العمل';
-
-  @override
-  String get enterDeedName => 'يرجى إدخال اسم العمل';
 
   @override
   String get selectStartDate => 'اختر تاريخ البداية';
@@ -1265,7 +1298,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get crisisBP => 'أزمة';
 
   @override
-  String get rangesSettingsNote => 'تخصيص النطاقات المستهدفة بناءً على توصيات الطبيب';
+  String get rangesSettingsNote =>
+      'تخصيص النطاقات المستهدفة بناءً على توصيات الطبيب';
 
   @override
   String get basicInfo => 'المعلومات الأساسية';

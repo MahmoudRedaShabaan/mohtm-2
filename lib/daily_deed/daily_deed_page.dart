@@ -271,7 +271,7 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     return Scaffold(
       appBar: widget.showAppBar
           ? AppBar(
-              title: Text(localization.dailyDeed),
+              title: Text(localization.religiousDeed),
               centerTitle: true,
               backgroundColor: const Color.fromARGB(255, 182, 142, 190),
               actions: [

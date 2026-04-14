@@ -226,7 +226,12 @@
   "error":"خطأ",
   "tasksavedSuccessfully":"تم حفظ المهمة بنجاح",
 
-  "dailyDeed": "العمل اليومي",
+  "dailyDeed": "الاعمال اليومية",
+  "religiousDeed": "الاعمال اليومية الدينية",
+  "statisticsreligiousDeed": "إحصائيات الأعمال الدينية",
+  "followUs": "تابعنا",
+  "deedName": "اسم العمل",
+  "enterDeedName": "أدخل اسم العمل",
   "prayers": "الصلوات",
   "fajr": "الفجر",
   "dhur": "الظهر",

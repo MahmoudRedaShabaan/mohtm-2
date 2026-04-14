@@ -9,7 +9,7 @@ import 'package:myapp/login_page.dart';
 import 'package:share_plus/share_plus.dart';
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
-
+import 'package:myapp/general_deeds_page.dart';
 import 'package:myapp/lookup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +22,9 @@ import 'package:myapp/health/blood_pressure_page.dart';
 import 'package:myapp/health/blood_sugar_page.dart';
 import 'package:myapp/health/health_info_page.dart';
 import 'anniversary_streams.dart';
+import 'occasions_page.dart';
+import 'occasion_filter_page.dart';
+
 class Anniversary {
   final DateTime date;
   final String name;
@@ -59,7 +62,9 @@ class _HomePageState extends State<HomePage> {
   String _appVersion = '';
   late int _currentIndex;
   int _currentTabIndex = 0; // Track main tab index for FAB visibility
-  static const MethodChannel _widgetChannel = MethodChannel('com.reda.mohtm2/widget');
+  static const MethodChannel _widgetChannel = MethodChannel(
+    'com.reda.mohtm2/widget',
+  );
 
   @override
   void initState() {
@@ -96,61 +101,72 @@ class _HomePageState extends State<HomePage> {
   DateTime? filterEndDate;
   List<QueryDocumentSnapshot> filteredDocs = [];
   bool isFiltering = false;
-  
-  Future<void> _writeOccasionWidgetSummary(List<QueryDocumentSnapshot> docs) async {
+
+  Future<void> _writeOccasionWidgetSummary(
+    List<QueryDocumentSnapshot> docs,
+  ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       // Build a compact JSON payload with items (up to 5) and total count
       final int totalCount = docs.length;
-      final List<Map<String, dynamic>> items = docs.take(5).map((doc) {
-        final date = (doc['date'] as Timestamp?)?.toDate();
-        final String dateStr = date != null ? '${date.day}/${date.month}/${date.year}' : '';
-        final String title = (doc['title'] ?? '').toString();
-        final String typeId = (doc['type']?.toString() ?? '');
-        final locale = Localizations.localeOf(context).languageCode;
-        final eventTypes = LookupService().eventTypes;
-        String typeName = typeId;
-        if (typeId.isNotEmpty) {
-          if (typeId == '4') {
-            typeName = doc['addType']?.toString() ?? '';
-          } else {
-            final typeObj = eventTypes.firstWhere(
-              (type) => type['id'].toString() == typeId,
-              orElse: () => <String, dynamic>{},
-            );
-            typeName = locale == 'ar' ? (typeObj['arabicName'] ?? typeId) : (typeObj['englishName'] ?? typeId);
-          }
-        }
-        final relationship = (doc['relationship'] ?? '').toString();
-        return {
-          'title': title,
-          'date': dateStr,
-          'type': typeName,
-          'relationship': relationship,
-        };
-      }).toList();
-      final payload = {
-        'items': items,
-        'total': totalCount,
-      };
+      final List<Map<String, dynamic>> items =
+          docs.take(5).map((doc) {
+            final date = (doc['date'] as Timestamp?)?.toDate();
+            final String dateStr =
+                date != null ? '${date.day}/${date.month}/${date.year}' : '';
+            final String title = (doc['title'] ?? '').toString();
+            final String typeId = (doc['type']?.toString() ?? '');
+            final locale = Localizations.localeOf(context).languageCode;
+            final eventTypes = LookupService().eventTypes;
+            String typeName = typeId;
+            if (typeId.isNotEmpty) {
+              if (typeId == '4') {
+                typeName = doc['addType']?.toString() ?? '';
+              } else {
+                final typeObj = eventTypes.firstWhere(
+                  (type) => type['id'].toString() == typeId,
+                  orElse: () => <String, dynamic>{},
+                );
+                typeName =
+                    locale == 'ar'
+                        ? (typeObj['arabicName'] ?? typeId)
+                        : (typeObj['englishName'] ?? typeId);
+              }
+            }
+            final relationship = (doc['relationship'] ?? '').toString();
+            return {
+              'title': title,
+              'date': dateStr,
+              'type': typeName,
+              'relationship': relationship,
+            };
+          }).toList();
+      final payload = {'items': items, 'total': totalCount};
       await prefs.setString('widget_occasion_items', jsonEncode(payload));
       await _widgetChannel.invokeMethod('updateOccasionWidget');
     } catch (_) {
       // Ignore errors; widget update is best effort
     }
   }
-Future<void> share() async {
-    await Share.share( 'https://play.google.com/store/apps/details?id=com.reda.mohtm2',
-        subject: 'Example Chooser Title');
+
+  Future<void> share() async {
+    await Share.share(
+      'https://play.google.com/store/apps/details?id=com.reda.mohtm2',
+      subject: 'Example Chooser Title',
+    );
   }
-Future<void> rateApp() async {
-  final Uri playStoreUrl = Uri.parse('https://play.google.com/store/apps/details?id=com.reda.mohtm2');
-  if (await canLaunch(playStoreUrl.toString())) {
-    await launch(playStoreUrl.toString());
-  } else {
-    throw 'Could not launch $playStoreUrl';
+
+  Future<void> rateApp() async {
+    final Uri playStoreUrl = Uri.parse(
+      'https://play.google.com/store/apps/details?id=com.reda.mohtm2',
+    );
+    if (await canLaunch(playStoreUrl.toString())) {
+      await launch(playStoreUrl.toString());
+    } else {
+      throw 'Could not launch $playStoreUrl';
+    }
   }
-}
+
   void filterAnniversaries() {
     if (startDate == null || endDate == null) {
       return;
@@ -168,7 +184,8 @@ Future<void> rateApp() async {
           }).toList();
     });
   }
-void filterAnniversariesByMonthDay() async {
+
+  void filterAnniversariesByMonthDay() async {
     if (filterStartDate == null || filterEndDate == null) return;
     if (!mounted) return;
     setState(() {
@@ -224,7 +241,7 @@ void filterAnniversariesByMonthDay() async {
 
   //   final userId = FirebaseAuth.instance.currentUser?.uid;
   //   print('Current user ID: $userId');
-    
+
   //   if (userId == null) {
   //     ScaffoldMessenger.of(context).showSnackBar(
   //       SnackBar(
@@ -246,7 +263,7 @@ void filterAnniversariesByMonthDay() async {
   //     if (!mounted) return;
 
   //     print('Found ${querySnapshot.docs.length} total anniversaries for user $userId');
-      
+
   //     final filtered = querySnapshot.docs.where((doc) {
   //       final Timestamp dateTimestamp = doc['date'] as Timestamp;
   //       final DateTime date = dateTimestamp.toDate();
@@ -264,7 +281,7 @@ void filterAnniversariesByMonthDay() async {
   //       final int endMd = endMonth * 100 + endDay;
 
   //       print('Anniversary: ${date.day}/${date.month}, Start: ${filterStartDate!.day}/${filterStartDate!.month}, End: ${filterEndDate!.day}/${filterEndDate!.month}');
-        
+
   //       if (startMd <= endMd) {
   //         // Normal range (e.g., 3/1 to 5/1)
   //         return currentMd >= startMd && currentMd <= endMd;
@@ -371,12 +388,12 @@ void filterAnniversariesByMonthDay() async {
                                           : Colors.transparent,
                                 ),
                                 title: const Text('English'),
-                                  onTap: () async {
-                                    widget.onLanguageChanged('en');
-                                    await _updateUserLang('en');
-                                    if (!mounted) return;
-                                    Navigator.pop(context);
-                                  },
+                                onTap: () async {
+                                  widget.onLanguageChanged('en');
+                                  await _updateUserLang('en');
+                                  if (!mounted) return;
+                                  Navigator.pop(context);
+                                },
                               ),
                               ListTile(
                                 leading: Icon(
@@ -407,7 +424,6 @@ void filterAnniversariesByMonthDay() async {
                 onPressed: () {
                   Navigator.pushNamed(context, "/profile");
                 },
-
               ),
             ],
             bottom: TabBar(
@@ -479,45 +495,52 @@ void filterAnniversariesByMonthDay() async {
                           Navigator.pushNamed(context, '/tasks');
                         },
                       ),
-                      ListTile(
+                      // ListTile(
+                      //   leading: const Icon(Icons.self_improvement),
+                      //   title: Text(AppLocalizations.of(context)!.dailyDeed),
+                      //   onTap: () {
+                      //     Navigator.pop(context);
+                      //     final user = FirebaseAuth.instance.currentUser;
+                      //     if (user != null) {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder:
+                      //               (context) =>
+                      //                   DailyDeedPage(userId: user.uid),
+                      //         ),
+                      //       );
+                      //     }
+                      //   },
+                      // ),
+                      // ListTile(
+                      //   leading: const Icon(Icons.bar_chart),
+                      //   title: Text(AppLocalizations.of(context)!.statistics),
+                      //   onTap: () {
+                      //     Navigator.pop(context);
+                      //     final user = FirebaseAuth.instance.currentUser;
+                      //     if (user != null) {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder:
+                      //               (context) => DailyDeedStatisticsPage(
+                      //                 userId: user.uid,
+                      //               ),
+                      //         ),
+                      //       );
+                      //     }
+                      //   },
+                      // ),
+                      ExpansionTile(
                         leading: const Icon(Icons.self_improvement),
                         title: Text(AppLocalizations.of(context)!.dailyDeed),
-                        onTap: () {
-                          Navigator.pop(context);
-                          final user = FirebaseAuth.instance.currentUser;
-                          if (user != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DailyDeedPage(userId: user.uid),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.bar_chart),
-                        title: Text(AppLocalizations.of(context)!.statistics),
-                        onTap: () {
-                          Navigator.pop(context);
-                          final user = FirebaseAuth.instance.currentUser;
-                          if (user != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DailyDeedStatisticsPage(userId: user.uid),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                      ExpansionTile(
-                        leading: const Icon(Icons.favorite),
-                        title: Text(AppLocalizations.of(context)!.health),
-                        children: <Widget>[  
+                        children: <Widget>[
                           ListTile(
-                            leading: const Icon(Icons.monitor_heart),
-                            title: Text(AppLocalizations.of(context)!.bloodPressure),
+                            leading: const Icon(Icons.edit_note),
+                            title: Text(
+                              AppLocalizations.of(context)!.dailyDeed,
+                            ),
                             onTap: () {
                               Navigator.pop(context);
                               final user = FirebaseAuth.instance.currentUser;
@@ -525,7 +548,77 @@ void filterAnniversariesByMonthDay() async {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const BloodPressurePage(),
+                                    builder:
+                                        (context) =>
+                                            GeneralDeedsPage(userId: user.uid),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.self_improvement),
+                            title: Text(
+                              AppLocalizations.of(context)!.religiousDeed,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              final user = FirebaseAuth.instance.currentUser;
+                              if (user != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            DailyDeedPage(userId: user.uid),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.bar_chart),
+                            title: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.statisticsreligiousDeed,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              final user = FirebaseAuth.instance.currentUser;
+                              if (user != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => DailyDeedStatisticsPage(
+                                          userId: user.uid,
+                                        ),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      ExpansionTile(
+                        leading: const Icon(Icons.favorite),
+                        title: Text(AppLocalizations.of(context)!.health),
+                        children: <Widget>[
+                          ListTile(
+                            leading: const Icon(Icons.monitor_heart),
+                            title: Text(
+                              AppLocalizations.of(context)!.bloodPressure,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              final user = FirebaseAuth.instance.currentUser;
+                              if (user != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const BloodPressurePage(),
                                   ),
                                 );
                               }
@@ -533,7 +626,9 @@ void filterAnniversariesByMonthDay() async {
                           ),
                           ListTile(
                             leading: const Icon(Icons.water_drop),
-                            title: Text(AppLocalizations.of(context)!.bloodSugar),
+                            title: Text(
+                              AppLocalizations.of(context)!.bloodSugar,
+                            ),
                             onTap: () {
                               Navigator.pop(context);
                               Navigator.push(
@@ -546,7 +641,9 @@ void filterAnniversariesByMonthDay() async {
                           ),
                           ListTile(
                             leading: const Icon(Icons.info_outline),
-                            title: Text(AppLocalizations.of(context)!.healthInfo),
+                            title: Text(
+                              AppLocalizations.of(context)!.healthInfo,
+                            ),
                             onTap: () {
                               Navigator.pop(context);
                               Navigator.push(
@@ -579,7 +676,7 @@ void filterAnniversariesByMonthDay() async {
                         title: Text(AppLocalizations.of(context)!.rateUs),
                         onTap: () {
                           rateApp();
-                          },
+                        },
                       ),
                       ListTile(
                         leading: const Icon(Icons.share),
@@ -632,6 +729,85 @@ void filterAnniversariesByMonthDay() async {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.link,
+                              size: 20,
+                              color: Color(0xFF888888),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              AppLocalizations.of(context)!.followUs,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF888888),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.facebook,
+                              color: Color(0xFF1877F2),
+                            ),
+                            iconSize: 32,
+                            onPressed: () async {
+                              final Uri webUri = Uri.parse(
+                                'https://www.facebook.com/mohtmapp/',
+                              );
+                              await launchUrl(
+                                webUri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.camera_alt,
+                              color: Color(0xFFE4405F),
+                            ),
+                            iconSize: 32,
+                            onPressed: () async {
+                              final Uri webUri = Uri.parse(
+                                'https://www.instagram.com/mohtmapp/',
+                              );
+                              await launchUrl(
+                                webUri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.play_circle_fill,
+                              color: Color(0xFFFF0000),
+                            ),
+                            iconSize: 32,
+                            onPressed: () async {
+                              final uri = Uri.parse(
+                                'https://www.youtube.com/@Mohtmapp',
+                              );
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.inAppWebView,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 20),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20.0),
@@ -646,7 +822,9 @@ void filterAnniversariesByMonthDay() async {
                               vertical: 8,
                             ),
                             child: Text(
-                              _appVersion.isNotEmpty ? 'Version: $_appVersion' : '',
+                              _appVersion.isNotEmpty
+                                  ? 'Version: $_appVersion'
+                                  : '',
                               style: const TextStyle(
                                 fontSize: 18,
                                 color: Color(0xFF888888),
@@ -666,699 +844,27 @@ void filterAnniversariesByMonthDay() async {
 
           body: TabBarView(
             children: [
-              // Tab 1: Occasions with nested tabs (Today, Coming)
-              DefaultTabController(
-                length: 2,
-                child: Column(
-                  children: [
-                    TabBar(
-                      tabs: [
-                        Tab(text: AppLocalizations.of(context)!.todaysOccasions),
-                        Tab(text: AppLocalizations.of(context)!.notifiedOccasions),
-                      ],
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          // Sub-tab 1: Today's Occasions
-                          StreamBuilder<List<QueryDocumentSnapshot>>(
-                            stream: getTodaysAnniversariesStream(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(child: CircularProgressIndicator());
-                              }
-
-                              final List<QueryDocumentSnapshot> todayAnniversaries =
-                                  snapshot.hasData ? snapshot.data! : <QueryDocumentSnapshot>[];
-
-                              _writeOccasionWidgetSummary(todayAnniversaries);
-
-                              if (todayAnniversaries.isEmpty) {
-                                return Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_today,
-                                        size: 64,
-                                        color: Colors.grey[400],
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        AppLocalizations.of(context)!.noAnniversariesToday,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-
-                              return ListView.builder(
-                                padding: const EdgeInsets.all(16),
-                                itemCount: todayAnniversaries.length,
-                                itemBuilder: (context, index) {
-                                  final doc = todayAnniversaries[index];
-                                  final date = (doc['date'] as Timestamp).toDate();
-                                  final title = doc['title'] ?? '';
-                                  final typeId = doc['type']?.toString() ?? '';
-                                  final locale = Localizations.localeOf(context).languageCode;
-                                  final eventTypes = LookupService().eventTypes;
-                                  String typeName = typeId;
-                                  if (typeId.isNotEmpty) {
-                                    if (typeId == "4") {
-                                      typeName = doc['addType']?.toString() ?? '';
-                                    } else {
-                                      final typeObj = eventTypes.firstWhere(
-                                        (type) => type['id'].toString() == typeId,
-                                        orElse: () => <String, dynamic>{},
-                                      );
-                                      typeName = locale == 'ar'
-                                          ? (typeObj['arabicName'] ?? typeId)
-                                          : (typeObj['englishName'] ?? typeId);
-                                    }
-                                  }
-                                  final priorityId = doc['priority']?.toString() ?? '';
-                                  final annPriorities = LookupService().annPriorities;
-                                  String priorityName = priorityId;
-                                  if (priorityId.isNotEmpty) {
-                                    final priorityObj = annPriorities.firstWhere(
-                                      (p) => p['id'].toString() == priorityId,
-                                      orElse: () => <String, dynamic>{},
-                                    );
-                                    priorityName = locale == 'ar'
-                                        ? (priorityObj['priorityAr'] ?? priorityId)
-                                        : (priorityObj['priorityEn'] ?? priorityId);
-                                  }
-                                  Color priorityColor;
-                                  switch (priorityId) {
-                                    case '1':
-                                      priorityColor = Colors.red;
-                                      break;
-                                    case '2':
-                                      priorityColor = Colors.orange;
-                                      break;
-                                    case '3':
-                                      priorityColor = Colors.yellow[700]!;
-                                      break;
-                                    default:
-                                      priorityColor = Colors.grey;
-                                  }
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 8,
-                                    ),
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(16),
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => AnniversaryInfoPage(
-                                              anniversaryId: doc.id,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 12,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 28,
-                                              backgroundColor: priorityColor.withValues(alpha: 0.15),
-                                              child: Text(
-                                                '${date.day}/${date.month}\n${date.year}',
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        typeName == 'Birthday' || typeName == 'عيد ميلاد'
-                                                            ? Icons.cake
-                                                            : typeName == 'Wedding' || typeName == 'زواج'
-                                                                ? Icons.favorite
-                                                                : typeName == 'Death' || typeName == 'وفاة'
-                                                                    ? Icons.sentiment_very_dissatisfied
-                                                                    : Icons.event,
-                                                        color: Colors.deepPurple,
-                                                        size: 20,
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      Expanded(
-                                                        child: Text(
-                                                          title,
-                                                          style: const TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight: FontWeight.bold,
-                                                          ),
-                                                          overflow: TextOverflow.ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    AppLocalizations.of(context)!.typeLabel(typeName),
-                                                    style: TextStyle(
-                                                      color: Colors.grey[700],
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                  if (doc['relationship'] != null &&
-                                                      doc['relationship'].toString().isNotEmpty)
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(top: 2.0),
-                                                      child: Text(
-                                                        doc['relationship'],
-                                                        style: TextStyle(
-                                                          color: Colors.grey[600],
-                                                          fontSize: 13,
-                                                        ),
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Chip(
-                                              label: Text(
-                                                priorityName,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              backgroundColor: priorityColor,
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          // Sub-tab 2: Coming Occasions
-                          StreamBuilder<List<QueryDocumentSnapshot>>(
-                            stream: getNotifiedOccasionsStream(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(child: CircularProgressIndicator());
-                              }
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                return Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.notifications_active,
-                                        size: 64,
-                                        color: Colors.grey[400],
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        AppLocalizations.of(context)!.noNotifiedOccasions,
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-
-                              final notifiedOccasions = snapshot.data!;
-                              return ListView.builder(
-                                padding: const EdgeInsets.all(16),
-                                itemCount: notifiedOccasions.length,
-                                itemBuilder: (context, index) {
-                                  final doc = notifiedOccasions[index];
-                                  final date = (doc['date'] as Timestamp).toDate();
-                                  final title = doc['title'] ?? '';
-                                  final typeId = doc['type']?.toString() ?? '';
-                                  final locale = Localizations.localeOf(context).languageCode;
-                                  final eventTypes = LookupService().eventTypes;
-                                  String typeName = typeId;
-                                  if (typeId.isNotEmpty) {
-                                    if (typeId == "4") {
-                                      typeName = doc['addType']?.toString() ?? '';
-                                    } else {
-                                      final typeObj = eventTypes.firstWhere(
-                                        (type) => type['id'].toString() == typeId,
-                                        orElse: () => <String, dynamic>{},
-                                      );
-                                      typeName = locale == 'ar'
-                                          ? (typeObj['arabicName'] ?? typeId)
-                                          : (typeObj['englishName'] ?? typeId);
-                                    }
-                                  }
-                                  final priorityId = doc['priority']?.toString() ?? '';
-                                  final annPriorities = LookupService().annPriorities;
-                                  String priorityName = priorityId;
-                                  if (priorityId.isNotEmpty) {
-                                    final priorityObj = annPriorities.firstWhere(
-                                      (p) => p['id'].toString() == priorityId,
-                                      orElse: () => <String, dynamic>{},
-                                    );
-                                    priorityName = locale == 'ar'
-                                        ? (priorityObj['priorityAr'] ?? priorityId)
-                                        : (priorityObj['priorityEn'] ?? priorityId);
-                                  }
-                                  Color priorityColor;
-                                  switch (priorityId) {
-                                    case '1':
-                                      priorityColor = Colors.red;
-                                      break;
-                                    case '2':
-                                      priorityColor = Colors.orange;
-                                      break;
-                                    case '3':
-                                      priorityColor = Colors.yellow[700]!;
-                                      break;
-                                    default:
-                                      priorityColor = Colors.grey;
-                                  }
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(16),
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => AnniversaryInfoPage(anniversaryId: doc.id),
-                                          ),
-                                        );
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 28,
-                                              backgroundColor: priorityColor.withValues(alpha: 0.15),
-                                              child: Text(
-                                                '${date.day}/${date.month}\n${date.year}',
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        typeName == 'Birthday' || typeName == 'عيد ميلاد'
-                                                            ? Icons.cake
-                                                            : typeName == 'Wedding' || typeName == 'زواج'
-                                                                ? Icons.favorite
-                                                                : typeName == 'Death' || typeName == 'وفاة'
-                                                                    ? Icons.sentiment_very_dissatisfied
-                                                                    : Icons.event,
-                                                        color: Colors.deepPurple,
-                                                        size: 20,
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      Expanded(
-                                                        child: Text(
-                                                          title,
-                                                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                                          overflow: TextOverflow.ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    AppLocalizations.of(context)!.typeLabel(typeName),
-                                                    style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                                                  ),
-                                                  if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(top: 2.0),
-                                                      child: Text(
-                                                        doc['relationship'],
-                                                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Chip(
-                                              label: Text(
-                                                priorityName,
-                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                              ),
-                                              backgroundColor: priorityColor,
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Tab 1: Occasions - separate page
+              const OccasionsPage(),
               // Tab 2: Daily Deeds
-              DailyDeedPage(userId: FirebaseAuth.instance.currentUser?.uid ?? '', showAppBar: false),
-              // Tab 3: Filter
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Card(
-                      margin: const EdgeInsets.only(bottom: 16.0),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.4,
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.date_range),
-                                    label: Text(
-                                      filterStartDate == null
-                                          ? AppLocalizations.of(context)!.startDate
-                                          : 'Start: ${filterStartDate!.day}/${filterStartDate!.month}',
-                                    ),
-                                    onPressed: () async {
-                                      final currentYear = DateTime.now().year;
-                                      final initialDate = filterStartDate != null
-                                          ? DateTime(currentYear, filterStartDate!.month, filterStartDate!.day)
-                                          : DateTime(currentYear, 1, 1);
-
-                                      final pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: initialDate,
-                                        firstDate: DateTime(currentYear, 1, 1),
-                                        lastDate: DateTime(currentYear, 12, 31),
-                                        helpText: AppLocalizations.of(context)!.startDate,
-                                        fieldHintText: "MM/DD",
-                                      );
-                                      if (pickedDate != null) {
-                                        setState(() {
-                                          filterStartDate = DateTime(2000, pickedDate.month, pickedDate.day);
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.4,
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.date_range),
-                                    label: Text(
-                                      filterEndDate == null
-                                          ? AppLocalizations.of(context)!.endDate
-                                          : 'End: ${filterEndDate!.day}/${filterEndDate!.month}',
-                                    ),
-                                    onPressed: () async {
-                                      final currentYear = DateTime.now().year;
-                                      final initialDate = filterEndDate != null
-                                          ? DateTime(currentYear, filterEndDate!.month, filterEndDate!.day)
-                                          : DateTime(currentYear, 12, 31);
-
-                                      final pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: initialDate,
-                                        firstDate: DateTime(currentYear, 1, 1),
-                                        lastDate: DateTime(currentYear, 12, 31),
-                                        helpText: AppLocalizations.of(context)!.endDate,
-                                        fieldHintText: "MM/DD",
-                                      );
-                                      if (pickedDate != null) {
-                                        setState(() {
-                                          filterEndDate = DateTime(2000, pickedDate.month, pickedDate.day);
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.6,
-                                  child: ElevatedButton.icon(
-                                    onPressed: filterAnniversariesByMonthDay,
-                                    icon: const Icon(Icons.filter_alt),
-                                    label: Text(AppLocalizations.of(context)!.filter),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(255, 156, 217, 115),
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.2,
-                                  child: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        filterStartDate = null;
-                                        filterEndDate = null;
-                                        filteredDocs = [];
-                                      });
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Color.fromARGB(255, 172, 171, 170),
-                                    ),
-                                    tooltip: AppLocalizations.of(context)!.clearFilter,
-                                    iconSize: 28,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Expanded(
-                      child: isFiltering
-                          ? const Center(child: CircularProgressIndicator())
-                          : filteredDocs.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.calendar_today, size: 64, color: Colors.grey[400]),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        AppLocalizations.of(context)!.noAnniversariesFound,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : ListView.builder(
-                                  itemCount: filteredDocs.length,
-                                  itemBuilder: (context, index) {
-                                    final doc = filteredDocs[index];
-                                    final date = (doc['date'] as Timestamp).toDate();
-                                    final title = doc['title'] ?? '';
-                                    final String typeId = doc['type']?.toString() ?? '';
-                                    final locale = Localizations.localeOf(context).languageCode;
-                                    final eventTypes = LookupService().eventTypes;
-                                    String typeName = typeId;
-                                    if (typeId.isNotEmpty) {
-                                      if (typeId == "4") {
-                                        typeName = doc['addType']?.toString() ?? '';
-                                      } else {
-                                        final typeObj = eventTypes.firstWhere(
-                                          (type) => type['id'].toString() == typeId,
-                                          orElse: () => <String, dynamic>{},
-                                        );
-                                        typeName = locale == 'ar'
-                                            ? (typeObj['arabicName'] ?? typeId)
-                                            : (typeObj['englishName'] ?? typeId);
-                                      }
-                                    }
-                                    final priorityId = doc['priority']?.toString() ?? '';
-                                    final annPriorities = LookupService().annPriorities;
-                                    String priorityName = priorityId;
-                                    if (priorityId.isNotEmpty) {
-                                      final priorityObj = annPriorities.firstWhere(
-                                        (p) => p['id'].toString() == priorityId,
-                                        orElse: () => <String, dynamic>{},
-                                      );
-                                      priorityName = locale == 'ar'
-                                          ? (priorityObj['priorityAr'] ?? priorityId)
-                                          : (priorityObj['priorityEn'] ?? priorityId);
-                                    }
-                                    Color priorityColor;
-                                    switch (priorityId) {
-                                      case '1':
-                                        priorityColor = Colors.red;
-                                        break;
-                                      case '2':
-                                        priorityColor = Colors.orange;
-                                        break;
-                                      case '3':
-                                        priorityColor = Colors.yellow[700]!;
-                                        break;
-                                      default:
-                                        priorityColor = Colors.grey;
-                                    }
-                                    return Card(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                      elevation: 4,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(16),
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => AnniversaryInfoPage(anniversaryId: doc.id),
-                                            ),
-                                          );
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                          child: Row(
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 28,
-                                                backgroundColor: priorityColor.withValues(alpha: 0.15),
-                                                child: Text(
-                                                  '${date.day}/${date.month}/${date.year}',
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 16),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Icon(
-                                                          typeName == 'Birthday' || typeName == 'عيد ميلاد'
-                                                              ? Icons.cake
-                                                              : typeName == 'Wedding' || typeName == 'زواج'
-                                                                  ? Icons.favorite
-                                                                  : typeName == 'Death' || typeName == 'وفاة'
-                                                                      ? Icons.sentiment_very_dissatisfied
-                                                                      : Icons.event,
-                                                          color: Colors.deepPurple,
-                                                          size: 20,
-                                                        ),
-                                                        const SizedBox(width: 6),
-                                                        Expanded(
-                                                          child: Text(
-                                                            title,
-                                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                                            overflow: TextOverflow.ellipsis,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      AppLocalizations.of(context)!.typeLabel(typeName),
-                                                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                                                    ),
-                                                    if (doc['relationship'] != null && doc['relationship'].toString().isNotEmpty)
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(top: 2.0),
-                                                        child: Text(
-                                                          doc['relationship'],
-                                                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                                                          overflow: TextOverflow.ellipsis,
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Chip(
-                                                label: Text(
-                                                  priorityName,
-                                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                ),
-                                                backgroundColor: priorityColor,
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                    ),
-                  ],
-                ),
+              DailyDeedPage(
+                userId: FirebaseAuth.instance.currentUser?.uid ?? '',
+                showAppBar: false,
               ),
+              // Tab 3: Filter - separate page
+              const OccasionFilterPage(),
             ],
           ),
-          floatingActionButton: _currentTabIndex == 0
-              ? FloatingActionButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/add_anniversary");
-                  },
-                  child: const Icon(Icons.add),
-                  backgroundColor: const Color.fromARGB(255, 150, 100, 200),
-                )
-              : null,
+          floatingActionButton:
+              _currentTabIndex == 0
+                  ? FloatingActionButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/add_anniversary");
+                    },
+                    child: const Icon(Icons.add),
+                    backgroundColor: const Color.fromARGB(255, 150, 100, 200),
+                  )
+                  : null,
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         ),
       ),

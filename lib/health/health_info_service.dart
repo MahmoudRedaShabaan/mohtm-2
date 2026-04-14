@@ -20,11 +20,12 @@ class HealthInfoService {
   /// Get basic health info for a user
   Future<BasicHealthInfo?> getBasicHealthInfo(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection(_basicInfoCollection)
-          .where('userId', isEqualTo: userId)
-          .limit(1)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection(_basicInfoCollection)
+              .where('userId', isEqualTo: userId)
+              .limit(1)
+              .get();
 
       if (snapshot.docs.isEmpty) return null;
       return BasicHealthInfo.fromMap(
@@ -45,9 +46,7 @@ class HealthInfoService {
         await _firestore
             .collection(_basicInfoCollection)
             .doc(existing.id)
-            .update(info.copyWith(
-              updatedAt: DateTime.now(),
-            ).toMap());
+            .update(info.copyWith(updatedAt: DateTime.now()).toMap());
         return existing.id!;
       } else {
         final docRef = await _firestore
@@ -66,11 +65,12 @@ class HealthInfoService {
   /// Get all allergies for a user
   Future<List<Allergy>> getAllergies(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection(_allergiesCollection)
-          .where('userId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection(_allergiesCollection)
+              .where('userId', isEqualTo: userId)
+              .orderBy('createdAt', descending: true)
+              .get();
 
       return snapshot.docs
           .map((doc) => Allergy.fromMap(doc.data(), doc.id))
@@ -109,11 +109,12 @@ class HealthInfoService {
   /// Get all chronic diseases for a user
   Future<List<ChronicDisease>> getChronicDiseases(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection(_chronicDiseasesCollection)
-          .where('userId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection(_chronicDiseasesCollection)
+              .where('userId', isEqualTo: userId)
+              .orderBy('createdAt', descending: true)
+              .get();
 
       return snapshot.docs
           .map((doc) => ChronicDisease.fromMap(doc.data(), doc.id))
@@ -140,10 +141,7 @@ class HealthInfoService {
   /// Delete a chronic disease
   Future<void> deleteChronicDisease(String id) async {
     try {
-      await _firestore
-          .collection(_chronicDiseasesCollection)
-          .doc(id)
-          .delete();
+      await _firestore.collection(_chronicDiseasesCollection).doc(id).delete();
     } catch (e) {
       print('Error deleting chronic disease: $e');
       throw Exception('Failed to delete chronic disease: $e');
@@ -155,11 +153,12 @@ class HealthInfoService {
   /// Get all medications for a user
   Future<List<Medication>> getMedications(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection(_medicationsCollection)
-          .where('userId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection(_medicationsCollection)
+              .where('userId', isEqualTo: userId)
+              .orderBy('createdAt', descending: true)
+              .get();
 
       return snapshot.docs
           .map((doc) => Medication.fromMap(doc.data(), doc.id))
@@ -192,9 +191,7 @@ class HealthInfoService {
       await _firestore
           .collection(_medicationsCollection)
           .doc(medication.id)
-          .update(medication.copyWith(
-            updatedAt: DateTime.now(),
-          ).toMap());
+          .update(medication.copyWith(updatedAt: DateTime.now()).toMap());
     } catch (e) {
       print('Error updating medication: $e');
       throw Exception('Failed to update medication: $e');
@@ -216,11 +213,12 @@ class HealthInfoService {
   /// Get all emergency contacts for a user
   Future<List<EmergencyContact>> getEmergencyContacts(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection(_emergencyContactsCollection)
-          .where('userId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection(_emergencyContactsCollection)
+              .where('userId', isEqualTo: userId)
+              .orderBy('createdAt', descending: true)
+              .get();
 
       return snapshot.docs
           .map((doc) => EmergencyContact.fromMap(doc.data(), doc.id))
@@ -278,11 +276,12 @@ class HealthInfoService {
   /// Get all medical notes for a user
   Future<List<MedicalNote>> getMedicalNotes(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection(_medicalNotesCollection)
-          .where('userId', isEqualTo: userId)
-          .orderBy('timestamp', descending: true)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection(_medicalNotesCollection)
+              .where('userId', isEqualTo: userId)
+              .orderBy('timestamp', descending: true)
+              .get();
 
       return snapshot.docs
           .map((doc) => MedicalNote.fromMap(doc.data(), doc.id))
@@ -360,17 +359,26 @@ class HealthInfoService {
     String medicationId,
     String medicationName,
     String dosage,
-    List<DateTime> reminderTimes,
-  ) async {
+    List<DateTime> reminderTimes, {
+    String locale = 'en',
+  }) async {
     try {
       // Initialize notifications if not already
-      const androidSettings =
-          AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
       const initSettings = InitializationSettings(android: androidSettings);
       await _notifications.initialize(initSettings);
 
       // Cancel any existing reminders for this medication
       await cancelMedicationReminders(medicationId);
+
+      // Localized strings
+      final title = locale == 'ar' ? 'تذكير بالأدوية' : 'Medication Reminder';
+      final body =
+          locale == 'ar'
+              ? 'حان الوقت لتناول $medicationName ($dosage)'
+              : 'Time to take $medicationName ($dosage)';
 
       // Schedule new reminders
       for (int i = 0; i < reminderTimes.length; i++) {
@@ -379,8 +387,8 @@ class HealthInfoService {
 
         await _notifications.zonedSchedule(
           notificationId,
-          'Medication Reminder',
-          'Time to take $medicationName ($dosage)',
+          title,
+          body,
           tz.TZDateTime.from(time, tz.local),
           const NotificationDetails(
             android: AndroidNotificationDetails(

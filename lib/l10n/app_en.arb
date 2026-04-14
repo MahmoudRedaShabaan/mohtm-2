@@ -226,7 +226,12 @@
   "error":"Error",
   "tasksavedSuccessfully":"Task added successfully",
 
-  "dailyDeed": "Daily Deed",
+  "dailyDeed": "Daily Deeds",
+  "religiousDeed": "Religious Daily Deeds",
+  "statisticsreligiousDeed": "Religious Deed Statistics",
+  "followUs": "Follow Us",
+  "deedName": "Deed Name",
+  "enterDeedName": "Enter deed name",
   "prayers": "Prayers",
   "fajr": "Fajr",
   "dhur": "Dhur",

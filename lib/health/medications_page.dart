@@ -418,11 +418,13 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
 
       // Schedule reminders
       if (_reminderTimes.isNotEmpty) {
+        final locale = Localizations.localeOf(context).languageCode;
         await _service.scheduleMedicationReminders(
           medicationId,
           medication.name,
           '${medication.dosage} ${medication.dosageUnit}',
           _reminderTimes,
+          locale: locale,
         );
       } else {
         await _service.cancelMedicationReminders(medicationId);
