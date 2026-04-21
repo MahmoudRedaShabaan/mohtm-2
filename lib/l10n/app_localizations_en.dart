@@ -21,8 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcome => 'Welcome';
 
   @override
-  String get noAnniversariesToday =>
-      'No saved occasions for today ,\n  you can add a new one';
+  String get noAnniversariesToday => 'No saved occasions for today ,\n  you can add a new one';
 
   @override
   String get title => 'mohtm';
@@ -123,19 +122,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterNewPassword => 'Please enter new password';
 
   @override
-  String get passwordLengthValidation =>
-      'New password must be at least 6 characters';
+  String get passwordLengthValidation => 'New password must be at least 6 characters';
 
   @override
-  String get passwordMatchValidation =>
-      'New password and confirm new password must match';
+  String get passwordMatchValidation => 'New password and confirm new password must match';
 
   @override
   String get enterConfirmNewPassword => 'Please enter confirm new password';
 
   @override
-  String get passwordsDoNotMatch =>
-      'New password and confirm new password do not match';
+  String get passwordsDoNotMatch => 'New password and confirm new password do not match';
 
   @override
   String get passwordChangedSuccessfully => 'Password changed successfully';
@@ -171,8 +167,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAnniversary => 'Delete occasion';
 
   @override
-  String get deleteAnniversaryConfirmation =>
-      'Are you sure you want to delete this occasion?';
+  String get deleteAnniversaryConfirmation => 'Are you sure you want to delete this occasion?';
 
   @override
   String get cancel => 'Cancel';
@@ -271,12 +266,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerErrorMessage => 'Registration failed';
 
   @override
-  String get registerSuccessMessageWithVerification =>
-      'Registration successful! Please check your email (and Spam / Junk Folder) to verify your account before logging in.';
+  String get registerSuccessMessageWithVerification => 'Registration successful! Please check your email (and Spam / Junk Folder) to verify your account before logging in.';
 
   @override
-  String get emailNotVerifiedMessage =>
-      'Your email is not verified. Please check your inbox (and Spam / Junk Folder) and verify your email before logging in.';
+  String get emailNotVerifiedMessage => 'Your email is not verified. Please check your inbox (and Spam / Junk Folder) and verify your email before logging in.';
 
   @override
   String get soticalUseNotFound => ' user not found, please register first';
@@ -300,8 +293,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackrequiredFields => 'title and comment are required.';
 
   @override
-  String get commentTooLong =>
-      'Comment is too long. Please shorten it to 1000 characters or less.';
+  String get commentTooLong => 'Comment is too long. Please shorten it to 1000 characters or less.';
 
   @override
   String get feedbackSent => 'Feedback sent successfully';
@@ -350,8 +342,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get annAddSuccessfully => 'occasion added successfully';
 
   @override
-  String get failtoAddAnniversary =>
-      'Failed to add occasion, please try again later';
+  String get failtoAddAnniversary => 'Failed to add occasion, please try again later';
 
   @override
   String get dateValidation => 'Please select a date.';
@@ -360,12 +351,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get annUpdateSuccessfully => 'occasion updated successfully';
 
   @override
-  String get failtoUpdateAnniversary =>
-      'Failed to update occasion, please try again later';
+  String get failtoUpdateAnniversary => 'Failed to update occasion, please try again later';
 
   @override
-  String get oldPasswordIncorrect =>
-      'Old password is incorrect. Please try again.';
+  String get oldPasswordIncorrect => 'Old password is incorrect. Please try again.';
 
   @override
   String get occasionDetails => 'occasion Details';
@@ -377,8 +366,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exactAlarmPermissionTitle => 'Exact Alarm Permission Needed';
 
   @override
-  String get exactAlarmPermissionMessage =>
-      'To ensure reminders work reliably, make sure to  allow \"Schedule exact alarms\" permission in system settings.';
+  String get exactAlarmPermissionMessage => 'To ensure reminders work reliably, make sure to  allow \"Schedule exact alarms\" permission in system settings.';
 
   @override
   String get open_sertings => 'Open Settings';
@@ -402,8 +390,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderTitleRequired => 'Reminder title is required';
 
   @override
-  String get reminderTitleTooLong =>
-      'Reminder title must be at most 100 characters';
+  String get reminderTitleTooLong => 'Reminder title must be at most 100 characters';
 
   @override
   String get selecydatetime => 'Select date & time';
@@ -469,8 +456,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderDelete => 'Delete Reminder';
 
   @override
-  String get reminderDeleteConfirmation =>
-      'Are you sure you want to delete this Reminder?';
+  String get reminderDeleteConfirmation => 'Are you sure you want to delete this Reminder?';
 
   @override
   String get tasks => 'Tasks';
@@ -503,8 +489,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noTasksFound => 'No tasks found';
 
   @override
-  String get addYourFirstTaskToGetStarted =>
-      'Add your first task to get started!';
+  String get addYourFirstTaskToGetStarted => 'Add your first task to get started!';
 
   @override
   String get addCategory => 'Add Category';
@@ -528,8 +513,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removing => 'Removing \'';
 
   @override
-  String get removingcatmessage =>
-      ' will PERMANENTLY delete all tasks under this category. This action cannot be undone. Are you sure?';
+  String get removingcatmessage => ' will PERMANENTLY delete all tasks under this category. This action cannot be undone. Are you sure?';
 
   @override
   String get categoryanditstasksremoved => 'Category and its tasks removed';
@@ -549,8 +533,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get erroraddingcategory => 'Error adding category: ';
 
   @override
-  String get defaultcategorycannotberemoved =>
-      'Default category cannot be removed.';
+  String get defaultcategorycannotberemoved => 'Default category cannot be removed.';
 
   @override
   String get errorloadingcategories => 'Error loading categories: ';
@@ -559,8 +542,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectDueDate => 'Select Due Date';
 
   @override
-  String get pleasefillinallrequiredfields =>
-      'Please fill in all required fields';
+  String get pleasefillinallrequiredfields => 'Please fill in all required fields';
 
   @override
   String get pleaseselectacategory => 'Please select a category';
@@ -584,8 +566,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasknameisrequired => 'Task name is required';
 
   @override
-  String get tasknamemustbe100charactersorless =>
-      'Task name must be 100 characters or less';
+  String get tasknamemustbe100charactersorless => 'Task name must be 100 characters or less';
 
   @override
   String get dueDate => 'Due Date';
@@ -600,8 +581,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectcategory => 'Select category';
 
   @override
-  String get nocategoryfound =>
-      'No categories found. Please create a category first.';
+  String get nocategoryfound => 'No categories found. Please create a category first.';
 
   @override
   String get saveTask => 'Save Task';
@@ -619,21 +599,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotifiedOccasions => 'No notified occasions';
 
   @override
-  String get importantOccasions => 'Important Occasions';
+  String get importantOccasions => 'Important';
 
   @override
   String get noImportantOccasions => 'No important occasions found';
 
   @override
-  String get noImportantOccasionsMessage =>
-      'You don\'t have any high priority occasions yet. Add some occasions and mark them as high priority to see them here.';
+  String get noImportantOccasionsMessage => 'You don\'t have any high priority occasions yet. Add some occasions and mark them as high priority to see them here.';
 
   @override
   String get feedback => 'Feedback';
 
   @override
-  String get addYourFirstRemnederToGetStarted =>
-      'Add your first reminder to get started!';
+  String get addYourFirstRemnederToGetStarted => 'Add your first reminder to get started!';
 
   @override
   String get permissionRequired => 'Notification Permission Needed';
@@ -651,8 +629,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeTask => 'Remove Task';
 
   @override
-  String get areYouSureYouWantToRemoveThisTask =>
-      'Are you sure you want to remove this task?';
+  String get areYouSureYouWantToRemoveThisTask => 'Are you sure you want to remove this task?';
 
   @override
   String get yes => 'Yes';
@@ -685,8 +662,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validNumberbetween => 'Please enter a number between 1 and 99.';
 
   @override
-  String get pleaseselectAtLeastOneWeekday =>
-      'Please select at least one weekday';
+  String get pleaseselectAtLeastOneWeekday => 'Please select at least one weekday';
 
   @override
   String get pleaseselecydatetime => 'Please select date & time';
@@ -1199,8 +1175,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorDeletingMeasurement => 'Error deleting measurement';
 
   @override
-  String get deleteMeasurementConfirm =>
-      'Are you sure you want to delete this measurement?';
+  String get deleteMeasurementConfirm => 'Are you sure you want to delete this measurement?';
 
   @override
   String get measurementDetails => 'Measurement Details';
@@ -1299,8 +1274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crisisBP => 'Crisis';
 
   @override
-  String get rangesSettingsNote =>
-      'Customize target ranges based on doctor recommendations';
+  String get rangesSettingsNote => 'Customize target ranges based on doctor recommendations';
 
   @override
   String get basicInfo => 'Basic Info';
@@ -1489,20 +1463,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmDelete => 'Confirm Delete';
 
   @override
-  String get deleteAllergyConfirm =>
-      'Are you sure you want to delete this allergy?';
+  String get deleteAllergyConfirm => 'Are you sure you want to delete this allergy?';
 
   @override
-  String get deleteDiseaseConfirm =>
-      'Are you sure you want to delete this disease?';
+  String get deleteDiseaseConfirm => 'Are you sure you want to delete this disease?';
 
   @override
-  String get deleteMedicationConfirm =>
-      'Are you sure you want to delete this medication?';
+  String get deleteMedicationConfirm => 'Are you sure you want to delete this medication?';
 
   @override
-  String get deleteContactConfirm =>
-      'Are you sure you want to delete this contact?';
+  String get deleteContactConfirm => 'Are you sure you want to delete this contact?';
 
   @override
   String get deleteNoteConfirm => 'Are you sure you want to delete this note?';
@@ -1518,4 +1488,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get edit => 'Edit';
+
+  @override
+  String get goodMorning => 'Good Morning';
+
+  @override
+  String get goodAfternoon => 'Good Afternoon';
+
+  @override
+  String get goodEvening => 'Good Evening';
+
+  @override
+  String get todayOverview => 'Today Overview';
+
+  @override
+  String get occasionsToday => 'Occasions Today';
+
+  @override
+  String get upcomingOccasions => 'Upcoming';
+
+  @override
+  String get tasksToday => 'Tasks Today';
+
+  @override
+  String get remindersToday => 'Reminders Today';
+
+  @override
+  String get noTasksToday => 'No tasks for today';
+
+  @override
+  String get noRemindersToday => 'No reminders for today';
+
+  @override
+  String lastReading(Object value) {
+    return 'Last: $value';
+  }
+
+  @override
+  String get addReading => 'Add';
+
+  @override
+  String get dailyDeeds => 'Daily Deeds';
+
+  @override
+  String get generalDeeds => 'General Deeds';
+
+  @override
+  String get religiousDeeds => 'Religious Deeds';
+
+  @override
+  String get progressToday => 'Today\'s Progress';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get addOccasion => 'Add Occasion';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get noOccasionsToday => 'No occasions today';
+
+  @override
+  String get insightBloodPressure => 'You haven\'t logged blood pressure today';
+
+  @override
+  String get insightBloodSugar => 'You haven\'t logged blood sugar today';
+
+  @override
+  String get insightUpcomingOccasion => 'You have an occasion coming up tomorrow';
+
+  @override
+  String get viewMore => 'View more';
 }

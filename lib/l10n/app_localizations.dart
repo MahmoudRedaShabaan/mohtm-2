@@ -62,8 +62,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
-    Locale('en'),
+    Locale('en')
   ];
 
   /// No description provided for @appTitle.
@@ -1265,7 +1262,7 @@ abstract class AppLocalizations {
   /// No description provided for @importantOccasions.
   ///
   /// In en, this message translates to:
-  /// **'Important Occasions'**
+  /// **'Important'**
   String get importantOccasions;
 
   /// No description provided for @noImportantOccasions.
@@ -3031,10 +3028,153 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get edit;
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning'**
+  String get goodMorning;
+
+  /// No description provided for @goodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon'**
+  String get goodAfternoon;
+
+  /// No description provided for @goodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening'**
+  String get goodEvening;
+
+  /// No description provided for @todayOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Today Overview'**
+  String get todayOverview;
+
+  /// No description provided for @occasionsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasions Today'**
+  String get occasionsToday;
+
+  /// No description provided for @upcomingOccasions.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get upcomingOccasions;
+
+  /// No description provided for @tasksToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks Today'**
+  String get tasksToday;
+
+  /// No description provided for @remindersToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders Today'**
+  String get remindersToday;
+
+  /// No description provided for @noTasksToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks for today'**
+  String get noTasksToday;
+
+  /// No description provided for @noRemindersToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders for today'**
+  String get noRemindersToday;
+
+  /// No description provided for @lastReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {value}'**
+  String lastReading(Object value);
+
+  /// No description provided for @addReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addReading;
+
+  /// No description provided for @dailyDeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Deeds'**
+  String get dailyDeeds;
+
+  /// No description provided for @generalDeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'General Deeds'**
+  String get generalDeeds;
+
+  /// No description provided for @religiousDeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Religious Deeds'**
+  String get religiousDeeds;
+
+  /// No description provided for @progressToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Progress'**
+  String get progressToday;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @addOccasion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Occasion'**
+  String get addOccasion;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get viewAll;
+
+  /// No description provided for @noOccasionsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No occasions today'**
+  String get noOccasionsToday;
+
+  /// No description provided for @insightBloodPressure.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t logged blood pressure today'**
+  String get insightBloodPressure;
+
+  /// No description provided for @insightBloodSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t logged blood sugar today'**
+  String get insightBloodSugar;
+
+  /// No description provided for @insightUpcomingOccasion.
+  ///
+  /// In en, this message translates to:
+  /// **'You have an occasion coming up tomorrow'**
+  String get insightUpcomingOccasion;
+
+  /// No description provided for @viewMore.
+  ///
+  /// In en, this message translates to:
+  /// **'View more'**
+  String get viewMore;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -3043,26 +3183,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['ar', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ar':
-      return AppLocalizationsAr();
-    case 'en':
-      return AppLocalizationsEn();
+    case 'ar': return AppLocalizationsAr();
+    case 'en': return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

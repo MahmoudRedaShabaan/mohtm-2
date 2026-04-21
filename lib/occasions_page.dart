@@ -8,7 +8,14 @@ import 'package:myapp/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OccasionsPage extends StatefulWidget {
-  const OccasionsPage({super.key});
+  final bool showAppBar;
+  final int initialTabIndex;
+
+  const OccasionsPage({
+    super.key,
+    this.showAppBar = true,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<OccasionsPage> createState() => _OccasionsPageState();
@@ -110,34 +117,47 @@ class _OccasionsPageState extends State<OccasionsPage> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
-      child: Column(
-        children: [
-          TabBar(
-            tabs: [
-              Tab(
-                icon: const Icon(Icons.today),
-                text: AppLocalizations.of(context)!.todaysOccasions,
-              ),
-              Tab(
-                icon: const Icon(Icons.notifications),
-                text: AppLocalizations.of(context)!.notifiedOccasions,
-              ),
-              Tab(
-                icon: const Icon(Icons.filter_list),
-                text: AppLocalizations.of(context)!.filter,
-              ),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildTodaysOccasions(),
-                _buildNotifiedOccasions(),
-                _buildFilterTab(),
-              ],
-            ),
-          ),
-        ],
+      initialIndex: widget.initialTabIndex,
+      child: Scaffold(
+        appBar:
+            widget.showAppBar
+                ? AppBar(
+                  title: Text(AppLocalizations.of(context)!.occasions),
+                  centerTitle: true,
+                  backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                  bottom: TabBar(
+                    tabs: [
+                      Tab(
+                        icon: const Icon(Icons.today),
+                        text: AppLocalizations.of(context)!.todaysOccasions,
+                      ),
+                      Tab(
+                        icon: const Icon(Icons.notifications),
+                        text: AppLocalizations.of(context)!.notifiedOccasions,
+                      ),
+                      Tab(
+                        icon: const Icon(Icons.filter_list),
+                        text: AppLocalizations.of(context)!.filter,
+                      ),
+                    ],
+                  ),
+                )
+                : null,
+        body: TabBarView(
+          children: [
+            _buildTodaysOccasions(),
+            _buildNotifiedOccasions(),
+            _buildFilterTab(),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushNamed(context, "/add_anniversary");
+          },
+          child: const Icon(Icons.add),
+          backgroundColor: const Color.fromARGB(255, 150, 100, 200),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

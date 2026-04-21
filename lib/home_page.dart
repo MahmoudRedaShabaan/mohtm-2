@@ -21,6 +21,7 @@ import 'package:myapp/daily_deed/daily_deed_statistics_page.dart';
 import 'package:myapp/health/blood_pressure_page.dart';
 import 'package:myapp/health/blood_sugar_page.dart';
 import 'package:myapp/health/health_info_page.dart';
+import 'home_dashboard.dart';
 import 'anniversary_streams.dart';
 import 'occasions_page.dart';
 import 'occasion_filter_page.dart';
@@ -367,6 +368,22 @@ class _HomePageState extends State<HomePage> {
               //     Navigator.pushNamed(context, "/add_anniversary");
               //   },
               // ),
+              IconButton(
+                icon: const Icon(Icons.dashboard),
+                tooltip: 'Dashboard',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => HomeDashboard(
+                            onLanguageChanged: widget.onLanguageChanged,
+                            currentLanguage: widget.currentLanguage,
+                          ),
+                    ),
+                  );
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.language),
                 onPressed: () {
@@ -845,7 +862,7 @@ class _HomePageState extends State<HomePage> {
           body: TabBarView(
             children: [
               // Tab 1: Occasions - separate page
-              const OccasionsPage(),
+              const OccasionsPage(showAppBar: false),
               // Tab 2: Daily Deeds
               DailyDeedPage(
                 userId: FirebaseAuth.instance.currentUser?.uid ?? '',
