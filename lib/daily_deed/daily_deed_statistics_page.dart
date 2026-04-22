@@ -17,7 +17,8 @@ class DailyDeedStatisticsPage extends StatefulWidget {
   });
 
   @override
-  State<DailyDeedStatisticsPage> createState() => _DailyDeedStatisticsPageState();
+  State<DailyDeedStatisticsPage> createState() =>
+      _DailyDeedStatisticsPageState();
 }
 
 class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
@@ -69,7 +70,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   void _loadStatistics() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -80,16 +81,16 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
         _selectedYear,
         _selectedMonth,
       );
-      
+
       if (!mounted) return;
-      
+
       setState(() {
         _statistics = stats;
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -102,65 +103,68 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     final localization = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: widget.showAppBar
-          ? AppBar(
-              title: Text(localization.statisticsreligiousDeed),
-              backgroundColor: const Color.fromARGB(255, 117, 92, 142),
-            )
-          : null,
-      body: _isLoading || _selectedMonth == 0
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
+      appBar:
+          widget.showAppBar
+              ? AppBar(
+                title: Text(localization.statisticsreligiousDeed),
+                backgroundColor: const Color(0xFF4DB6AC),
+              )
+              : null,
+      body:
+          _isLoading || _selectedMonth == 0
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
               ? Center(child: Text(_error!))
               : _statistics == null
-                  ? const Center(child: Text('No data available'))
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Month selector
-                          _buildMonthSelector(localization),
-                          const SizedBox(height: 16),
-                          
-                          // Month info
-                          _buildMonthInfo(),
-                          const SizedBox(height: 24),
-                          
-                          // Prayer statistics (5 mandatory)
-                          _buildPrayerStatistics(localization),
-                          const SizedBox(height: 16),
-                          
-                          // Nafl prayers statistics (tahajjud, witr, taraweeh)
-                          _buildNaflPrayerStatistics(localization),
-                          const SizedBox(height: 16),
-                          
-                          // Sunnah statistics
-                          _buildSunnahStatistics(localization),
-                          const SizedBox(height: 16),
-                          
-                          // Supplications statistics
-                          _buildSupplicationsStatistics(localization),
-                          const SizedBox(height: 16),
-                          
-                          // Learning statistics
-                          _buildLearningStatistics(localization),
-                          const SizedBox(height: 16),
-                          
-                          // Fasting statistics (only in Ramadan)
-                          if (_statistics!.isRamadan)
-                            _buildFastingStatistics(localization),
-                        ],
-                      ),
-                    ),
+              ? const Center(child: Text('No data available'))
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Month selector
+                    _buildMonthSelector(localization),
+                    const SizedBox(height: 16),
+
+                    // Month info
+                    _buildMonthInfo(),
+                    const SizedBox(height: 24),
+
+                    // Prayer statistics (5 mandatory)
+                    _buildPrayerStatistics(localization),
+                    const SizedBox(height: 16),
+
+                    // Nafl prayers statistics (tahajjud, witr, taraweeh)
+                    _buildNaflPrayerStatistics(localization),
+                    const SizedBox(height: 16),
+
+                    // Sunnah statistics
+                    _buildSunnahStatistics(localization),
+                    const SizedBox(height: 16),
+
+                    // Supplications statistics
+                    _buildSupplicationsStatistics(localization),
+                    const SizedBox(height: 16),
+
+                    // Learning statistics
+                    _buildLearningStatistics(localization),
+                    const SizedBox(height: 16),
+
+                    // Fasting statistics (only in Ramadan)
+                    if (_statistics!.isRamadan)
+                      _buildFastingStatistics(localization),
+                  ],
+                ),
+              ),
     );
   }
 
   Widget _buildMonthSelector(AppLocalizations localization) {
     final monthName = _statisticsService.getMonthName(_selectedMonth);
-    final isCurrentMonth = _selectedMonth == HijriDateUtil.getCurrentHijriMonth() && 
-                           _selectedYear == HijriDateUtil.getCurrentHijriYear();
-    
+    final isCurrentMonth =
+        _selectedMonth == HijriDateUtil.getCurrentHijriMonth() &&
+        _selectedYear == HijriDateUtil.getCurrentHijriYear();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -193,9 +197,9 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                 ),
               ),
             ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Month navigation row
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -206,7 +210,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                 icon: const Icon(Icons.chevron_left),
                 color: DeedColors.primary,
               ),
-              
+
               // Month name
               Expanded(
                 child: Column(
@@ -232,7 +236,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                   ],
                 ),
               ),
-              
+
               // Next month button
               IconButton(
                 onPressed: _goToNextMonth,
@@ -278,7 +282,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   Widget _buildPrayerStatistics(AppLocalizations localization) {
     final stats = _statistics!;
-    
+
     return ExpansionTile(
       title: Text(
         localization.prayers,
@@ -305,7 +309,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                 const SizedBox(width: 8),
                 Text(
                   _getPrayerLocalizedName(localization, stat.prayerName),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -338,11 +345,27 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
         Wrap(
           spacing: 16,
           children: [
-            _buildLegendItem(DeedColors.notPrayed, localization.notPrayed, stat.notPrayed),
+            _buildLegendItem(
+              DeedColors.notPrayed,
+              localization.notPrayed,
+              stat.notPrayed,
+            ),
             _buildLegendItem(DeedColors.late, localization.late, stat.late),
-            _buildLegendItem(DeedColors.onTime, localization.onTime, stat.onTime),
-            _buildLegendItem(DeedColors.jamaAh, localization.inJamaah, stat.jamaAh),
-            _buildLegendItem(Colors.grey[300]!, localization.notSelected, stat.notSelected),
+            _buildLegendItem(
+              DeedColors.onTime,
+              localization.onTime,
+              stat.onTime,
+            ),
+            _buildLegendItem(
+              DeedColors.jamaAh,
+              localization.inJamaah,
+              stat.jamaAh,
+            ),
+            _buildLegendItem(
+              Colors.grey[300]!,
+              localization.notSelected,
+              stat.notSelected,
+            ),
           ],
         ),
       ],
@@ -351,12 +374,12 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   Widget _buildNaflPrayerStatistics(AppLocalizations localization) {
     final stats = _statistics!;
-    
+
     // Only show if there are nafl prayers to display
     if (stats.naflPrayerStats.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     return ExpansionTile(
       title: Text(
         localization.naflPrayers,
@@ -369,7 +392,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     );
   }
 
-  Widget _buildNaflPrayerStatItem(AppLocalizations localization, NaflPrayerStat stat) {
+  Widget _buildNaflPrayerStatItem(
+    AppLocalizations localization,
+    NaflPrayerStat stat,
+  ) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -383,7 +409,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                 const SizedBox(width: 8),
                 Text(
                   _getPrayerLocalizedName(localization, stat.prayerName),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -414,9 +443,21 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
         Wrap(
           spacing: 16,
           children: [
-            _buildLegendItem(DeedColors.missed, localization.missed, stat.missed),
-            _buildLegendItem(DeedColors.completed, localization.completed, stat.completed),
-            _buildLegendItem(Colors.grey[300]!, localization.notSelected, stat.notSelected),
+            _buildLegendItem(
+              DeedColors.missed,
+              localization.missed,
+              stat.missed,
+            ),
+            _buildLegendItem(
+              DeedColors.completed,
+              localization.completed,
+              stat.completed,
+            ),
+            _buildLegendItem(
+              Colors.grey[300]!,
+              localization.notSelected,
+              stat.notSelected,
+            ),
           ],
         ),
       ],
@@ -425,7 +466,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   Widget _buildSunnahStatistics(AppLocalizations localization) {
     final stats = _statistics!;
-    
+
     return ExpansionTile(
       title: Text(
         localization.sunnahPrayers,
@@ -452,7 +493,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                 const SizedBox(width: 8),
                 Text(
                   _getSunnahLocalizedName(localization, stat.prayerName),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -481,9 +525,21 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
         Wrap(
           spacing: 16,
           children: [
-            _buildLegendItem(DeedColors.missed, localization.missed, stat.missed),
-            _buildLegendItem(DeedColors.completed, localization.completed, stat.completed),
-            _buildLegendItem(Colors.grey[300]!, localization.notSelected, stat.notSelected),
+            _buildLegendItem(
+              DeedColors.missed,
+              localization.missed,
+              stat.missed,
+            ),
+            _buildLegendItem(
+              DeedColors.completed,
+              localization.completed,
+              stat.completed,
+            ),
+            _buildLegendItem(
+              Colors.grey[300]!,
+              localization.notSelected,
+              stat.notSelected,
+            ),
           ],
         ),
       ],
@@ -492,7 +548,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   Widget _buildSupplicationsStatistics(AppLocalizations localization) {
     final stats = _statistics!;
-    
+
     return ExpansionTile(
       title: Text(
         localization.supplications,
@@ -505,7 +561,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     );
   }
 
-  Widget _buildSupplicationStatItem(AppLocalizations localization, SupplicationStat stat) {
+  Widget _buildSupplicationStatItem(
+    AppLocalizations localization,
+    SupplicationStat stat,
+  ) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -518,8 +577,14 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                 Icon(_getSupplicationIcon(stat.supplicationName), size: 24),
                 const SizedBox(width: 8),
                 Text(
-                  _getSupplicationLocalizedName(localization, stat.supplicationName),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  _getSupplicationLocalizedName(
+                    localization,
+                    stat.supplicationName,
+                  ),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -531,7 +596,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     );
   }
 
-  Widget _buildSupplicationStatBar(AppLocalizations localization, SupplicationStat stat) {
+  Widget _buildSupplicationStatBar(
+    AppLocalizations localization,
+    SupplicationStat stat,
+  ) {
     final total = stat.total;
     if (total == 0) return const SizedBox.shrink();
 
@@ -548,9 +616,21 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
         Wrap(
           spacing: 16,
           children: [
-            _buildLegendItem(DeedColors.missed, localization.missed, stat.missed),
-            _buildLegendItem(DeedColors.completed, localization.completed, stat.completed),
-            _buildLegendItem(Colors.grey[300]!, localization.notSelected, stat.notSelected),
+            _buildLegendItem(
+              DeedColors.missed,
+              localization.missed,
+              stat.missed,
+            ),
+            _buildLegendItem(
+              DeedColors.completed,
+              localization.completed,
+              stat.completed,
+            ),
+            _buildLegendItem(
+              Colors.grey[300]!,
+              localization.notSelected,
+              stat.notSelected,
+            ),
           ],
         ),
       ],
@@ -572,7 +652,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     }
   }
 
-  String _getSupplicationLocalizedName(AppLocalizations localization, String supplicationName) {
+  String _getSupplicationLocalizedName(
+    AppLocalizations localization,
+    String supplicationName,
+  ) {
     switch (supplicationName) {
       case 'morning_supplications':
         return localization.morningSupplications;
@@ -589,7 +672,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   Widget _buildLearningStatistics(AppLocalizations localization) {
     final stats = _statistics!;
-    
+
     return ExpansionTile(
       title: Text(
         localization.learning,
@@ -607,13 +690,25 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                   children: [
                     const Icon(Icons.menu_book, size: 24),
                     const SizedBox(width: 8),
-                    Text(localization.readQuran, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    Text(
+                      localization.readQuran,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text('${localization.totalChaptersRead}: ${stats.learningStat.chaptersRead}'),
-                Text('${localization.daysWithReading}: ${stats.learningStat.daysWithReading}'),
-                Text('${localization.notSelected}: ${stats.learningStat.notSelected}'),
+                Text(
+                  '${localization.totalChaptersRead}: ${stats.learningStat.chaptersRead}',
+                ),
+                Text(
+                  '${localization.daysWithReading}: ${stats.learningStat.daysWithReading}',
+                ),
+                Text(
+                  '${localization.notSelected}: ${stats.learningStat.notSelected}',
+                ),
                 const SizedBox(height: 12),
                 if (stats.learningStat.chapterDistribution.isNotEmpty)
                   _buildChapterDistribution(localization),
@@ -627,11 +722,14 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   Widget _buildChapterDistribution(AppLocalizations localization) {
     final distribution = _statistics!.learningStat.chapterDistribution;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(localization.distribution, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          localization.distribution,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         ...distribution.entries.map((e) {
           final chapters = e.key;
@@ -642,14 +740,18 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
               children: [
                 SizedBox(
                   width: 60,
-                  child: Text('${chapters.toStringAsFixed(chapters.truncateToDouble() == chapters ? 0 : 2)} ${localization.parts}'),
+                  child: Text(
+                    '${chapters.toStringAsFixed(chapters.truncateToDouble() == chapters ? 0 : 2)} ${localization.parts}',
+                  ),
                 ),
                 Expanded(
                   child: LinearProgressIndicator(
                     value: count / distribution.values.reduce((a, b) => a + b),
                     minHeight: 8,
                     backgroundColor: Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation<Color>(DeedColors.primary),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      DeedColors.primary,
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -666,7 +768,7 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
 
   Widget _buildFastingStatistics(AppLocalizations localization) {
     final stats = _statistics!;
-    
+
     return ExpansionTile(
       title: Text(
         localization.fasting,
@@ -684,25 +786,52 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                   children: [
                     Icon(Icons.wb_sunny, size: 24),
                     SizedBox(width: 8),
-                    Text('Ramadan Fasting', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    Text(
+                      'Ramadan Fasting',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 // Progress bars
                 Row(
                   children: [
-                    _buildColoredBar(DeedColors.completed, stats.fastingStat.completed / stats.daysInMonth),
-                    _buildColoredBar(DeedColors.missed, stats.fastingStat.missed / stats.daysInMonth),
-                    _buildColoredBar(Colors.grey[300]!, stats.fastingStat.notSelected / stats.daysInMonth),
+                    _buildColoredBar(
+                      DeedColors.completed,
+                      stats.fastingStat.completed / stats.daysInMonth,
+                    ),
+                    _buildColoredBar(
+                      DeedColors.missed,
+                      stats.fastingStat.missed / stats.daysInMonth,
+                    ),
+                    _buildColoredBar(
+                      Colors.grey[300]!,
+                      stats.fastingStat.notSelected / stats.daysInMonth,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 16,
                   children: [
-                    _buildLegendItem(DeedColors.completed, localization.completed, stats.fastingStat.completed),
-                    _buildLegendItem(DeedColors.missed, localization.missed, stats.fastingStat.missed),
-                    _buildLegendItem(Colors.grey[300]!, localization.notSelected, stats.fastingStat.notSelected),
+                    _buildLegendItem(
+                      DeedColors.completed,
+                      localization.completed,
+                      stats.fastingStat.completed,
+                    ),
+                    _buildLegendItem(
+                      DeedColors.missed,
+                      localization.missed,
+                      stats.fastingStat.missed,
+                    ),
+                    _buildLegendItem(
+                      Colors.grey[300]!,
+                      localization.notSelected,
+                      stats.fastingStat.notSelected,
+                    ),
                   ],
                 ),
               ],
@@ -730,7 +859,11 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 4),
         Text('$label ($count)'),
       ],
@@ -760,7 +893,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     }
   }
 
-  String _getPrayerLocalizedName(AppLocalizations localization, String prayerName) {
+  String _getPrayerLocalizedName(
+    AppLocalizations localization,
+    String prayerName,
+  ) {
     switch (prayerName.toLowerCase()) {
       case 'fajr':
         return localization.fajr;
@@ -800,7 +936,10 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
     }
   }
 
-  String _getSunnahLocalizedName(AppLocalizations localization, String prayerName) {
+  String _getSunnahLocalizedName(
+    AppLocalizations localization,
+    String prayerName,
+  ) {
     switch (prayerName.toLowerCase()) {
       case 'fajrsunnah':
         return localization.fajrSunnah;

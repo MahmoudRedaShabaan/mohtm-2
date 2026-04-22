@@ -12,7 +12,6 @@ import 'package:timezone/timezone.dart' as tz;
 //import 'package:flutter_timezone/flutter_timezone.dart';
 import 'l10n/app_localizations.dart';
 
-
 Future<void> _openExactAlarmSettings(BuildContext context) async {
   final intent = const AndroidIntent(
     action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
@@ -386,7 +385,6 @@ class _AddReminderPageState extends State<AddReminderPage> {
                   });
                 },
               ),
-              
             ],
           ),
         ),
@@ -483,18 +481,20 @@ class _AddReminderPageState extends State<AddReminderPage> {
       });
       return;
     }
-    if(_repeat!='Don\'t repeat'){
-    if (_durationType == 'until' && _untilDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.pleaseselectanuntildate),
-        ), //Text('Please select an until date.')),
-      );
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+    if (_repeat != 'Don\'t repeat') {
+      if (_durationType == 'until' && _untilDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.pleaseselectanuntildate,
+            ),
+          ), //Text('Please select an until date.')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
     }
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -524,8 +524,8 @@ class _AddReminderPageState extends State<AddReminderPage> {
     // await _requestExactAlarmPermission();
     // Schedule local notification
     try {
-      //notificationIds 
-      var result= await scheduleReminderNotification(
+      //notificationIds
+      var result = await scheduleReminderNotification(
         id: DateTime.now().millisecondsSinceEpoch % 1000000, // simple unique id
         title: _titleController.text.trim(),
         dateTime: _selectedDateTime!,
@@ -536,8 +536,11 @@ class _AddReminderPageState extends State<AddReminderPage> {
         weekdays: _selectedRepeatUnit == 'week' ? _selectedWeekdays : null,
         timeOfReminder: AppLocalizations.of(context)!.timeOfReminder,
       );
-      await docRef.update({'notificationIds': result.$1,'notificationTimes': result.$2});
-     // docRef.update({'notificationTimes': result.$2});
+      await docRef.update({
+        'notificationIds': result.$1,
+        'notificationTimes': result.$2,
+      });
+      // docRef.update({'notificationTimes': result.$2});
     } catch (e) {
       if (await _shouldShowExactAlarmDialog()) {
         showDialog(
@@ -590,7 +593,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
             color: Color.fromARGB(255, 80, 40, 120),
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFFFFB74D),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -666,7 +669,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
                 child: ListTile(
                   leading: const Icon(
                     Icons.calendar_today,
-                    color: Colors.deepPurple,
+                    color: Color(0xFFFFB74D),
                   ),
                   title: Text(
                     _selectedDateTime == null
@@ -683,11 +686,9 @@ class _AddReminderPageState extends State<AddReminderPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  leading: const Icon(Icons.repeat, color: Colors.deepPurple),
+                  leading: const Icon(Icons.repeat, color: Color(0xFFFF9800)),
                   title: Text(
-                    '${AppLocalizations.of(context)!.repeat}: ${_repeat == 'Every x unit'
-                            ? 'Every $_repeatInterval $_selectedRepeatUnit'
-                            : _repeat}',
+                    '${AppLocalizations.of(context)!.repeat}: ${_repeat == 'Every x unit' ? 'Every $_repeatInterval $_selectedRepeatUnit' : _repeat}',
                   ),
                   onTap: _showRepeatOptions,
                 ),
@@ -767,7 +768,9 @@ Future<(List<String>, List<String>)> scheduleReminderNotification({
       );
       print("i am here repeated null after .");
       notificationIds.add(id.toString());
-      notificationTimes.add( tz.TZDateTime.from(dateTime, tz.local).toIso8601String());
+      notificationTimes.add(
+        tz.TZDateTime.from(dateTime, tz.local).toIso8601String(),
+      );
     } else {
       // Repeated
       print("i am here not repeated null before .");
@@ -785,124 +788,138 @@ Future<(List<String>, List<String>)> scheduleReminderNotification({
         // );
         // notificationIds.add(id.toString());
         // notificationTimes.add( tz.TZDateTime.from(dateTime, tz.local).toIso8601String());
-      switch (repeatUnit) {
-          case 'minute':
-          repeatCount=100;
-            break;
-          case 'hour':
-          repeatCount=100;
-            break;
-          case 'day':
-          untilDate = DateTime.now().add(const Duration(days: 100)); // 2 years from now
-            break;
-          case 'week':
-          untilDate = DateTime.now().add(const Duration(days: 100)); // 2 years from now
-            break;
-          case 'month':
-          untilDate = DateTime.now().add(const Duration(days: 365 )); // 5 years from now
-            break;
-          case 'year':
-          untilDate = DateTime.now().add(const Duration(days: 365 * 5)); // 10 years from now
-            break;
-          default:
-          untilDate = DateTime.now().add(const Duration(days: 365 * 2)); // 2 years from now
-        }
-      } 
-      // else {
-        // pre-schedule occurrences for count or until
-        Duration interval;
         switch (repeatUnit) {
           case 'minute':
-            interval = Duration(minutes: repeatInterval ?? 1);
+            repeatCount = 100;
             break;
           case 'hour':
-            interval = Duration(hours: repeatInterval ?? 1);
+            repeatCount = 100;
             break;
           case 'day':
-            interval = Duration(days: repeatInterval ?? 1);
+            untilDate = DateTime.now().add(
+              const Duration(days: 100),
+            ); // 2 years from now
             break;
           case 'week':
-            interval = Duration(days: 7 * (repeatInterval ?? 1));
+            untilDate = DateTime.now().add(
+              const Duration(days: 100),
+            ); // 2 years from now
             break;
           case 'month':
-            interval = Duration(days: 30 * (repeatInterval ?? 1));
+            untilDate = DateTime.now().add(
+              const Duration(days: 365),
+            ); // 5 years from now
             break;
           case 'year':
-            interval = Duration(days: 365 * (repeatInterval ?? 1));
+            untilDate = DateTime.now().add(
+              const Duration(days: 365 * 5),
+            ); // 10 years from now
             break;
           default:
-            interval = const Duration(minutes: 1);
+            untilDate = DateTime.now().add(
+              const Duration(days: 365 * 2),
+            ); // 2 years from now
         }
-        if (repeatUnit == 'week' && (weekdays != null && weekdays.isNotEmpty)) {
-          // schedule for selected weekdays
-          // Map Flutter weekday (Mon=1..Sun=7) to DateTime.weekday (Mon=1..Sun=7)
-          int scheduled = 0;
-          DateTime cursor = dateTime;
-          while (true) {
-            if (untilDate != null && cursor.isAfter(untilDate)) break;
+      }
+      // else {
+      // pre-schedule occurrences for count or until
+      Duration interval;
+      switch (repeatUnit) {
+        case 'minute':
+          interval = Duration(minutes: repeatInterval ?? 1);
+          break;
+        case 'hour':
+          interval = Duration(hours: repeatInterval ?? 1);
+          break;
+        case 'day':
+          interval = Duration(days: repeatInterval ?? 1);
+          break;
+        case 'week':
+          interval = Duration(days: 7 * (repeatInterval ?? 1));
+          break;
+        case 'month':
+          interval = Duration(days: 30 * (repeatInterval ?? 1));
+          break;
+        case 'year':
+          interval = Duration(days: 365 * (repeatInterval ?? 1));
+          break;
+        default:
+          interval = const Duration(minutes: 1);
+      }
+      if (repeatUnit == 'week' && (weekdays != null && weekdays.isNotEmpty)) {
+        // schedule for selected weekdays
+        // Map Flutter weekday (Mon=1..Sun=7) to DateTime.weekday (Mon=1..Sun=7)
+        int scheduled = 0;
+        DateTime cursor = dateTime;
+        while (true) {
+          if (untilDate != null && cursor.isAfter(untilDate)) break;
+          if (repeatCount != null && scheduled >= repeatCount) break;
+          for (final wd in weekdays) {
+            // compute the date in the week of cursor matching wd
+            final int delta = (wd - cursor.weekday) % 7;
+            final DateTime occurrence = DateTime(
+              cursor.year,
+              cursor.month,
+              cursor.day,
+              dateTime.hour,
+              dateTime.minute,
+            ).add(Duration(days: delta));
+            if (occurrence.isBefore(dateTime)) {
+              continue; // don't schedule before start
+            }
+            if (untilDate != null && occurrence.isAfter(untilDate)) continue;
             if (repeatCount != null && scheduled >= repeatCount) break;
-            for (final wd in weekdays) {
-              // compute the date in the week of cursor matching wd
-              final int delta = (wd - cursor.weekday) % 7;
-              final DateTime occurrence = DateTime(
-                cursor.year,
-                cursor.month,
-                cursor.day,
-                dateTime.hour,
-                dateTime.minute,
-              ).add(Duration(days: delta));
-              if (occurrence.isBefore(dateTime)) {
-                continue; // don't schedule before start
-              }
-              if (untilDate != null && occurrence.isAfter(untilDate)) continue;
-              if (repeatCount != null && scheduled >= repeatCount) break;
-              final int updatedId = id + scheduled;
-              notificationIds.add(updatedId.toString());
-              notificationTimes.add(tz.TZDateTime.from(occurrence, tz.local).toIso8601String());
-              await flutterLocalNotificationsPlugin.zonedSchedule(
-                updatedId,
-                title,
-                timeOfReminder,
-                tz.TZDateTime.from(occurrence, tz.local),
-                notificationDetails,
-                androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-                payload: 'reminder_channel_alarm',
-              );
-              scheduled++;
-            }
-            // move to next week block
-            cursor = cursor.add(Duration(days: 7 * (repeatInterval ?? 1)));
-            if (repeatCount == null && untilDate == null && scheduled > 500) {
-              break; // guard
-            }
-          }
-        } else {
-          int count = 0;
-          DateTime next = dateTime;
-          while (true) {
-            if (untilDate != null && next.isAfter(untilDate)) break;
-            if (repeatCount != null && count >= repeatCount) break;
-            final int updatedId = id + count;
+            final int updatedId = id + scheduled;
             notificationIds.add(updatedId.toString());
-            notificationTimes.add(tz.TZDateTime.from(next, tz.local).toIso8601String());
+            notificationTimes.add(
+              tz.TZDateTime.from(occurrence, tz.local).toIso8601String(),
+            );
             await flutterLocalNotificationsPlugin.zonedSchedule(
               updatedId,
               title,
               timeOfReminder,
-              tz.TZDateTime.from(next, tz.local),
+              tz.TZDateTime.from(occurrence, tz.local),
               notificationDetails,
               androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
               payload: 'reminder_channel_alarm',
             );
-            next = next.add(interval);
-            count++;
+            scheduled++;
+          }
+          // move to next week block
+          cursor = cursor.add(Duration(days: 7 * (repeatInterval ?? 1)));
+          if (repeatCount == null && untilDate == null && scheduled > 500) {
+            break; // guard
           }
         }
+      } else {
+        int count = 0;
+        DateTime next = dateTime;
+        while (true) {
+          if (untilDate != null && next.isAfter(untilDate)) break;
+          if (repeatCount != null && count >= repeatCount) break;
+          final int updatedId = id + count;
+          notificationIds.add(updatedId.toString());
+          notificationTimes.add(
+            tz.TZDateTime.from(next, tz.local).toIso8601String(),
+          );
+          await flutterLocalNotificationsPlugin.zonedSchedule(
+            updatedId,
+            title,
+            timeOfReminder,
+            tz.TZDateTime.from(next, tz.local),
+            notificationDetails,
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+            payload: 'reminder_channel_alarm',
+          );
+          next = next.add(interval);
+          count++;
+        }
       }
-      print("i am here not repeated null after .");
-   // }
+    }
+    print("i am here not repeated null after .");
+    // }
   } catch (e) {
     print("Error scheduling notification: $e");
   }
-  return (notificationIds, notificationTimes);  
+  return (notificationIds, notificationTimes);
 }

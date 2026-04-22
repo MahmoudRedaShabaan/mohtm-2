@@ -1262,7 +1262,7 @@ abstract class AppLocalizations {
   /// No description provided for @importantOccasions.
   ///
   /// In en, this message translates to:
-  /// **'Important'**
+  /// **'Important Occasions'**
   String get importantOccasions;
 
   /// No description provided for @noImportantOccasions.

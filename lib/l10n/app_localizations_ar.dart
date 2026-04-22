@@ -599,7 +599,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noNotifiedOccasions => 'لا توجد مناسبات مذكرة';
 
   @override
-  String get importantOccasions => 'المهمة';
+  String get importantOccasions => 'المناسبات المهمة';
 
   @override
   String get noImportantOccasions => 'لا توجد مناسبات مهمة';

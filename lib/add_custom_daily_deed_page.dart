@@ -42,14 +42,14 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    final initialDate = isStartDate 
-        ? (_startDate ?? DateTime.now()) 
-        : (_endDate ?? _startDate ?? DateTime.now());
-    
-    final firstDate = isStartDate 
-        ? DateTime(2020) 
-        : (_startDate ?? DateTime.now());
-    
+    final initialDate =
+        isStartDate
+            ? (_startDate ?? DateTime.now())
+            : (_endDate ?? _startDate ?? DateTime.now());
+
+    final firstDate =
+        isStartDate ? DateTime(2020) : (_startDate ?? DateTime.now());
+
     final lastDate = DateTime(2100);
 
     final picked = await showDatePicker(
@@ -80,7 +80,7 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
 
   Future<void> _saveDeed() async {
     final localization = AppLocalizations.of(context)!;
-    
+
     // Validate form
     if (!_formKey.currentState!.validate()) {
       return;
@@ -89,15 +89,15 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
     // Validate dates if not forever
     if (!_isForever) {
       if (_startDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.selectStartDate)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(localization.selectStartDate)));
         return;
       }
       if (_endDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.selectEndDate)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(localization.selectEndDate)));
         return;
       }
     }
@@ -136,9 +136,9 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) {
@@ -151,26 +151,27 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
 
   Future<void> _deleteDeed() async {
     final localization = AppLocalizations.of(context)!;
-    
+
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(localization.deleteDeed),
-        content: Text(localization.deleteDeedConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(localization.cancel),
+      builder:
+          (context) => AlertDialog(
+            title: Text(localization.deleteDeed),
+            content: Text(localization.deleteDeedConfirm),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(localization.cancel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  localization.delete,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              localization.delete,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
     );
 
     if (confirm == true && widget.deed != null) {
@@ -185,9 +186,9 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
           setState(() {
             _isLoading = false;
           });
@@ -202,9 +203,11 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? localization.editCustomDeed : localization.addCustomDeed),
+        title: Text(
+          _isEditing ? localization.editCustomDeed : localization.addCustomDeed,
+        ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF4DB6AC),
         actions: [
           if (_isEditing)
             IconButton(
@@ -213,241 +216,249 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Deed
-                    TextFormField(
-                      controller: _deedNameController,
-                      decoration: InputDecoration(
-                        labelText: localization.deedName,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.edit_note),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return localization.enterDeedName;
-                        }
-                        return null;
-                      },
-                      textInputAction: TextInputAction.done,
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Forever checkbox
-                    Container(
-                      decoration: BoxDecoration(
-                        color: DeedColors.cardBackground,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.grey.shade300,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Deed
+                      TextFormField(
+                        controller: _deedNameController,
+                        decoration: InputDecoration(
+                          labelText: localization.deedName,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.edit_note),
                         ),
-                      ),
-                      child: CheckboxListTile(
-                        title: Text(
-                          localization.forever,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Text(
-                          _isForever 
-                              ? 'This deed will appear every day'
-                              : 'This deed will appear within selected dates',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 12,
-                          ),
-                        ),
-                        value: _isForever,
-                        onChanged: (value) {
-                          setState(() {
-                            _isForever = value ?? true;
-                            if (_isForever) {
-                              _startDate = null;
-                              _endDate = null;
-                            }
-                          });
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return localization.enterDeedName;
+                          }
+                          return null;
                         },
-                        activeColor: DeedColors.primary,
-                        controlAffinity: ListTileControlAffinity.leading,
+                        textInputAction: TextInputAction.done,
                       ),
-                    ),
 
-                    // Date pickers (only if not forever)
-                    if (!_isForever) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
 
-                      // Start Date
-                      InkWell(
-                        onTap: () => _selectDate(context, true),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: DeedColors.cardBackground,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: _startDate == null 
-                                  ? Colors.orange.shade300 
-                                  : Colors.grey.shade300,
+                      // Forever checkbox
+                      Container(
+                        decoration: BoxDecoration(
+                          color: DeedColors.cardBackground,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: CheckboxListTile(
+                          title: Text(
+                            localization.forever,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                color: _startDate == null 
-                                    ? Colors.orange 
-                                    : DeedColors.primary,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      localization.startDate,
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    Text(
-                                      _startDate != null 
-                                          ? _formatDate(_startDate!)
-                                          : localization.selectStartDate,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: _startDate != null 
-                                            ? Colors.black 
-                                            : Colors.orange,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (_startDate != null)
-                                IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _startDate = null;
-                                      _endDate = null;
-                                    });
-                                  },
-                                ),
-                            ],
+                          subtitle: Text(
+                            _isForever
+                                ? 'This deed will appear every day'
+                                : 'This deed will appear within selected dates',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
                           ),
+                          value: _isForever,
+                          onChanged: (value) {
+                            setState(() {
+                              _isForever = value ?? true;
+                              if (_isForever) {
+                                _startDate = null;
+                                _endDate = null;
+                              }
+                            });
+                          },
+                          activeColor: DeedColors.primary,
+                          controlAffinity: ListTileControlAffinity.leading,
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      // Date pickers (only if not forever)
+                      if (!_isForever) ...[
+                        const SizedBox(height: 16),
 
-                      // End Date
-                      InkWell(
-                        onTap: _startDate != null 
-                            ? () => _selectDate(context, false) 
-                            : null,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: DeedColors.cardBackground,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: _endDate == null 
-                                  ? Colors.orange.shade300 
-                                  : Colors.grey.shade300,
+                        // Start Date
+                        InkWell(
+                          onTap: () => _selectDate(context, true),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: DeedColors.cardBackground,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color:
+                                    _startDate == null
+                                        ? Colors.orange.shade300
+                                        : Colors.grey.shade300,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  color:
+                                      _startDate == null
+                                          ? Colors.orange
+                                          : DeedColors.primary,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        localization.startDate,
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        _startDate != null
+                                            ? _formatDate(_startDate!)
+                                            : localization.selectStartDate,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color:
+                                              _startDate != null
+                                                  ? Colors.black
+                                                  : Colors.orange,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (_startDate != null)
+                                  IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _startDate = null;
+                                        _endDate = null;
+                                      });
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                color: _endDate == null 
-                                    ? Colors.orange 
-                                    : DeedColors.primary,
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // End Date
+                        InkWell(
+                          onTap:
+                              _startDate != null
+                                  ? () => _selectDate(context, false)
+                                  : null,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: DeedColors.cardBackground,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color:
+                                    _endDate == null
+                                        ? Colors.orange.shade300
+                                        : Colors.grey.shade300,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      localization.endDate,
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    Text(
-                                      _endDate != null 
-                                          ? _formatDate(_endDate!)
-                                          : (_startDate != null 
-                                              ? localization.selectEndDate 
-                                              : localization.selectStartDate),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: _endDate != null 
-                                            ? Colors.black 
-                                            : Colors.orange,
-                                      ),
-                                    ),
-                                  ],
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  color:
+                                      _endDate == null
+                                          ? Colors.orange
+                                          : DeedColors.primary,
                                 ),
-                              ),
-                              if (_endDate != null)
-                                IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _endDate = null;
-                                    });
-                                  },
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        localization.endDate,
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        _endDate != null
+                                            ? _formatDate(_endDate!)
+                                            : (_startDate != null
+                                                ? localization.selectEndDate
+                                                : localization.selectStartDate),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color:
+                                              _endDate != null
+                                                  ? Colors.black
+                                                  : Colors.orange,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                            ],
+                                if (_endDate != null)
+                                  IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _endDate = null;
+                                      });
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 32),
+
+                      // Save button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _saveDeed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: DeedColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            _isEditing ? localization.save : localization.add,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                     ],
-
-                    const SizedBox(height: 32),
-
-                    // Save button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _saveDeed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: DeedColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          _isEditing ? localization.save : localization.add,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
     );
   }
 }

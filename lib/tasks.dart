@@ -12,7 +12,6 @@ import 'constants.dart';
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
 
-
 class TasksPage extends StatefulWidget {
   const TasksPage({super.key});
 
@@ -45,7 +44,7 @@ class _TasksPageState extends State<TasksPage> {
     print('_scrollController: $_scrollController');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.addListener(_onScroll);
-        });
+    });
   }
 
   /*************  ✨ Windsurf Command ⭐  *************/
@@ -476,7 +475,7 @@ class _TasksPageState extends State<TasksPage> {
               },
             ),
           ],
-          backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+          backgroundColor: const Color(0xFF2196F3),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
@@ -853,7 +852,7 @@ class _TasksPageState extends State<TasksPage> {
               _loadCategories();
             });
           },
-          backgroundColor: primaryColor,
+          backgroundColor: const Color(0xFF2196F3),
           child: const Icon(Icons.add, color: Colors.white),
         ),
       ),

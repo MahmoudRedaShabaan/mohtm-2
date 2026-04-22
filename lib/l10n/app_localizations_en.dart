@@ -599,7 +599,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotifiedOccasions => 'No notified occasions';
 
   @override
-  String get importantOccasions => 'Important';
+  String get importantOccasions => 'Important Occasions';
 
   @override
   String get noImportantOccasions => 'No important occasions found';

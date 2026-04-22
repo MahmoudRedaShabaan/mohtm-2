@@ -88,7 +88,7 @@ class _BloodPressurePageState extends State<BloodPressurePage>
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.bloodPressure),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFFF48FB1),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -108,7 +108,7 @@ class _BloodPressurePageState extends State<BloodPressurePage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToAddMeasurement(context),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFFF48FB1),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -157,10 +157,7 @@ class _BloodPressurePageState extends State<BloodPressurePage>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: const LinearGradient(
-            colors: [
-              Color.fromARGB(255, 182, 142, 190),
-              Color.fromARGB(255, 211, 154, 223),
-            ],
+            colors: [Color(0xFFF48FB1), Color(0xFFF8BBD0)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -881,7 +878,7 @@ class _BloodPressureHistoryTabState extends State<BloodPressureHistoryTab>
     return Column(
       children: [
         Container(
-          color: const Color.fromARGB(255, 182, 142, 190),
+          color: const Color(0xFFF48FB1),
           child: TabBar(
             controller: _historyTabController,
             tabs: [
@@ -1138,10 +1135,7 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
                 children: [
                   Row(
                     children: [
-                      const Icon(
-                        Icons.file_download,
-                        color: Color.fromARGB(255, 182, 142, 190),
-                      ),
+                      const Icon(Icons.file_download, color: Color(0xFFF48FB1)),
                       const SizedBox(width: 12),
                       Text(
                         l10n.exportData,
@@ -1204,12 +1198,7 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
                             style: const TextStyle(fontSize: 13),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              182,
-                              142,
-                              190,
-                            ),
+                            backgroundColor: const Color(0xFFF48FB1),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
@@ -1230,12 +1219,7 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
                             style: const TextStyle(fontSize: 13),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              182,
-                              142,
-                              190,
-                            ),
+                            backgroundColor: const Color(0xFFF48FB1),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
@@ -1271,15 +1255,8 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
                             style: const TextStyle(fontSize: 13),
                           ),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color.fromARGB(
-                              255,
-                              182,
-                              142,
-                              190,
-                            ),
-                            side: const BorderSide(
-                              color: Color.fromARGB(255, 182, 142, 190),
-                            ),
+                            foregroundColor: const Color(0xFFF48FB1),
+                            side: const BorderSide(color: Color(0xFFF48FB1)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
@@ -1302,15 +1279,8 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
                             style: const TextStyle(fontSize: 13),
                           ),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color.fromARGB(
-                              255,
-                              182,
-                              142,
-                              190,
-                            ),
-                            side: const BorderSide(
-                              color: Color.fromARGB(255, 182, 142, 190),
-                            ),
+                            foregroundColor: const Color(0xFFF48FB1),
+                            side: const BorderSide(color: Color(0xFFF48FB1)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
@@ -1342,10 +1312,7 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
                 children: [
                   Row(
                     children: [
-                      const Icon(
-                        Icons.tune,
-                        color: Color.fromARGB(255, 182, 142, 190),
-                      ),
+                      const Icon(Icons.tune, color: Color(0xFFF48FB1)),
                       const SizedBox(width: 12),
                       Text(
                         l10n.bloodPressureRanges,
@@ -1402,12 +1369,7 @@ class _BloodPressureSettingsTabState extends State<BloodPressureSettingsTab> {
                       icon: const Icon(Icons.edit, size: 20),
                       label: Text(l10n.editBloodPressureRanges),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(
-                          255,
-                          182,
-                          142,
-                          190,
-                        ),
+                        backgroundColor: const Color(0xFFF48FB1),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
@@ -2278,10 +2240,7 @@ class _BloodPressureRangesDialogState extends State<BloodPressureRangesDialog> {
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.tune,
-                  color: Color.fromARGB(255, 182, 142, 190),
-                ),
+                const Icon(Icons.tune, color: Color(0xFFF48FB1)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -2430,7 +2389,7 @@ class _BloodPressureRangesDialogState extends State<BloodPressureRangesDialog> {
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveSettings,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                      backgroundColor: const Color(0xFFF48FB1),
                       foregroundColor: Colors.white,
                     ),
                     child:

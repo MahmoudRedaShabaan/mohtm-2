@@ -8,13 +8,13 @@ class DeedColors {
   static const Color jamaAh = Color(0xFF2196F3);
   static const Color missed = Color(0xFFF44336);
   static const Color completed = Color(0xFF4CAF50);
-  static const Color primary = Color.fromARGB(255, 80, 40, 120);
-  
+  static const Color primary = Color(0xFF4DB6AC);
+
   // Section colors
   static const Color prayerSection = Color(0xFFE3F2FD);
   static const Color learningSection = Color(0xFFFFF3E0);
   static const Color fastingSection = Color(0xFFE8F5E9);
-  
+
   // Background colors
   static const Color cardBackground = Colors.white;
   static const Color pageBackground = Color(0xFFF5F5F5);
@@ -27,7 +27,10 @@ class DeedIcons {
   static const Icon onTime = Icon(Icons.check_circle, color: Color(0xFF4CAF50));
   static const Icon jamaAh = Icon(Icons.people, color: Color(0xFF2196F3));
   static const Icon missed = Icon(Icons.cancel, color: Color(0xFFF44336));
-  static const Icon completed = Icon(Icons.check_circle, color: Color(0xFF4CAF50));
+  static const Icon completed = Icon(
+    Icons.check_circle,
+    color: Color(0xFF4CAF50),
+  );
 }
 
 /// Prayer name keys
@@ -40,7 +43,7 @@ class PrayerNames {
   static const String tahajjud = 'tahajjud';
   static const String witr = 'witr';
   static const String taraweeh = 'taraweeh';
-  
+
   // Sunnah prayers
   static const String fajrSunnah = 'fajr_sunnah';
   static const String doha = 'doha';
@@ -50,10 +53,10 @@ class PrayerNames {
   // Supplications
   static const String morningSupplications = 'morning_supplications';
   static const String eveningSupplications = 'evening_supplications';
-  
+
   // Surah Al-Kahf (only on Fridays)
   static const String surahAlKahf = 'surah_al_kahf';
-  
+
   // Eid Prayer (only on Eid days)
   static const String eidPrayer = 'eid_prayer';
 }

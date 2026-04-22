@@ -80,7 +80,7 @@ class _BloodSugarPageState extends State<BloodSugarPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.bloodSugar),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF81C784),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -100,7 +100,7 @@ class _BloodSugarPageState extends State<BloodSugarPage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToAddMeasurement(context),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF81C784),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -149,10 +149,7 @@ class _BloodSugarPageState extends State<BloodSugarPage>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: const LinearGradient(
-            colors: [
-              Color.fromARGB(255, 182, 142, 190),
-              Color.fromARGB(255, 211, 154, 223),
-            ],
+            colors: [Color(0xFF81C784), Color(0xFFA5D6A7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -787,7 +784,7 @@ class _BloodSugarHistoryTabState extends State<BloodSugarHistoryTab>
     return Column(
       children: [
         Container(
-          color: const Color.fromARGB(255, 182, 142, 190),
+          color: const Color(0xFF81C784),
           child: TabBar(
             controller: _historyTabController,
             tabs: [
@@ -1119,10 +1116,7 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.file_download,
-                  color: const Color.fromARGB(255, 182, 142, 190),
-                ),
+                Icon(Icons.file_download, color: const Color(0xFF81C784)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -1257,7 +1251,7 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
                       style: const TextStyle(fontSize: 13),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                      backgroundColor: const Color(0xFF81C784),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -1273,10 +1267,8 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
                       style: const TextStyle(fontSize: 13),
                     ),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color.fromARGB(255, 182, 142, 190),
-                      side: const BorderSide(
-                        color: Color.fromARGB(255, 182, 142, 190),
-                      ),
+                      foregroundColor: const Color(0xFF81C784),
+                      side: const BorderSide(color: Color(0xFF81C784)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
@@ -1296,7 +1288,7 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
                       style: const TextStyle(fontSize: 13),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                      backgroundColor: const Color(0xFF81C784),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -1312,10 +1304,8 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
                       style: const TextStyle(fontSize: 13),
                     ),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color.fromARGB(255, 182, 142, 190),
-                      side: const BorderSide(
-                        color: Color.fromARGB(255, 182, 142, 190),
-                      ),
+                      foregroundColor: const Color(0xFF81C784),
+                      side: const BorderSide(color: Color(0xFF81C784)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
@@ -1345,10 +1335,7 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.tune,
-                  color: const Color.fromARGB(255, 182, 142, 190),
-                ),
+                Icon(Icons.tune, color: const Color(0xFF81C784)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -1377,7 +1364,7 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
                 icon: const Icon(Icons.edit),
                 label: Text(l10n.editRanges),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                  backgroundColor: const Color(0xFF81C784),
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -1427,7 +1414,7 @@ class _BloodSugarSettingsTabState extends State<BloodSugarSettingsTab> {
                     decoration: BoxDecoration(
                       color:
                           isSelected
-                              ? const Color.fromARGB(255, 182, 142, 190)
+                              ? const Color(0xFF4CAF50)
                               : Colors.transparent,
                       borderRadius: BorderRadius.horizontal(
                         left:
@@ -2198,7 +2185,7 @@ class _EditRangesSheetState extends State<_EditRangesSheet> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _saveRanges,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                  backgroundColor: const Color(0xFF81C784),
                   foregroundColor: Colors.white,
                 ),
                 child:
@@ -2241,10 +2228,7 @@ class _EditRangesSheetState extends State<_EditRangesSheet> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color:
-                isSelected
-                    ? const Color.fromARGB(255, 182, 142, 190)
-                    : Colors.transparent,
+            color: isSelected ? const Color(0xFF4CAF50) : Colors.transparent,
             borderRadius: BorderRadius.horizontal(
               left: unit == 'mgdl' ? const Radius.circular(11) : Radius.zero,
               right: unit == 'mmoll' ? const Radius.circular(11) : Radius.zero,

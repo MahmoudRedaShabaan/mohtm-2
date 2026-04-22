@@ -174,12 +174,7 @@ class _AllergiesPageState extends State<AllergiesPage>
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(
-                                  255,
-                                  182,
-                                  142,
-                                  190,
-                                ),
+                                backgroundColor: const Color(0xFF673AB7),
                                 foregroundColor: Colors.white,
                               ),
                               child: Text(l10n.add),
@@ -212,12 +207,7 @@ class _AllergiesPageState extends State<AllergiesPage>
                                         }
                                       });
                                     },
-                                    activeColor: const Color.fromARGB(
-                                      255,
-                                      182,
-                                      142,
-                                      190,
-                                    ),
+                                    activeColor: const Color(0xFF673AB7),
                                   );
                                 }).toList(),
                           ),
@@ -246,12 +236,7 @@ class _AllergiesPageState extends State<AllergiesPage>
                                       }
                                     },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(
-                                255,
-                                182,
-                                142,
-                                190,
-                              ),
+                              backgroundColor: const Color(0xFF673AB7),
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
@@ -275,7 +260,7 @@ class _AllergiesPageState extends State<AllergiesPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.allergies),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -300,7 +285,7 @@ class _AllergiesPageState extends State<AllergiesPage>
             _tabController.index == 0 ? 'medication' : 'food',
           );
         },
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

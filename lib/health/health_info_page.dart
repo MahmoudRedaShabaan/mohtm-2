@@ -71,7 +71,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.healthInfo),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF9575CD),
         actions: [
           IconButton(
             icon:

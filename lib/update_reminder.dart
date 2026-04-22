@@ -420,7 +420,6 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                         }
                         : null,
               ),
-              
             ],
           ),
         ),
@@ -529,18 +528,20 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
       }
       return;
     }
-    if(_repeat!='Don\'t repeat'){
-    if (_durationType == 'until' && _untilDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.pleaseselectanuntildate),
-        ), //Text('Please select an until date.')),
-      );
-      setState(() {
-        _isUpdating = false;
-      });
-      return;
-    }
+    if (_repeat != 'Don\'t repeat') {
+      if (_durationType == 'until' && _untilDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.pleaseselectanuntildate,
+            ),
+          ), //Text('Please select an until date.')),
+        );
+        setState(() {
+          _isUpdating = false;
+        });
+        return;
+      }
     }
 
     final user = FirebaseAuth.instance.currentUser;
@@ -559,7 +560,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
           .doc(widget.reminderId)
           .delete();
 
-  // Create new reminder data
+      // Create new reminder data
       final reminder = {
         'userId': user.uid,
         'title': _titleController.text.trim(),
@@ -809,7 +810,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
             color: Color.fromARGB(255, 80, 40, 120),
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFFFFB74D),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -906,7 +907,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                 child: ListTile(
                   leading: const Icon(
                     Icons.calendar_today,
-                    color: Colors.deepPurple,
+                    color: Color(0xFFFFB74D),
                   ),
                   title: Text(
                     _selectedDateTime == null
@@ -925,11 +926,9 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  leading: const Icon(Icons.repeat, color: Colors.deepPurple),
+                  leading: const Icon(Icons.repeat, color: Color(0xFFFF9800)),
                   title: Text(
-                    '${AppLocalizations.of(context)!.repeat}: ${_repeat == 'Every x unit'
-                            ? 'Every $_repeatInterval $_selectedRepeatUnit'
-                            : _repeat}',
+                    '${AppLocalizations.of(context)!.repeat}: ${_repeat == 'Every x unit' ? 'Every $_repeatInterval $_selectedRepeatUnit' : _repeat}',
                   ),
                   onTap: _showRepeatOptions,
                 ),
@@ -948,16 +947,17 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isUpdating
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 3,
-                          ),
-                        )
-                      : Text(AppLocalizations.of(context)!.modify),
+                  child:
+                      _isUpdating
+                          ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
+                          )
+                          : Text(AppLocalizations.of(context)!.modify),
                 ),
               ],
             ],

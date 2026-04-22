@@ -22,19 +22,19 @@ class AddBloodPressurePage extends StatefulWidget {
 class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
   final _formKey = GlobalKey<FormState>();
   final _service = BloodPressureService();
-  
+
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _systolicController;
   late TextEditingController _diastolicController;
   late TextEditingController _pulseController;
-  
+
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   String _selectedArm = 'left';
   String _selectedPosition = 'sitting';
   String _selectedCondition = 'resting';
-  
+
   bool _isLoading = false;
 
   bool get _isEditing => widget.measurement != null;
@@ -42,8 +42,12 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.measurement?.name ?? '');
-    _descriptionController = TextEditingController(text: widget.measurement?.description ?? '');
+    _nameController = TextEditingController(
+      text: widget.measurement?.name ?? '',
+    );
+    _descriptionController = TextEditingController(
+      text: widget.measurement?.description ?? '',
+    );
     _systolicController = TextEditingController(
       text: widget.measurement?.systolic.toString() ?? '',
     );
@@ -53,7 +57,7 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
     _pulseController = TextEditingController(
       text: widget.measurement?.pulse.toString() ?? '',
     );
-    
+
     if (widget.measurement != null) {
       _selectedDate = widget.measurement!.date;
       _selectedTime = TimeOfDay.fromDateTime(widget.measurement!.date);
@@ -81,7 +85,7 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? l10n.editMeasurement : l10n.addMeasurement),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFFE91E63),
       ),
       body: Form(
         key: _formKey,
@@ -129,13 +133,9 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
               _buildSectionTitle(l10n.date),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildDateButton(l10n, isArabic),
-                  ),
+                  Expanded(child: _buildDateButton(l10n, isArabic)),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildTimeButton(l10n),
-                  ),
+                  Expanded(child: _buildTimeButton(l10n)),
                 ],
               ),
               const SizedBox(height: 24),
@@ -223,21 +223,22 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _saveMeasurement,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                    backgroundColor: const Color(0xFFE91E63),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          _isEditing ? l10n.update : l10n.save,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                            _isEditing ? l10n.update : l10n.save,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -253,10 +254,7 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -272,7 +270,7 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today, color: Color.fromARGB(255, 182, 142, 190)),
+            const Icon(Icons.calendar_today, color: Color(0xFFE91E63)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -306,7 +304,7 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.access_time, color: Color.fromARGB(255, 182, 142, 190)),
+            const Icon(Icons.access_time, color: Color(0xFFE91E63)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -345,27 +343,25 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
         labelText: label,
         hintText: hint,
         suffixText: suffix,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color.fromARGB(255, 182, 142, 190),
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE91E63), width: 2),
         ),
       ),
-      validator: required ? (value) {
-        if (value == null || value.isEmpty) {
-          return l10n.enterSystolic;
-        }
-        final num = int.tryParse(value);
-        if (num == null || num <= 0 || num > 300) {
-          return l10n.enterSystolic;
-        }
-        return null;
-      } : null,
+      validator:
+          required
+              ? (value) {
+                if (value == null || value.isEmpty) {
+                  return l10n.enterSystolic;
+                }
+                final num = int.tryParse(value);
+                if (num == null || num <= 0 || num > 300) {
+                  return l10n.enterSystolic;
+                }
+                return null;
+              }
+              : null,
     );
   }
 
@@ -380,92 +376,117 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        children: options.map((option) {
-          final isSelected = option['value'] == selectedValue;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged(option['value']!),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color.fromARGB(255, 182, 142, 190)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.horizontal(
-                    left: option == options.first
-                        ? const Radius.circular(11)
-                        : Radius.zero,
-                    right: option == options.last
-                        ? const Radius.circular(11)
-                        : Radius.zero,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    option['label']!,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[700],
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        children:
+            options.map((option) {
+              final isSelected = option['value'] == selectedValue;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => onChanged(option['value']!),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected
+                              ? const Color(0xFFE91E63)
+                              : Colors.transparent,
+                      borderRadius: BorderRadius.horizontal(
+                        left:
+                            option == options.first
+                                ? const Radius.circular(11)
+                                : Radius.zero,
+                        right:
+                            option == options.last
+                                ? const Radius.circular(11)
+                                : Radius.zero,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        option['label']!,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
 
   Widget _buildConditionChips(AppLocalizations l10n) {
     final conditions = [
-      {'value': 'resting', 'label': l10n.atRest, 'icon': Icons.airline_seat_recline_normal},
-      {'value': 'after_exercise', 'label': l10n.afterExercise, 'icon': Icons.directions_run},
-      {'value': 'after_meal', 'label': l10n.afterMeal, 'icon': Icons.restaurant},
+      {
+        'value': 'resting',
+        'label': l10n.atRest,
+        'icon': Icons.airline_seat_recline_normal,
+      },
+      {
+        'value': 'after_exercise',
+        'label': l10n.afterExercise,
+        'icon': Icons.directions_run,
+      },
+      {
+        'value': 'after_meal',
+        'label': l10n.afterMeal,
+        'icon': Icons.restaurant,
+      },
       {'value': 'stressed', 'label': l10n.stressed, 'icon': Icons.psychology},
     ];
 
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: conditions.map((condition) {
-        final isSelected = condition['value'] == _selectedCondition;
-        return GestureDetector(
-          onTap: () => setState(() => _selectedCondition = condition['value'] as String),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color.fromARGB(255, 182, 142, 190)
-                  : Colors.grey[100],
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected
-                    ? const Color.fromARGB(255, 182, 142, 190)
-                    : Colors.grey[300]!,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  condition['icon'] as IconData,
-                  size: 18,
-                  color: isSelected ? Colors.white : Colors.grey[600],
+      children:
+          conditions.map((condition) {
+            final isSelected = condition['value'] == _selectedCondition;
+            return GestureDetector(
+              onTap:
+                  () => setState(
+                    () => _selectedCondition = condition['value'] as String,
+                  ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  condition['label'] as String,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.grey[700],
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                decoration: BoxDecoration(
+                  color:
+                      isSelected ? const Color(0xFFE91E63) : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color:
+                        isSelected
+                            ? const Color(0xFFE91E63)
+                            : Colors.grey[300]!,
                   ),
                 ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      condition['icon'] as IconData,
+                      size: 18,
+                      color: isSelected ? Colors.white : Colors.grey[600],
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      condition['label'] as String,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.grey[700],
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
     );
   }
 
@@ -509,13 +530,17 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
         id: widget.measurement?.id,
         userId: widget.userId,
         name: _nameController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
+        description:
+            _descriptionController.text.trim().isEmpty
+                ? null
+                : _descriptionController.text.trim(),
         date: dateTime,
         systolic: int.parse(_systolicController.text),
         diastolic: int.parse(_diastolicController.text),
-        pulse: _pulseController.text.isEmpty ? null : int.tryParse(_pulseController.text),
+        pulse:
+            _pulseController.text.isEmpty
+                ? null
+                : int.tryParse(_pulseController.text),
         arm: _selectedArm,
         position: _selectedPosition,
         condition: _selectedCondition,

@@ -95,7 +95,7 @@ class _EmergencyInfoPageState extends State<EmergencyInfoPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.emergencyInfo),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
       ),
       body:
           _isLoading
@@ -355,7 +355,7 @@ class _AddEmergencyContactPageState extends State<AddEmergencyContactPage> {
         title: Text(
           widget.existingContact != null ? l10n.editContact : l10n.addContact,
         ),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -425,7 +425,7 @@ class _AddEmergencyContactPageState extends State<AddEmergencyContactPage> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _saveContact,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                    backgroundColor: const Color(0xFF673AB7),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -463,7 +463,7 @@ class _AddEmergencyContactPageState extends State<AddEmergencyContactPage> {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color.fromARGB(255, 182, 142, 190),
+          color: Color(0xFF673AB7),
         ),
       ),
     );

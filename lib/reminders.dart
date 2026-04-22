@@ -197,7 +197,7 @@ class RemindersPage extends StatelessWidget {
             },
           ),
         ],
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFFFFB74D),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

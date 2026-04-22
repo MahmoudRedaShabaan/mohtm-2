@@ -153,12 +153,7 @@ class _ChronicDiseasesPageState extends State<ChronicDiseasesPage> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(
-                                  255,
-                                  182,
-                                  142,
-                                  190,
-                                ),
+                                backgroundColor: const Color(0xFF673AB7),
                                 foregroundColor: Colors.white,
                               ),
                               child: Text(l10n.add),
@@ -193,12 +188,7 @@ class _ChronicDiseasesPageState extends State<ChronicDiseasesPage> {
                                         }
                                       });
                                     },
-                                    activeColor: const Color.fromARGB(
-                                      255,
-                                      182,
-                                      142,
-                                      190,
-                                    ),
+                                    activeColor: const Color(0xFF673AB7),
                                   );
                                 }).toList(),
                           ),
@@ -228,12 +218,7 @@ class _ChronicDiseasesPageState extends State<ChronicDiseasesPage> {
                                       }
                                     },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(
-                                255,
-                                182,
-                                142,
-                                190,
-                              ),
+                              backgroundColor: const Color(0xFF673AB7),
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
@@ -257,7 +242,7 @@ class _ChronicDiseasesPageState extends State<ChronicDiseasesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.chronicDiseases),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
       ),
       body:
           _isLoading
@@ -328,7 +313,7 @@ class _ChronicDiseasesPageState extends State<ChronicDiseasesPage> {
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddDiseaseDialog,
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

@@ -147,7 +147,7 @@ class _AddGeneralDeedPageState extends State<AddGeneralDeedPage> {
         title: Text(
           _isEditing ? localization.editCustomDeed : localization.addCustomDeed,
         ),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF4DB6AC),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -193,7 +193,7 @@ class _AddGeneralDeedPageState extends State<AddGeneralDeedPage> {
                     }
                   });
                 },
-                activeColor: const Color.fromARGB(255, 182, 142, 190),
+                activeColor: const Color(0xFF4DB6AC),
               ),
               if (!_isForever) ...[
                 const SizedBox(height: 16),
@@ -257,7 +257,7 @@ class _AddGeneralDeedPageState extends State<AddGeneralDeedPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _saveDeed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                    backgroundColor: const Color(0xFF4DB6AC),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

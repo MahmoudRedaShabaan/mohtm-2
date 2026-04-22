@@ -90,8 +90,8 @@ class _MedicationsPageState extends State<MedicationsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.medications),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        title: Text(l10n.basicInfo),
+        backgroundColor: const Color(0xFF673AB7),
       ),
       body:
           _isLoading
@@ -139,7 +139,7 @@ class _MedicationsPageState extends State<MedicationsPage> {
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddMedicationDialog(),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -210,7 +210,7 @@ class _MedicationCard extends StatelessWidget {
                 Switch(
                   value: medication.isActive,
                   onChanged: (_) => onToggleActive(),
-                  activeColor: const Color.fromARGB(255, 182, 142, 190),
+                  activeColor: const Color(0xFF673AB7),
                 ),
               ],
             ),
@@ -467,7 +467,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
               ? l10n.editMedication
               : l10n.addMedication,
         ),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -649,7 +649,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _saveMedication,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                    backgroundColor: const Color(0xFF673AB7),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -687,7 +687,7 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color.fromARGB(255, 182, 142, 190),
+          color: Color(0xFF673AB7),
         ),
       ),
     );

@@ -170,7 +170,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
               fontFamily: 'Pacifico',
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 80, 40, 120),
+              color: Color(0xFF9C27B0),
             ),
           ),
           //title:  Text(AppLocalizations.of(context)!.occasionDetails),
@@ -611,17 +611,23 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
             const Duration(days: 30),
           );
           print('DEBUG: Selected date: $_selectedDate');
-          print('DEBUG: Remember before date (30 days before): $rememberBeforeDate');
+          print(
+            'DEBUG: Remember before date (30 days before): $rememberBeforeDate',
+          );
           break;
         case '2': // Week
           rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 7));
           print('DEBUG: Selected date: $_selectedDate');
-          print('DEBUG: Remember before date (7 days before): $rememberBeforeDate');
+          print(
+            'DEBUG: Remember before date (7 days before): $rememberBeforeDate',
+          );
           break;
         case '3': // Day
           rememberBeforeDate = _selectedDate!.subtract(const Duration(days: 1));
           print('DEBUG: Selected date: $_selectedDate');
-          print('DEBUG: Remember before date (1 day before): $rememberBeforeDate');
+          print(
+            'DEBUG: Remember before date (1 day before): $rememberBeforeDate',
+          );
           break;
         case '4': // At time of event
         default:

@@ -196,7 +196,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
               await FirebaseFirestore.instance
                   .collection('tasks')
                   .where('userId', isEqualTo: user.uid)
-                  .where('status', isEqualTo: 'open')
+                  .where('status', isEqualTo: '
+                  ')
                   .get();
 
           if (!mounted) return;
@@ -632,7 +633,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             icon: Icons.event,
             title: AppLocalizations.of(context)!.occasionsToday,
             subtitle: AppLocalizations.of(context)!.viewAll,
-            color: const Color(0xFF9C27B0),
+            color: const Color(0xFFBA68EC),
             onTap: () {
               Navigator.push(
                 context,
@@ -648,7 +649,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             title:
                 '$_todayTasksCount ${AppLocalizations.of(context)!.tasksToday}',
             subtitle: AppLocalizations.of(context)!.viewAll,
-            color: const Color(0xFF2196F3),
+            color: const Color(0xFF64B5F6),
             onTap: () {
               Navigator.push(
                 context,
@@ -664,7 +665,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             title:
                 '$_todayRemindersCount ${AppLocalizations.of(context)!.remindersToday}',
             subtitle: AppLocalizations.of(context)!.viewAll,
-            color: const Color(0xFFFF9800),
+            color: const Color(0xFFFFB74D),
             onTap: () {
               Navigator.push(
                 context,
@@ -739,7 +740,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 decoration: BoxDecoration(
                   color:
                       hasData
-                          ? const Color(0xFF9C27B0).withValues(alpha: 0.1)
+                          ? const Color(0xFFBA68EC).withValues(alpha: 0.1)
                           : Colors.grey.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
@@ -750,7 +751,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   children: [
                     Icon(
                       Icons.celebration,
-                      color: hasData ? const Color(0xFF9C27B0) : Colors.grey,
+                      color: hasData ? const Color(0xFFBA68EC) : Colors.grey,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -807,7 +808,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 _buildOccasionQuickAction(
                   icon: Icons.notifications_active,
                   label: AppLocalizations.of(context)!.upcomingOccasions,
-                  color: const Color(0xFF2196F3),
+                  color: const Color(0xFF64B5F6),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -824,7 +825,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 _buildOccasionQuickAction(
                   icon: Icons.star,
                   label: AppLocalizations.of(context)!.importantOccasions,
-                  color: const Color(0xFFFF9800),
+                  color: const Color(0xFFFFB74D),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -880,7 +881,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             value: _lastBloodPressure ?? '--/--',
             date: _lastBloodPressureDate,
             icon: Icons.monitor_heart,
-            color: const Color(0xFFE91E63),
+            color: const Color(0xFFF48FB1),
             onTap: () {
               Navigator.push(
                 context,
@@ -911,7 +912,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             value: _lastBloodSugar ?? '--',
             date: _lastBloodSugarDate,
             icon: Icons.water_drop,
-            color: const Color(0xFF4CAF50),
+            color: const Color(0xFF81C784),
             onTap: () {
               Navigator.push(
                 context,
@@ -1039,12 +1040,12 @@ class _HomeDashboardState extends State<HomeDashboard> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF673AB7).withValues(alpha: 0.1),
+                  color: const Color(0xFF9575CD).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.medical_information,
-                  color: Color(0xFF673AB7),
+                  color: Color(0xFF9575CD),
                   size: 28,
                 ),
               ),
@@ -1085,7 +1086,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF009688).withValues(alpha: 0.1),
+              color: const Color(0xFF4DB6AC).withValues(alpha: 0.1),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -1093,7 +1094,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.self_improvement, color: Color(0xFF009688)),
+                const Icon(Icons.self_improvement, color: Color(0xFF4DB6AC)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -1110,7 +1111,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF009688),
+                    color: const Color(0xFF4DB6AC),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -1199,10 +1200,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF009688).withValues(alpha: 0.1),
+              color: const Color(0xFF4DB6AC).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF009688)),
+            child: Icon(icon, color: const Color(0xFF4DB6AC)),
           ),
           const SizedBox(height: 4),
           Text(label, style: const TextStyle(fontSize: 11)),
@@ -1223,7 +1224,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               child: _buildQuickActionButton(
                 icon: Icons.celebration,
                 label: AppLocalizations.of(context)!.addOccasion,
-                color: const Color(0xFF9C27B0),
+                color: const Color(0xFFBA68EC),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -1239,7 +1240,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               child: _buildQuickActionButton(
                 icon: Icons.task_alt,
                 label: AppLocalizations.of(context)!.addTask,
-                color: const Color(0xFF2196F3),
+                color: const Color(0xFF64B5F6),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -1255,7 +1256,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               child: _buildQuickActionButton(
                 icon: Icons.alarm,
                 label: AppLocalizations.of(context)!.addReminder,
-                color: const Color(0xFFFF9800),
+                color: const Color(0xFFFFB74D),
                 onTap: () {
                   Navigator.push(
                     context,

@@ -280,7 +280,7 @@ class _GeneralDeedsPageState extends State<GeneralDeedsPage> {
       appBar: AppBar(
         title: Text(localization.dailyDeed),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF4DB6AC),
       ),
       body:
           _isLoading
@@ -327,7 +327,7 @@ class _GeneralDeedsPageState extends State<GeneralDeedsPage> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.add_circle),
-                          color: const Color.fromARGB(255, 182, 142, 190),
+                          color: const Color(0xFF4DB6AC),
                           onPressed: _navigateToAddDeed,
                           tooltip: localization.addCustomDeed,
                         ),
@@ -469,7 +469,7 @@ class _GeneralDeedsPageState extends State<GeneralDeedsPage> {
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddDeed,
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF4DB6AC),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

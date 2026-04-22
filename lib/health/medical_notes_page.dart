@@ -89,7 +89,7 @@ class _MedicalNotesPageState extends State<MedicalNotesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.medicalNotes),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
       ),
       body:
           _isLoading
@@ -208,7 +208,7 @@ class _MedicalNotesPageState extends State<MedicalNotesPage> {
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddNoteDialog(),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -352,7 +352,7 @@ class _AddMedicalNotePageState extends State<AddMedicalNotePage> {
               ? l10n.editMedicalNote
               : l10n.addMedicalNote,
         ),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF673AB7),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -433,7 +433,7 @@ class _AddMedicalNotePageState extends State<AddMedicalNotePage> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _saveNote,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                    backgroundColor: const Color(0xFF673AB7),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -471,7 +471,7 @@ class _AddMedicalNotePageState extends State<AddMedicalNotePage> {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color.fromARGB(255, 182, 142, 190),
+          color: Color(0xFF673AB7),
         ),
       ),
     );

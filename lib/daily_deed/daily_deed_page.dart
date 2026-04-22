@@ -59,7 +59,10 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     });
 
     try {
-      final deed = await DailyDeedService.getDailyDeed(widget.userId, _currentDate);
+      final deed = await DailyDeedService.getDailyDeed(
+        widget.userId,
+        _currentDate,
+      );
       if (!mounted) return;
       setState(() {
         _dailyDeed = deed;
@@ -99,16 +102,19 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     final localization = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(localization.error),
-        content: Text('Date is out of range. Please select a date between ${HijriDateUtil.getMinDate().year}-${HijriDateUtil.getMinDate().month}-${HijriDateUtil.getMinDate().day} and ${HijriDateUtil.getMaxDate().year}-${HijriDateUtil.getMaxDate().month}-${HijriDateUtil.getMaxDate().day}'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(localization.confirm),
+      builder:
+          (context) => AlertDialog(
+            title: Text(localization.error),
+            content: Text(
+              'Date is out of range. Please select a date between ${HijriDateUtil.getMinDate().year}-${HijriDateUtil.getMinDate().month}-${HijriDateUtil.getMinDate().day} and ${HijriDateUtil.getMaxDate().year}-${HijriDateUtil.getMaxDate().month}-${HijriDateUtil.getMaxDate().day}',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(localization.confirm),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -152,7 +158,10 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     }
   }
 
-  Future<void> _updateSunnahPrayerStatus(String prayerName, String status) async {
+  Future<void> _updateSunnahPrayerStatus(
+    String prayerName,
+    String status,
+  ) async {
     try {
       await DailyDeedService.updateSunnahPrayerStatus(
         userId: widget.userId,
@@ -166,7 +175,10 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     }
   }
 
-  Future<void> _updateSupplicationStatus(String supplicationName, String status) async {
+  Future<void> _updateSupplicationStatus(
+    String supplicationName,
+    String status,
+  ) async {
     try {
       await DailyDeedService.updateSupplicationStatus(
         userId: widget.userId,
@@ -223,9 +235,7 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
   Future<void> _navigateToAddCustomDeed() async {
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AddCustomDailyDeedPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const AddCustomDailyDeedPage()),
     );
     if (result == true) {
       setState(() {}); // Refresh to show new deed
@@ -249,16 +259,23 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     final isConnectionError = message == 'firebase_exception';
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isConnectionError ? localization.connectionIssue : localization.errorOccurred),
-        content: Text(isConnectionError ? localization.connectionIssue : message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(localization.confirm),
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              isConnectionError
+                  ? localization.connectionIssue
+                  : localization.errorOccurred,
+            ),
+            content: Text(
+              isConnectionError ? localization.connectionIssue : message,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(localization.confirm),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -266,142 +283,162 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
     final isToday = HijriDateUtil.isToday(_currentDate);
-    final canGoNext = !HijriDateUtil.isFuture(_currentDate) && _currentDate.isBefore(HijriDateUtil.getMaxDate());
+    final canGoNext =
+        !HijriDateUtil.isFuture(_currentDate) &&
+        _currentDate.isBefore(HijriDateUtil.getMaxDate());
 
     return Scaffold(
-      appBar: widget.showAppBar
-          ? AppBar(
-              title: Text(localization.religiousDeed),
-              centerTitle: true,
-              backgroundColor: const Color.fromARGB(255, 182, 142, 190),
-              actions: [
-                if (isToday)
-                  Container(
-                    margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Today',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+      appBar:
+          widget.showAppBar
+              ? AppBar(
+                title: Text(localization.religiousDeed),
+                centerTitle: true,
+                backgroundColor: const Color(0xFF4DB6AC),
+                actions: [
+                  if (isToday)
+                    Container(
+                      margin: const EdgeInsets.only(
+                        right: 16,
+                        top: 8,
+                        bottom: 8,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Today',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.bar_chart,
+                      color: DeedColors.primary,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => DailyDeedStatisticsPage(
+                                userId: widget.userId,
+                                showAppBar: true,
+                              ),
+                        ),
+                      );
+                    },
                   ),
-                IconButton(
-                  icon: const Icon(Icons.bar_chart, color: DeedColors.primary),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DailyDeedStatisticsPage(
-                          userId: widget.userId,
-                          showAppBar: true,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            )
-          : null,
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
+                ],
+              )
+              : null,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_error!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadDailyDeed,
-                        child: Text(localization.retry),
-                      ),
-                    ],
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Date header
-                      DateHeader(
-                        currentDate: _currentDate,
-                        onPreviousDay: () => _navigateToDate(
-                          HijriDateUtil.navigateDate(_currentDate, -1),
-                        ),
-                        onNextDay: () => _navigateToDate(
-                          HijriDateUtil.navigateDate(_currentDate, 1),
-                        ),
-                        canGoPrevious: !_currentDate.isBefore(HijriDateUtil.getMinDate()),
-                        canGoNext: canGoNext,
-                      ),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Prayer section
-                      PrayerSection(
-                        prayers: _dailyDeed?.prayers ?? {},
-                        isRamadan: _dailyDeed?.isRamadan ?? false,
-                        isEid: HijriDateUtil.isEid(_currentDate),
-                        eidPrayer: _dailyDeed?.eidPrayer,
-                        onPrayerStatusChanged: _updatePrayerStatus,
-                        onEidStatusChanged: _updateEidPrayerStatus,
-                      ),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Sunnah Prayers section
-                      SunnahSection(
-                        sunnahPrayers: _dailyDeed?.sunnahPrayers ?? {},
-                        onPrayerStatusChanged: _updateSunnahPrayerStatus,
-                      ),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Learning section
-                      LearningSection(
-                        learning: _dailyDeed?.learning ?? QuranEntry(chapters: 0.0),
-                        supplications: _dailyDeed?.supplications ?? {},
-                        surahAlKahf: _dailyDeed?.surahAlKahf,
-                        isFriday: _currentDate.weekday == DateTime.friday,
-                        onChaptersChanged: _updateQuranProgress,
-                        onSupplicationStatusChanged: _updateSupplicationStatus,
-                        onSurahAlKahfStatusChanged: _updateSurahAlKahfStatus,
-                      ),
-                      
-                      // Fasting section (shown during Ramadan or days 13-15 of any month, or day 9 of Dhu al-Hijjah)
-                      if ((_dailyDeed?.isRamadan ?? false) || HijriDateUtil.shouldShowFasting(_currentDate)) ...[
-                        const SizedBox(height: 24),
-                        FastingSection(
-                          fasting: _dailyDeed?.fasting,
-                          onFastingStatusChanged: _updateFastingStatus,
-                        ),
-                      ],
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Custom Daily Deeds section
-                      CustomDeedsSection(
-                        userId: widget.userId,
-                        currentDate: _currentDate,
-                        onStatusChanged: _updateCustomDeedStatus,
-                        onAddPressed: _navigateToAddCustomDeed,
-                        onEditPressed: _navigateToEditCustomDeed,
-                      ),
-                      
-                      const SizedBox(height: 32),
-                    ],
-                  ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(_error!),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _loadDailyDeed,
+                      child: Text(localization.retry),
+                    ),
+                  ],
                 ),
+              )
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Date header
+                    DateHeader(
+                      currentDate: _currentDate,
+                      onPreviousDay:
+                          () => _navigateToDate(
+                            HijriDateUtil.navigateDate(_currentDate, -1),
+                          ),
+                      onNextDay:
+                          () => _navigateToDate(
+                            HijriDateUtil.navigateDate(_currentDate, 1),
+                          ),
+                      canGoPrevious:
+                          !_currentDate.isBefore(HijriDateUtil.getMinDate()),
+                      canGoNext: canGoNext,
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Prayer section
+                    PrayerSection(
+                      prayers: _dailyDeed?.prayers ?? {},
+                      isRamadan: _dailyDeed?.isRamadan ?? false,
+                      isEid: HijriDateUtil.isEid(_currentDate),
+                      eidPrayer: _dailyDeed?.eidPrayer,
+                      onPrayerStatusChanged: _updatePrayerStatus,
+                      onEidStatusChanged: _updateEidPrayerStatus,
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Sunnah Prayers section
+                    SunnahSection(
+                      sunnahPrayers: _dailyDeed?.sunnahPrayers ?? {},
+                      onPrayerStatusChanged: _updateSunnahPrayerStatus,
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Learning section
+                    LearningSection(
+                      learning:
+                          _dailyDeed?.learning ?? QuranEntry(chapters: 0.0),
+                      supplications: _dailyDeed?.supplications ?? {},
+                      surahAlKahf: _dailyDeed?.surahAlKahf,
+                      isFriday: _currentDate.weekday == DateTime.friday,
+                      onChaptersChanged: _updateQuranProgress,
+                      onSupplicationStatusChanged: _updateSupplicationStatus,
+                      onSurahAlKahfStatusChanged: _updateSurahAlKahfStatus,
+                    ),
+
+                    // Fasting section (shown during Ramadan or days 13-15 of any month, or day 9 of Dhu al-Hijjah)
+                    if ((_dailyDeed?.isRamadan ?? false) ||
+                        HijriDateUtil.shouldShowFasting(_currentDate)) ...[
+                      const SizedBox(height: 24),
+                      FastingSection(
+                        fasting: _dailyDeed?.fasting,
+                        onFastingStatusChanged: _updateFastingStatus,
+                      ),
+                    ],
+
+                    const SizedBox(height: 24),
+
+                    // Custom Daily Deeds section
+                    CustomDeedsSection(
+                      userId: widget.userId,
+                      currentDate: _currentDate,
+                      onStatusChanged: _updateCustomDeedStatus,
+                      onAddPressed: _navigateToAddCustomDeed,
+                      onEditPressed: _navigateToEditCustomDeed,
+                    ),
+
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
     );
   }
 }

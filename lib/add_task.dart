@@ -381,7 +381,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
               color: Color.fromARGB(255, 80, 40, 120),
             ),
           ),
-          backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+          backgroundColor: const Color(0xFF64B5F6),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
@@ -651,7 +651,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                             }
                           },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
+                    backgroundColor: const Color(0xFF64B5F6),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

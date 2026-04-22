@@ -72,7 +72,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? l10n.editMeasurement : l10n.addMeasurement),
-        backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+        backgroundColor: const Color(0xFF4CAF50),
       ),
       body: Form(
         key: _formKey,
@@ -149,7 +149,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _saveMeasurement,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                    backgroundColor: const Color(0xFF4CAF50),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -196,10 +196,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.calendar_today,
-              color: Color.fromARGB(255, 182, 142, 190),
-            ),
+            const Icon(Icons.calendar_today, color: Color(0xFF4CAF50)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -233,10 +230,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.access_time,
-              color: Color.fromARGB(255, 182, 142, 190),
-            ),
+            const Icon(Icons.access_time, color: Color(0xFF4CAF50)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -283,7 +277,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
                     decoration: BoxDecoration(
                       color:
                           isSelected
-                              ? const Color.fromARGB(255, 182, 142, 190)
+                              ? const Color(0xFF4CAF50)
                               : Colors.transparent,
                       borderRadius: BorderRadius.horizontal(
                         left:
@@ -331,10 +325,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color.fromARGB(255, 182, 142, 190),
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
         ),
       ),
       validator: (value) {
@@ -371,10 +362,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
         child: DropdownButton<String>(
           value: _selectedCondition,
           isExpanded: true,
-          icon: const Icon(
-            Icons.arrow_drop_down,
-            color: Color.fromARGB(255, 182, 142, 190),
-          ),
+          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF4CAF50)),
           items:
               SugarConditionOption.options.map((condition) {
                 return DropdownMenuItem<String>(

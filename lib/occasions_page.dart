@@ -124,7 +124,7 @@ class _OccasionsPageState extends State<OccasionsPage> {
                 ? AppBar(
                   title: Text(AppLocalizations.of(context)!.occasions),
                   centerTitle: true,
-                  backgroundColor: const Color.fromARGB(255, 182, 142, 190),
+                  backgroundColor: const Color(0xFFBA68EC),
                   bottom: TabBar(
                     tabs: [
                       Tab(
@@ -155,7 +155,7 @@ class _OccasionsPageState extends State<OccasionsPage> {
             Navigator.pushNamed(context, "/add_anniversary");
           },
           child: const Icon(Icons.add),
-          backgroundColor: const Color.fromARGB(255, 150, 100, 200),
+          backgroundColor: const Color(0xFFBA68EC),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
@@ -366,12 +366,7 @@ class _OccasionsPageState extends State<OccasionsPage> {
                           icon: const Icon(Icons.filter_alt),
                           label: Text(AppLocalizations.of(context)!.filter),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              156,
-                              217,
-                              115,
-                            ),
+                            backgroundColor: const Color(0xFFBA68EC),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -536,7 +531,7 @@ class _OccasionsPageState extends State<OccasionsPage> {
                               : typeName == 'Death' || typeName == 'وفاة'
                               ? Icons.sentiment_very_dissatisfied
                               : Icons.event,
-                          color: Colors.deepPurple,
+                          color: const Color(0xFF9C27B0),
                           size: 20,
                         ),
                         const SizedBox(width: 6),

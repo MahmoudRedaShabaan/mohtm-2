@@ -21,7 +21,7 @@ class AddAnniversaryPage extends StatelessWidget {
             Color(0xFFF3E6F9),
             Color(0xFFE9D7F7),
             Color(0xFFD6B4F7),
-            Color(0xFFC7A1E6),
+            Color(0xFF9C27B0),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -40,7 +40,7 @@ class AddAnniversaryPage extends StatelessWidget {
               fontFamily: 'Pacifico',
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 80, 40, 120),
+              color: Color(0xFF9C27B0),
             ),
           ),
           // title: Text(AppLocalizations.of(context)!.addAnniversaryTitle),
@@ -150,15 +150,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Color(0xFF502878)),
+                  borderSide: const BorderSide(color: Color(0xFF9C27B0)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                  borderSide: const BorderSide(color: Color(0xFF9C27B0)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Color(0xFF502878)),
+                  borderSide: const BorderSide(color: Color(0xFF9C27B0)),
                 ),
                 filled: true,
                 fillColor: const Color(0xFFE9D7F7),
@@ -182,15 +182,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               hintText: AppLocalizations.of(context)!.anniversaryNameHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               filled: true,
               fillColor: const Color(0xFFE9D7F7),
@@ -210,15 +210,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                   AppLocalizations.of(context)!.anniversaryDescriptionLabel,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               filled: true,
               fillColor: const Color(0xFFE9D7F7),
@@ -231,15 +231,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               labelText: AppLocalizations.of(context)!.type,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               filled: true,
               fillColor: const Color(0xFFE9D7F7),
@@ -249,9 +249,9 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               ),
             ),
             dropdownColor: const Color(0xFFE9D7F7),
-            icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF502878)),
+            icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF9C27B0)),
             style: const TextStyle(
-              color: Color(0xFF502878),
+              color: Color(0xFF9C27B0),
               fontWeight: FontWeight.w500,
             ),
             initialValue: _selectedType,
@@ -279,7 +279,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                     value: value,
                     child: Text(
                       value,
-                      style: const TextStyle(color: Color(0xFF502878)),
+                      style: const TextStyle(color: Color(0xFF9C27B0)),
                     ),
                   );
                 }).toList(),
@@ -292,15 +292,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 labelText: AppLocalizations.of(context)!.specifyType,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Color(0xFF502878)),
+                  borderSide: const BorderSide(color: Color(0xFF9C27B0)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                  borderSide: const BorderSide(color: Color(0xFF9C27B0)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Color(0xFF502878)),
+                  borderSide: const BorderSide(color: Color(0xFF9C27B0)),
                 ),
                 filled: true,
                 fillColor: const Color(0xFFE9D7F7),
@@ -324,15 +324,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               hintText: AppLocalizations.of(context)!.relationshipHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               filled: true,
               fillColor: const Color(0xFFE9D7F7),
@@ -344,15 +344,15 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               labelText: AppLocalizations.of(context)!.priority,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFB365C1)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFF502878)),
+                borderSide: const BorderSide(color: Color(0xFF9C27B0)),
               ),
               filled: true,
               fillColor: const Color(0xFFE9D7F7),
@@ -362,9 +362,9 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
               ),
             ),
             dropdownColor: const Color(0xFFE9D7F7),
-            icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF502878)),
+            icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF9C27B0)),
             style: const TextStyle(
-              color: Color(0xFF502878),
+              color: Color(0xFF9C27B0),
               fontWeight: FontWeight.w500,
             ),
             initialValue: _selectedPriority,
@@ -386,7 +386,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                         value: priority,
                         child: Text(
                           priority,
-                          style: const TextStyle(color: Color(0xFF502878)),
+                          style: const TextStyle(color: Color(0xFF9C27B0)),
                         ),
                       ),
                     )
@@ -397,7 +397,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
             AppLocalizations.of(context)!.rememberBefore,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF502878),
+              color: Color(0xFF9C27B0),
             ),
           ),
           Column(
@@ -406,7 +406,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                   return RadioListTile<String>(
                     title: Text(
                       option,
-                      style: const TextStyle(color: Color(0xFF502878)),
+                      style: const TextStyle(color: Color(0xFF9C27B0)),
                     ),
                     value: option,
                     groupValue: _selectedRememberBefore,
@@ -415,7 +415,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                         _selectedRememberBefore = value!;
                       });
                     },
-                    activeColor: const Color(0xFFB365C1),
+                    activeColor: const Color(0xFF9C27B0),
                   );
                 }).toList(),
           ),
@@ -465,10 +465,10 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                         }
                       },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD6B4F7),
-                foregroundColor: const Color(0xFF502878),
+                backgroundColor: const Color(0xFF9C27B0),
+                foregroundColor: const Color(0xFF9C27B0),
                 minimumSize: const Size(double.infinity, 48),
-                side: const BorderSide(color: Color(0xFFB365C1)),
+                side: const BorderSide(color: Color(0xFF9C27B0)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -479,7 +479,7 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
-                          color: Color(0xFF502878),
+                          color: Color(0xFF9C27B0),
                           strokeWidth: 3,
                         ),
                       )
@@ -522,21 +522,27 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                 const Duration(days: 30),
               );
               print('DEBUG: Selected date: $_selectedDate');
-              print('DEBUG: Remember before date (30 days before): $rememberBeforeDate');
+              print(
+                'DEBUG: Remember before date (30 days before): $rememberBeforeDate',
+              );
               break;
             case '2': // Week
               rememberBeforeDate = _selectedDate!.subtract(
                 const Duration(days: 7),
               );
               print('DEBUG: Selected date: $_selectedDate');
-              print('DEBUG: Remember before date (7 days before): $rememberBeforeDate');
+              print(
+                'DEBUG: Remember before date (7 days before): $rememberBeforeDate',
+              );
               break;
             case '3': // Day
               rememberBeforeDate = _selectedDate!.subtract(
                 const Duration(days: 1),
               );
               print('DEBUG: Selected date: $_selectedDate');
-              print('DEBUG: Remember before date (1 day before): $rememberBeforeDate');
+              print(
+                'DEBUG: Remember before date (1 day before): $rememberBeforeDate',
+              );
               break;
             case '4': // At time of event
             default:
