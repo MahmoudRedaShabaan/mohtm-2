@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 import 'add_task.dart';
 import 'update_task.dart';
@@ -855,6 +856,7 @@ class _TasksPageState extends State<TasksPage> {
           backgroundColor: const Color(0xFF2196F3),
           child: const Icon(Icons.add, color: Colors.white),
         ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }

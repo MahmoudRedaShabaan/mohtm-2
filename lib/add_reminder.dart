@@ -11,6 +11,7 @@ import 'constants.dart';
 import 'package:timezone/timezone.dart' as tz;
 //import 'package:flutter_timezone/flutter_timezone.dart';
 import 'l10n/app_localizations.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 Future<void> _openExactAlarmSettings(BuildContext context) async {
   final intent = const AndroidIntent(
@@ -721,6 +722,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
           ),
         ),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 }

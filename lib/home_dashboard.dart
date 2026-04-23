@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/l10n/app_localizations.dart';
@@ -196,8 +197,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               await FirebaseFirestore.instance
                   .collection('tasks')
                   .where('userId', isEqualTo: user.uid)
-                  .where('status', isEqualTo: '
-                  ')
+                  .where('status', isEqualTo: 'open')
                   .get();
 
           if (!mounted) return;
@@ -1789,6 +1789,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               ],
             ),
           ),
+          const AppBannerAd(),
         ],
       ),
     );

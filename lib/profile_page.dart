@@ -9,6 +9,8 @@ import 'package:path/path.dart' as path;
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
 
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 class User {
   String firstName;
   String lastName;
@@ -503,6 +505,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }

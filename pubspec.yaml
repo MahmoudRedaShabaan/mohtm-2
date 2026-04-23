@@ -59,12 +59,12 @@ dependencies:
   share_plus: ^7.2.2
   url_launcher: ^6.1.0
   printing: ^5.13.0
-  pdf: ^3.11.1
-  http: ^1.2.0
-  
-
-  timezone: any
-  path: any
+  google_mobile_ads: ^7.0.0
+pdf: ^3.11.1
+http: ^1.2.0
+google_mobile_ads: ^5.2.0
+timezone: any
+path: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

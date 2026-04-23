@@ -9,6 +9,7 @@ import 'constants.dart';
 import 'l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'add_reminder.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 Future<void> _openExactAlarmSettings(BuildContext context) async {
   final intent = const AndroidIntent(
@@ -964,6 +965,7 @@ class _UpdateReminderPageState extends State<UpdateReminderPage> {
           ),
         ),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 }

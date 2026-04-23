@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 
 import 'constants.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({super.key});
@@ -683,6 +684,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             ),
           ),
         ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }

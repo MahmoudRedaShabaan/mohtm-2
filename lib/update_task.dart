@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 //import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class UpdateTaskPage extends StatefulWidget {
   final String taskId;
@@ -480,6 +481,7 @@ class _UpdateTaskPageState extends State<UpdateTaskPage> {
                     ),
                   ),
                 ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }

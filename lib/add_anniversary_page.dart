@@ -9,6 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 class AddAnniversaryPage extends StatelessWidget {
   const AddAnniversaryPage({super.key});
 
@@ -61,6 +63,7 @@ class AddAnniversaryPage extends StatelessWidget {
             ),
           ),
         ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }
@@ -487,7 +490,10 @@ class _AddAnniversaryFormState extends State<AddAnniversaryForm> {
                         padding: const EdgeInsets.symmetric(vertical: 12.0),
                         child: Text(
                           AppLocalizations.of(context)!.save,
-                          style: const TextStyle(fontSize: 18),
+                         style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
             ),

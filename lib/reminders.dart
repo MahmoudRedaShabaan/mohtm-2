@@ -20,6 +20,8 @@ import 'l10n/app_localizations.dart';
 
 import 'package:intl/intl.dart';
 
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 class RemindersPage extends StatelessWidget {
   static bool _dialogShown = false;
   static const MethodChannel _widgetChannel = MethodChannel(
@@ -536,6 +538,7 @@ class RemindersPage extends StatelessWidget {
           // ),
         ],
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

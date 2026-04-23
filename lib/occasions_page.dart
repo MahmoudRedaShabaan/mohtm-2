@@ -6,6 +6,7 @@ import 'package:myapp/anniversary_streams.dart';
 import 'package:myapp/lookup.dart';
 import 'package:myapp/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class OccasionsPage extends StatefulWidget {
   final bool showAppBar;
@@ -158,6 +159,7 @@ class _OccasionsPageState extends State<OccasionsPage> {
           backgroundColor: const Color(0xFFBA68EC),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }

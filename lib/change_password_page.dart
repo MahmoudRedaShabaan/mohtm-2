@@ -1,5 +1,6 @@
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -46,15 +47,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       try {
         // 1. Re-authenticate the user
         final credential = EmailAuthProvider.credential(
-            email: user.email!, password: currentPassword);
+          email: user.email!,
+          password: currentPassword,
+        );
         await user.reauthenticateWithCredential(credential);
-        
+
         // 2. Update the password
         await user.updatePassword(newPassword);
 
         setState(() {
           _isLoading = false;
-          _successMessage = AppLocalizations.of(context)!.changePasswordSuccessMessage;
+          _successMessage =
+              AppLocalizations.of(context)!.changePasswordSuccessMessage;
           // Optionally clear the password fields after success
           _currentPasswordController.clear();
           _newPasswordController.clear();
@@ -63,17 +67,23 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
         // Optionally show a success SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(AppLocalizations.of(context)!.changePasswordSuccessMessage)),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.changePasswordSuccessMessage,
+            ),
+          ),
         );
       } on FirebaseAuthException catch (e) {
         setState(() {
-        _isLoading = false;
-        _errorMessage = AppLocalizations.of(context)!.oldPasswordIncorrect;
-         });
+          _isLoading = false;
+          _errorMessage = AppLocalizations.of(context)!.oldPasswordIncorrect;
+        });
         print('Error updating password: ${e.code} - ${e.message}');
         // Optionally show an error SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.oldPasswordIncorrect)),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.oldPasswordIncorrect),
+          ),
         );
       } catch (e) {
         setState(() {
@@ -82,7 +92,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         });
         print('Unexpected error during password update: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.unexpectedErrorOccurred)),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.unexpectedErrorOccurred,
+            ),
+          ),
         );
       }
     }
@@ -111,14 +125,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
           title: Text(
-          AppLocalizations.of(context)!.changePasswordTitle,
-          style: const TextStyle(
-            fontFamily: 'Pacifico',
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 80, 40, 120),
+            AppLocalizations.of(context)!.changePasswordTitle,
+            style: const TextStyle(
+              fontFamily: 'Pacifico',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 80, 40, 120),
+            ),
           ),
-        ),
           //title: Text(AppLocalizations.of(context)!.changePasswordTitle),
         ),
         body: Center(
@@ -141,10 +155,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         controller: _currentPasswordController,
                         obscureText: _obscureCurrentPassword,
                         decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.currentPassword,
+                          labelText:
+                              AppLocalizations.of(context)!.currentPassword,
                           filled: true,
                           fillColor: const Color(0xFFE9D7F7),
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFF502878)),
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Color(0xFF502878),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide(color: Color(0xFF502878)),
@@ -155,19 +173,24 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureCurrentPassword ? Icons.visibility : Icons.visibility_off,
+                              _obscureCurrentPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Color(0xFF502878),
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureCurrentPassword = !_obscureCurrentPassword;
+                                _obscureCurrentPassword =
+                                    !_obscureCurrentPassword;
                               });
                             },
                           ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(context)!.entercurrentPassword;
+                            return AppLocalizations.of(
+                              context,
+                            )!.entercurrentPassword;
                           }
                           return null;
                         },
@@ -180,7 +203,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           labelText: AppLocalizations.of(context)!.newPassword,
                           filled: true,
                           fillColor: const Color(0xFFE9D7F7),
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFF502878)),
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Color(0xFF502878),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide(color: Color(0xFF502878)),
@@ -191,7 +217,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureNewPassword ? Icons.visibility : Icons.visibility_off,
+                              _obscureNewPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Color(0xFF502878),
                             ),
                             onPressed: () {
@@ -203,13 +231,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(context)!.enterNewPassword;
+                            return AppLocalizations.of(
+                              context,
+                            )!.enterNewPassword;
                           }
                           if (value.length < 6) {
-                            return AppLocalizations.of(context)!.passwordLengthValidation;
+                            return AppLocalizations.of(
+                              context,
+                            )!.passwordLengthValidation;
                           }
                           if (value == _currentPasswordController.text.trim()) {
-                            return AppLocalizations.of(context)!.passwordsDoNotMatch;
+                            return AppLocalizations.of(
+                              context,
+                            )!.passwordsDoNotMatch;
                           }
                           return null;
                         },
@@ -219,10 +253,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         controller: _confirmNewPasswordController,
                         obscureText: _obscureConfirmNewPassword,
                         decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.confirmNewPassword,
+                          labelText:
+                              AppLocalizations.of(context)!.confirmNewPassword,
                           filled: true,
                           fillColor: const Color(0xFFE9D7F7),
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFF502878)),
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Color(0xFF502878),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide(color: Color(0xFF502878)),
@@ -233,22 +271,29 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureConfirmNewPassword ? Icons.visibility : Icons.visibility_off,
+                              _obscureConfirmNewPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Color(0xFF502878),
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmNewPassword = !_obscureConfirmNewPassword;
+                                _obscureConfirmNewPassword =
+                                    !_obscureConfirmNewPassword;
                               });
                             },
                           ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(context)!.enterConfirmNewPassword;
+                            return AppLocalizations.of(
+                              context,
+                            )!.enterConfirmNewPassword;
                           }
                           if (value != _newPasswordController.text.trim()) {
-                            return AppLocalizations.of(context)!.passwordsDoNotMatch;
+                            return AppLocalizations.of(
+                              context,
+                            )!.passwordsDoNotMatch;
                           }
                           return null;
                         },
@@ -265,9 +310,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : Text(AppLocalizations.of(context)!.changePasswordButtonText),
+                        child:
+                            _isLoading
+                                ? const CircularProgressIndicator()
+                                : Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.changePasswordButtonText,
+                                ),
                       ),
                       const SizedBox(height: 10.0),
                       if (_errorMessage.isNotEmpty)
@@ -287,6 +337,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
           ),
         ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'l10n/app_localizations.dart';
 
 import 'package:myapp/anniversary_info_page.dart';
 import 'package:myapp/lookup.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class ImportantAnnPage extends StatefulWidget {
   const ImportantAnnPage({super.key});
@@ -243,6 +244,7 @@ class _ImportantAnnPageState extends State<ImportantAnnPage> {
             );
           },
         ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }

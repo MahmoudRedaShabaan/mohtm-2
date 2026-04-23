@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 
 import 'package:myapp/lookup.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class AnniversaryInfoPage extends StatefulWidget {
   final String anniversaryId;
@@ -563,6 +564,7 @@ class _AnniversaryInfoPageState extends State<AnniversaryInfoPage> {
               ),
           ],
         ),
+        bottomNavigationBar: const AppBannerAd(),
       ),
     );
   }
