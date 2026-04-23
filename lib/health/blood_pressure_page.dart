@@ -14,6 +14,8 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:myapp/health/arabic_font_helper.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 
 class BloodPressurePage extends StatefulWidget {
   const BloodPressurePage({super.key});
@@ -111,6 +113,7 @@ class _BloodPressurePageState extends State<BloodPressurePage>
         backgroundColor: const Color(0xFFF48FB1),
         child: const Icon(Icons.add, color: Colors.white),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

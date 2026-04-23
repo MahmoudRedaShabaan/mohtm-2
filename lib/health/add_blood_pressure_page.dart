@@ -4,6 +4,9 @@ import 'package:myapp/l10n/app_localizations.dart';
 import 'package:myapp/health/blood_pressure_model.dart';
 import 'package:myapp/health/blood_pressure_service.dart';
 import 'package:intl/intl.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 
 class AddBloodPressurePage extends StatefulWidget {
   final String userId;
@@ -246,6 +249,7 @@ class _AddBloodPressurePageState extends State<AddBloodPressurePage> {
           ),
         ),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

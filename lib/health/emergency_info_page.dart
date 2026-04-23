@@ -4,7 +4,7 @@ import 'package:myapp/l10n/app_localizations.dart';
 import 'package:myapp/health/health_info_model.dart';
 import 'package:myapp/health/health_info_service.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:myapp/widgets/app_banner_ad.dart';
 class EmergencyInfoPage extends StatefulWidget {
   final String userId;
 
@@ -146,6 +146,7 @@ class _EmergencyInfoPageState extends State<EmergencyInfoPage> {
           style: const TextStyle(color: Colors.white),
         ),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 }
@@ -452,6 +453,7 @@ class _AddEmergencyContactPageState extends State<AddEmergencyContactPage> {
           ),
         ),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

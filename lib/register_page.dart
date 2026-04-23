@@ -7,7 +7,8 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'l10n/app_localizations.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
-import 'home_page.dart';
+// import 'home_page.dart';
+import 'package:myapp/home_dashboard.dart';
 import 'login_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -60,7 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> signInWithGoogle() async {
     try {
-  final googleSignIn = GoogleSignIn.instance;
+      final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.signOut(); // Force account picker every time
       late final GoogleSignInAccount googleUser;
       try {
@@ -98,7 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
           context,
           MaterialPageRoute(
             builder:
-                (context) => HomePage(
+                (context) => HomeDashboard(
                   onLanguageChanged: (String _) {},
                   currentLanguage: 'en',
                 ),
@@ -115,7 +116,9 @@ class _RegisterPageState extends State<RegisterPage> {
     } catch (e) {
       print('Google sign-in failed: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
     }
   }
 
@@ -123,7 +126,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> signInWithFacebook() async {
     try {
       final LoginResult result = await FacebookAuth.instance.login();
-  if (result.status == LoginStatus.success) {
+      if (result.status == LoginStatus.success) {
         final OAuthCredential facebookAuthCredential =
             FacebookAuthProvider.credential(result.accessToken!.tokenString);
         final userCredential = await FirebaseAuth.instance.signInWithCredential(
@@ -148,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
             context,
             MaterialPageRoute(
               builder:
-                  (context) => HomePage(
+                  (context) => HomeDashboard(
                     onLanguageChanged: (String _) {},
                     currentLanguage: 'en',
                   ),
@@ -161,16 +164,18 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           );
         }
-        } else {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Facebook sign-in failed: ${result.message}')),
-          );
-        }
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Facebook sign-in failed: ${result.message}')),
+        );
+      }
     } catch (e) {
       print('Facebook sign-in failed: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook sign-in failed: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Facebook sign-in failed: $e')));
     }
   }
 

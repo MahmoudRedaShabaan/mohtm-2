@@ -15,6 +15,7 @@ import 'package:myapp/health/chronic_diseases_page.dart';
 import 'package:myapp/health/medications_page.dart';
 import 'package:myapp/health/emergency_info_page.dart';
 import 'package:myapp/health/medical_notes_page.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class HealthInfoPage extends StatefulWidget {
   const HealthInfoPage({super.key});
@@ -208,6 +209,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                   ),
                 ),
               ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

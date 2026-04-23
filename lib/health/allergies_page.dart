@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/l10n/app_localizations.dart';
 import 'package:myapp/health/health_info_model.dart';
 import 'package:myapp/health/health_info_service.dart';
-
+import 'package:myapp/widgets/app_banner_ad.dart';
 class AllergiesPage extends StatefulWidget {
   final String userId;
 
@@ -288,6 +288,7 @@ class _AllergiesPageState extends State<AllergiesPage>
         backgroundColor: const Color(0xFF673AB7),
         child: const Icon(Icons.add, color: Colors.white),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

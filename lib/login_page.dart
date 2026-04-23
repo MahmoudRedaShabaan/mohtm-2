@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/appfeedback.dart';
-import 'home_page.dart';
+import 'package:myapp/home_dashboard.dart';
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/app_localizations.dart';
 
@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
   // GOOGLE SIGN-IN
   Future<void> signInWithGoogle() async {
     try {
-  final googleSignIn = GoogleSignIn.instance;
+      final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.signOut(); // Show account picker every time
       late final GoogleSignInAccount googleUser;
       try {
@@ -128,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(
             builder:
-                (context) => HomePage(
+                (context) => HomeDashboard(
                   onLanguageChanged: widget.onLanguageChanged ?? (_) {},
                   currentLanguage: widget.currentLanguage ?? 'en',
                 ),
@@ -156,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(
               builder:
-                  (context) => HomePage(
+                  (context) => HomeDashboard(
                     onLanguageChanged: widget.onLanguageChanged ?? (_) {},
                     currentLanguage: widget.currentLanguage ?? 'en',
                   ),
@@ -167,7 +167,9 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
     }
   }
 
@@ -455,7 +457,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-
   Future<void> loginUserWithEmailAndPassword2() async {
     try {
       final UserCredential userCredential = await FirebaseAuth.instance
@@ -467,7 +468,9 @@ class _LoginPageState extends State<LoginPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (_rememberMe) {
         // Diagnostic: log that we're saving credentials (don't print password)
-        print('Saving credentials to SharedPreferences: email=${_emailController.text.trim()}, remember=$_rememberMe');
+        print(
+          'Saving credentials to SharedPreferences: email=${_emailController.text.trim()}, remember=$_rememberMe',
+        );
         await prefs.setString('saved_email', _emailController.text.trim());
         await prefs.setString(
           'saved_password',
@@ -505,7 +508,7 @@ class _LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(
           builder:
-              (context) => HomePage(
+              (context) => HomeDashboard(
                 onLanguageChanged: widget.onLanguageChanged ?? (_) {},
                 currentLanguage: widget.currentLanguage ?? 'en',
               ),

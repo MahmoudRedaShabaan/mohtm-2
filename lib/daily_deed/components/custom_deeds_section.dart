@@ -11,6 +11,7 @@ class CustomDeedsSection extends StatelessWidget {
   final Function(String deedId, String status) onStatusChanged;
   final VoidCallback onAddPressed;
   final Function(CustomDailyDeed deed) onEditPressed;
+  final Function(String deedId) onDeletePressed;
 
   const CustomDeedsSection({
     super.key,
@@ -19,6 +20,7 @@ class CustomDeedsSection extends StatelessWidget {
     required this.onStatusChanged,
     required this.onAddPressed,
     required this.onEditPressed,
+    required this.onDeletePressed,
   });
 
   @override
@@ -36,9 +38,13 @@ class CustomDeedsSection extends StatelessWidget {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        final allDeeds = snapshot.data?.docs
-                .map((doc) => CustomDailyDeed.fromMap(
-                    doc.data() as Map<String, dynamic>))
+        final allDeeds =
+            snapshot.data?.docs
+                .map(
+                  (doc) => CustomDailyDeed.fromMap(
+                    doc.data() as Map<String, dynamic>,
+                  ),
+                )
                 .toList() ??
             [];
 
@@ -104,26 +110,16 @@ class CustomDeedsSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.inbox_outlined,
-            size: 48,
-            color: Colors.grey.shade400,
-          ),
+          Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.shade400),
           const SizedBox(height: 8),
           Text(
             localization.noCustomDeeds,
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
           const SizedBox(height: 4),
           Text(
             localization.tapToAddDeed,
-            style: TextStyle(
-              color: Colors.grey.shade500,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
           ),
         ],
       ),
@@ -136,24 +132,28 @@ class CustomDeedsSection extends StatelessWidget {
     AppLocalizations localization,
   ) {
     return Column(
-      children: deeds.map((deed) {
-        return FutureBuilder<CustomDeedEntry?>(
-          future: CustomDailyDeedService.getCustomDeedStatus(
-            userId: userId,
-            date: currentDate,
-            deedId: deed.id,
-          ),
-          builder: (context, snapshot) {
-            final entry = snapshot.data;
-            return _CustomDeedCard(
-              deed: deed,
-              entry: entry,
-              onTap: () => _showStatusPopup(context, deed, entry?.status),
-              onLongPress: () => onEditPressed(deed),
+      children:
+          deeds.map((deed) {
+            return FutureBuilder<CustomDeedEntry?>(
+              future: CustomDailyDeedService.getCustomDeedStatus(
+                userId: userId,
+                date: currentDate,
+                deedId: deed.id,
+              ),
+              builder: (context, snapshot) {
+                final entry = snapshot.data;
+                return _CustomDeedCard(
+                  deed: deed,
+                  entry: entry,
+                  onTap: () => _showStatusPopup(context, deed, entry?.status),
+                  onEdit: () => onEditPressed(deed),
+                  onDelete: () => _showDeleteConfirmation(context, deed),
+                  editTooltip: localization.edit,
+                  deleteTooltip: localization.delete,
+                );
+              },
             );
-          },
-        );
-      }).toList(),
+          }).toList(),
     );
   }
 
@@ -166,41 +166,39 @@ class CustomDeedsSection extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          deed.name,
-          textAlign: TextAlign.center,
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildOption(
-              localization.missed,
-              DeedColors.missed,
-              Icons.cancel,
-              'missed',
-              context,
-              deed.id,
-              currentStatus,
+      builder:
+          (context) => AlertDialog(
+            title: Text(deed.name, textAlign: TextAlign.center),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildOption(
+                  localization.missed,
+                  DeedColors.missed,
+                  Icons.cancel,
+                  'missed',
+                  context,
+                  deed.id,
+                  currentStatus,
+                ),
+                _buildOption(
+                  localization.completed,
+                  DeedColors.completed,
+                  Icons.check_circle,
+                  'completed',
+                  context,
+                  deed.id,
+                  currentStatus,
+                ),
+              ],
             ),
-            _buildOption(
-              localization.completed,
-              DeedColors.completed,
-              Icons.check_circle,
-              'completed',
-              context,
-              deed.id,
-              currentStatus,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(localization.cancel),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(localization.cancel),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -224,7 +222,8 @@ class CustomDeedsSection extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.2) : Colors.grey.shade100,
+          color:
+              isSelected ? color.withValues(alpha: 0.2) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? color : Colors.grey.shade300,
@@ -248,6 +247,51 @@ class CustomDeedsSection extends StatelessWidget {
       ),
     );
   }
+
+  void _showDeleteConfirmation(BuildContext context, CustomDailyDeed deed) {
+    final localization = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(localization.delete),
+            content: Text(
+              '${localization.deleteDeedConfirm}\n\n"${deed.name}"',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(localization.cancel),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  try {
+                    await CustomDailyDeedService.deleteCustomDeed(deed.id);
+                    onDeletePressed(deed.id);
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${localization.error}: ${e.toString()}',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: Text(
+                  localization.delete,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
 }
 
 /// Card widget for a single custom deed
@@ -255,13 +299,19 @@ class _CustomDeedCard extends StatelessWidget {
   final CustomDailyDeed deed;
   final CustomDeedEntry? entry;
   final VoidCallback onTap;
-  final VoidCallback onLongPress;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  final String editTooltip;
+  final String deleteTooltip;
 
   const _CustomDeedCard({
     required this.deed,
     this.entry,
     required this.onTap,
-    required this.onLongPress,
+    required this.onEdit,
+    required this.onDelete,
+    required this.editTooltip,
+    required this.deleteTooltip,
   });
 
   @override
@@ -270,17 +320,13 @@ class _CustomDeedCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
           color: DeedColors.cardBackground,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withValues(alpha: 0.3),
-            width: 2,
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -314,7 +360,9 @@ class _CustomDeedCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (!deed.isForever && deed.startDate != null && deed.endDate != null)
+                  if (!deed.isForever &&
+                      deed.startDate != null &&
+                      deed.endDate != null)
                     Text(
                       '${_formatDate(deed.startDate!)} - ${_formatDate(deed.endDate!)}',
                       style: TextStyle(
@@ -325,10 +373,26 @@ class _CustomDeedCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Edit indicator
-            Icon(
-              Icons.more_vert,
-              color: Colors.grey.shade400,
+            // Edit button
+            IconButton(
+              icon: const Icon(Icons.edit, size: 20),
+              color: Colors.grey.shade600,
+              onPressed: onEdit,
+              tooltip: editTooltip,
+              constraints: const BoxConstraints(),
+              padding: const EdgeInsets.all(8),
+              splashRadius: 20,
+            ),
+            const SizedBox(width: 4),
+            // Delete button
+            IconButton(
+              icon: const Icon(Icons.delete, size: 20),
+              color: Colors.red.shade400,
+              onPressed: onDelete,
+              tooltip: deleteTooltip,
+              constraints: const BoxConstraints(),
+              padding: const EdgeInsets.all(8),
+              splashRadius: 20,
             ),
           ],
         ),

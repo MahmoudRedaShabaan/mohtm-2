@@ -15,6 +15,7 @@ import 'components/sunnah_section.dart';
 import 'components/custom_deeds_section.dart';
 import '../../add_custom_daily_deed_page.dart';
 import 'constants.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 /// Main Daily Deed page displaying user's daily religious activities
 class DailyDeedPage extends StatefulWidget {
@@ -232,6 +233,29 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
     }
   }
 
+  Future<void> _deleteCustomDeed(String deedId) async {
+    try {
+      await CustomDailyDeedService.deleteCustomDeed(deedId);
+      if (!mounted) return;
+      setState(() {}); // Refresh to update UI
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Custom deed deleted'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting deed: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _navigateToAddCustomDeed() async {
     final result = await Navigator.push<bool>(
       context,
@@ -433,12 +457,14 @@ class _DailyDeedPageState extends State<DailyDeedPage> {
                       onStatusChanged: _updateCustomDeedStatus,
                       onAddPressed: _navigateToAddCustomDeed,
                       onEditPressed: _navigateToEditCustomDeed,
+                      onDeletePressed: _deleteCustomDeed,
                     ),
 
                     const SizedBox(height: 32),
                   ],
                 ),
               ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 }

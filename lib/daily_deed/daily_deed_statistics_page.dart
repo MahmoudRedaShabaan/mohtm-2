@@ -4,6 +4,7 @@ import 'hijri_date_util.dart';
 import 'statistics_model.dart';
 import 'statistics_service.dart';
 import 'constants.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 /// Statistics page for daily deeds
 class DailyDeedStatisticsPage extends StatefulWidget {
@@ -156,6 +157,8 @@ class _DailyDeedStatisticsPageState extends State<DailyDeedStatisticsPage> {
                   ],
                 ),
               ),
+               bottomNavigationBar: const AppBannerAd(),
+
     );
   }
 

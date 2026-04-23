@@ -4,6 +4,8 @@ import 'general_deeds_model.dart';
 import 'add_general_deed_page.dart';
 import 'daily_deed/hijri_date_util.dart';
 import 'daily_deed/components/date_header.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 
 class GeneralDeedsPage extends StatefulWidget {
   final String userId;
@@ -472,6 +474,7 @@ class _GeneralDeedsPageState extends State<GeneralDeedsPage> {
         backgroundColor: const Color(0xFF4DB6AC),
         child: const Icon(Icons.add, color: Colors.white),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

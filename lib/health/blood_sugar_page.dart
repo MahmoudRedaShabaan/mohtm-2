@@ -14,6 +14,7 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:myapp/health/arabic_font_helper.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class BloodSugarPage extends StatefulWidget {
   const BloodSugarPage({super.key});
@@ -103,6 +104,7 @@ class _BloodSugarPageState extends State<BloodSugarPage>
         backgroundColor: const Color(0xFF81C784),
         child: const Icon(Icons.add, color: Colors.white),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

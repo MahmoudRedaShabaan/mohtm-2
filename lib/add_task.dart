@@ -67,6 +67,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     }
   }
 
+
   Future<void> _addCategory() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;

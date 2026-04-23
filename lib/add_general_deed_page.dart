@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 import 'general_deeds_model.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 
 class AddGeneralDeedPage extends StatefulWidget {
   final GeneralDeed? deed;
@@ -284,6 +286,7 @@ class _AddGeneralDeedPageState extends State<AddGeneralDeedPage> {
           ),
         ),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 }

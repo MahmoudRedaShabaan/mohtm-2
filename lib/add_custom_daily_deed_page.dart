@@ -4,6 +4,7 @@ import 'l10n/app_localizations.dart';
 import 'daily_deed/custom_daily_deed_model.dart';
 import 'daily_deed/custom_daily_deed_service.dart';
 import 'daily_deed/constants.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
 
 class AddCustomDailyDeedPage extends StatefulWidget {
   final CustomDailyDeed? deed; // If provided, we're editing
@@ -459,6 +460,7 @@ class _AddCustomDailyDeedPageState extends State<AddCustomDailyDeedPage> {
                   ),
                 ),
               ),
+               bottomNavigationBar: const AppBannerAd(),
     );
   }
 }

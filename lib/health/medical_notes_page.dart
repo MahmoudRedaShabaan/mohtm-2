@@ -4,6 +4,8 @@ import 'package:myapp/l10n/app_localizations.dart';
 import 'package:myapp/health/health_info_model.dart';
 import 'package:myapp/health/health_info_service.dart';
 import 'package:intl/intl.dart';
+import 'package:myapp/widgets/app_banner_ad.dart';
+
 
 class MedicalNotesPage extends StatefulWidget {
   final String userId;
@@ -211,6 +213,7 @@ class _MedicalNotesPageState extends State<MedicalNotesPage> {
         backgroundColor: const Color(0xFF673AB7),
         child: const Icon(Icons.add, color: Colors.white),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 }
@@ -459,7 +462,9 @@ class _AddMedicalNotePageState extends State<AddMedicalNotePage> {
             ],
           ),
         ),
+        
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 

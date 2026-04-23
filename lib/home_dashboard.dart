@@ -610,6 +610,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
             ),
           ],
         ),
+         bottomNavigationBar: const AppBannerAd(),
+
       ),
     );
   }

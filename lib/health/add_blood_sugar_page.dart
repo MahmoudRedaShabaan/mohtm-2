@@ -5,6 +5,7 @@ import 'package:myapp/health/blood_sugar_model.dart';
 import 'package:myapp/health/blood_sugar_service.dart';
 import 'package:intl/intl.dart';
 
+import 'package:myapp/widgets/app_banner_ad.dart';
 class AddBloodSugarPage extends StatefulWidget {
   final String userId;
   final BloodSugarMeasurement? measurement;
@@ -172,6 +173,7 @@ class _AddBloodSugarPageState extends State<AddBloodSugarPage> {
           ),
         ),
       ),
+      bottomNavigationBar: const AppBannerAd(),
     );
   }
 
