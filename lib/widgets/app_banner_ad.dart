@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -15,9 +16,17 @@ class _AppBannerAdState extends State<AppBannerAd> {
 
   String get _adUnitId {
     if (Platform.isAndroid) {
-      return 'ca-app-pub-3940256099942544/6300978111';
+      if (kReleaseMode) {
+        return 'ca-app-pub-3875855492720539/6462236686'; // Real ad unit ID
+      } else {
+        return 'ca-app-pub-3940256099942544/6300978111';// Test ad unit for development
+      }
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/2934735716';
+      if (kReleaseMode) {
+        return 'ca-app-pub-3875855492720539/6462236686'; // iOS real ad unit ID (same as Android if not specified separately)
+      } else {
+        return 'ca-app-pub-3940256099942544/6300978111'; // Test ad unit for iOS
+      }
     }
     return '';
   }
@@ -51,16 +60,25 @@ class _AppBannerAdState extends State<AppBannerAd> {
             });
           }
         },
+        // onAdFailedToLoad: (ad, error) {
+        //   print('Banner ad failed to load: $error');
+        //   ad.dispose();
+        //   if (mounted) {
+        //     setState(() {
+        //       _bannerAd = null;
+        //       _isLoaded = false;
+        //     });
+        //   }
+        // },
         onAdFailedToLoad: (ad, error) {
-          print('Banner ad failed to load: $error');
-          ad.dispose();
-          if (mounted) {
-            setState(() {
-              _bannerAd = null;
-              _isLoaded = false;
-            });
-          }
-        },
+        ad.dispose();
+        _bannerAd = null;
+        _isLoaded = false;
+
+        Future.delayed(Duration(seconds: 10), () {
+          if (mounted) _loadAd();
+        });
+      },
         onAdOpened: (ad) => print('Banner ad opened'),
         onAdClosed: (ad) => print('Banner ad closed'),
       ),
